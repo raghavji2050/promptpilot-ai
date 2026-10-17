@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { PromptBuilder } from "@/components/PromptBuilder";
+import { UniversalBuilder } from "@/components/UniversalBuilder";
 import { JsonLd } from "@/components/JsonLd";
 import { TARGETS } from "@/lib/engine";
 import { absoluteUrl, SITE } from "@/lib/site";
@@ -10,6 +10,7 @@ const GUIDE: Record<string, string[]> = {
   claude: ["Wrap each part in XML tags such as <context>, <task> and <format>. Anthropic's prompting guidance recommends XML tags for structure.", "Put long documents before the question.", "Ask for quotes from the source when accuracy matters."],
   gemini: ["Use plain, clearly headed sections.", "For photo edits: say what to keep, the one thing to change, and the look you want.", "State aspect ratio for images."],
   grok: ["Use markdown sections and set the tone explicitly.", "Give constraints on length and style.", "Ask for sources if you need factual claims checked."],
+  "other-chat": ["Plain markdown sections work in most assistants.", "State the output format and length explicitly.", "Check the assistant's own docs for features like web search or file upload; don't assume they exist."],
   perplexity: ["Ask for a cited source URL and date for each claim.", "Set a time range and region.", "Ask it to note where sources disagree."],
   cursor: ["State the task, files in scope and definition of done.", "Ask for a plan before edits on multi-file changes.", "Require tests to be run before finishing."],
   "claude-code": ["Use an XML-tagged brief with explicit verification steps.", "Point it at AGENTS.md / CLAUDE.md for conventions.", "Ask it to stop and ask when requirements are ambiguous."],
@@ -54,7 +55,7 @@ export default async function TargetBuilderPage({ params }: { params: Promise<{ 
         <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-slate-700">{(GUIDE[t.id] ?? []).map((g) => <li key={g}>{g}</li>)}</ul>
         <p className="mt-3 text-xs text-slate-400">Editorial guidance, last reviewed {SITE.lastReviewed}. Check the vendor&apos;s current docs for model-specific changes.</p>
       </div>
-      <div className="mt-8"><PromptBuilder initialTarget={t.id} /></div>
+      <div className="mt-8"><UniversalBuilder initial={{ targetId: t.id }} /></div>
     </div>
   );
 }

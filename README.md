@@ -1,6 +1,12 @@
 # PromptPilot AI (MVP)
 
-A deterministic prompt builder and coding-agent context kit generator, built with Next.js App Router, TypeScript and Tailwind v4. It runs fully with **no API keys and no database**.
+A general-purpose AI prompt builder for everyone, built with Next.js App Router, TypeScript and Tailwind v4. Users describe a goal in plain language, pick an AI platform, and get a structured prompt. It runs fully with **no API keys and no database**.
+
+Key pieces:
+- `src/lib/categories/` — data-driven goal registry (10 categories A–J, subcategories with keywords, role, workflow, output, conditional fields, medical/legal/financial guardrails). Add a category or subcategory here and it appears in the builder, category pages and intent detection.
+- `src/lib/engine/universal.ts` — deterministic generator: keyword intent detection, platform formatting (markdown / XML / search / image / video), Improve, Simplify, More detailed, Add missing context, variations, explanations, share-link params.
+- `src/content/` — static prompt library (also the fallback when the Supabase seed isn't applied) and SEO use-case pages (`use-cases.ts`).
+- Coding tools (agent kit, developer prompts) live under the Coding category.
 
 ## Quick start
 ```bash
@@ -17,7 +23,7 @@ npm run build && npm start
 | `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Enables magic-link login and cloud-saved prompts. Apply `supabase/schema.sql` first. Without these, saves go to localStorage. |
 
 ### Supabase setup
-1. Apply `supabase/schema.sql` (tables, RLS, functions). If you applied an older copy, also run `supabase/fix-function-grants.sql`. Then apply `supabase/seed-library.sql` (the 50 library prompts, needed for **favorites**). Regenerate the seed with `npx tsx scripts/gen-library-seed.ts` after editing `src/content`.
+1. Apply `supabase/schema.sql` (tables, RLS, functions). If you applied an older copy, also run `supabase/fix-function-grants.sql`. Then apply `supabase/seed-library.sql` (10 categories + all library prompts, needed for **favorites**). Regenerate the seed with `npx tsx scripts/gen-library-seed.ts` after editing `src/content`.
 2. Put the URL and publishable key in `.env.local` (this file is gitignored).
 3. Verify the live project with the publishable key only:
    ```bash

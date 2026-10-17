@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ALL_PROMPTS, getPrompt } from "@/content";
+import { ALL_PROMPTS, getPrompt, requiredInputs } from "@/content";
+import { getCategory, findSubcategory } from "@/lib/categories";
 import { TARGETS } from "@/lib/engine";
 import { CopyButton } from "@/components/CopyButton";
 import { SaveButton } from "@/components/SaveButton";
@@ -24,18 +25,16 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   return { title: `${p.title} Prompt`, description: p.summary, alternates: { canonical: `/p/${p.slug}` } };
 }
 
-const SECTION: Record<string, { href: string; label: string }> = {
-  developer: { href: "/developer-prompts", label: "Developer Prompts" },
-  social: { href: "/instagram-studio", label: "Instagram Studio" },
-  general: { href: "/library", label: "Library" },
-};
 
 export default async function PromptDetail({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const p = getPrompt(slug);
   if (!p) notFound();
-  const sec = SECTION[p.kind];
-  const related = ALL_PROMPTS.filter((x) => x.slug !== p.slug && x.kind === p.kind && (x.category === p.category || x.tags.some((t) => p.tags.includes(t)))).slice(0, 3);
+  const cat = getCategory(p.cat);
+  const sec = cat ? { href: `/categories/${cat.id}`, label: cat.name } : { href: "/library", label: "Library" };
+  const sub = findSubcategory(p.sub)?.sub;
+  const inputs = requiredInputs(p.body);
+  const related = ALL_PROMPTS.filter((x) => x.slug !== p.slug && x.cat === p.cat && (x.sub === p.sub || x.category === p.category || x.tags.some((t) => p.tags.includes(t)))).slice(0, 3);
   return (
     <div className="mx-auto max-w-4xl px-4 py-10" lang={p.locale === "hi" ? "hi" : undefined}>
       <JsonLd data={[
@@ -45,7 +44,7 @@ export default async function PromptDetail({ params }: { params: Promise<{ slug:
           { "@type": "ListItem", position: 2, name: p.title, item: absoluteUrl(`/p/${p.slug}`) },
         ] },
       ]} />
-      <p className="text-sm text-slate-500"><Link href={sec.href} className="text-indigo-700">{sec.label}</Link> / {p.category}</p>
+      <p className="text-sm text-slate-500"><Link href="/library" className="text-indigo-700">Library</Link> / <Link href={sec.href} className="text-indigo-700">{sec.label}</Link> / {p.category}</p>
       <h1 className="h1 mt-2">{p.title}</h1>
       <p className="lead">{p.summary}</p>
       <div className="mt-4 flex flex-wrap items-center gap-2 text-xs">
@@ -55,6 +54,16 @@ export default async function PromptDetail({ params }: { params: Promise<{ slug:
         {p.aspect && <span className="rounded bg-slate-100 px-2 py-0.5 text-slate-700">Aspect {p.aspect}</span>}
         {p.requiresPhoto && <span className="rounded bg-slate-100 px-2 py-0.5 text-slate-700">Upload a photo first</span>}
       </div>
+
+      <dl className="card mt-6 grid gap-4 p-5 text-sm sm:grid-cols-3">
+        <div><dt className="font-medium text-slate-500">Who it&apos;s for</dt><dd className="mt-1 text-slate-800">{p.audience ?? "Anyone"}</dd></div>
+        <div><dt className="font-medium text-slate-500">Use case</dt><dd className="mt-1 text-slate-800">{p.useCase ?? p.category}</dd></div>
+        <div><dt className="font-medium text-slate-500">Output</dt><dd className="mt-1 text-slate-800">{p.outputType ?? "Text"} · {p.premium ? "Premium" : "Free"}</dd></div>
+        {inputs.length > 0 && (
+          <div className="sm:col-span-3"><dt className="font-medium text-slate-500">You&apos;ll need to fill in</dt>
+            <dd className="mt-1 flex flex-wrap gap-1.5">{inputs.slice(0, 14).map((i) => <span key={i} className="rounded bg-amber-50 px-2 py-0.5 text-xs text-amber-900 ring-1 ring-amber-200">{i}</span>)}</dd></div>
+        )}
+      </dl>
 
       {p.failureMode && (
         <div className="mt-6 rounded-lg border-l-4 border-indigo-500 bg-indigo-50 p-4 text-sm text-slate-800"><strong>Prevents:</strong> {p.failureMode}</div>
@@ -67,8 +76,16 @@ export default async function PromptDetail({ params }: { params: Promise<{ slug:
           <SaveButton title={p.title} output={p.body} source={p.kind === "developer" ? "developer" : "library"} targetId={p.targets[0]} />
           <FavoriteButton slug={p.slug} />
         </div>
-        <p className="mt-3 text-xs text-slate-500">Replace [bracketed] parts with your own details before sending.</p>
+        <p className="mt-3 text-xs text-slate-500">Replace [bracketed] parts with your own details before sending.{sub && <> Want it tailored? <Link className="text-indigo-700 underline" href={`/builder?cat=${p.cat}&sub=${sub.id}`}>Build a custom {sub.name.toLowerCase()} prompt</Link>.</>}</p>
       </div>
+
+      {p.exampleOutput && (
+        <div className="card mt-6 p-5">
+          <h2 className="font-semibold text-slate-900">Example output</h2>
+          <p className="mt-1 text-xs text-slate-500">Illustrative sample written by PromptPilot to show the shape of a good answer. Not a real AI response; actual results vary.</p>
+          <pre className="mt-3 overflow-auto whitespace-pre-wrap rounded-lg bg-slate-50 p-4 text-sm text-slate-700 ring-1 ring-slate-200">{p.exampleOutput}</pre>
+        </div>
+      )}
 
       {p.trend && (
         <div className="card mt-6 p-5 text-sm">

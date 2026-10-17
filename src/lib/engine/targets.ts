@@ -10,6 +10,7 @@ export const TARGETS: Target[] = [
   { id: "claude", name: "Claude", family: "chat", style: "xml", note: "XML-tagged sections such as <context> and <task>." },
   { id: "gemini", name: "Gemini", family: "chat", style: "markdown", note: "Clear headed sections; plain language." },
   { id: "grok", name: "Grok", family: "chat", style: "markdown", note: "Markdown sections; state tone explicitly." },
+  { id: "other-chat", name: "Other AI assistant (Copilot, DeepSeek, Meta AI…)", family: "chat", style: "markdown", note: "Plain markdown sections that work in most chat assistants." },
   { id: "perplexity", name: "Perplexity", family: "search", style: "markdown", note: "Asks for cited sources and a date range." },
   { id: "cursor", name: "Cursor / coding agents", family: "coding_agent", style: "markdown", note: "Task, files in scope, constraints, and a verification step." },
   { id: "claude-code", name: "Claude Code", family: "coding_agent", style: "xml", note: "XML-tagged task brief with explicit verification." },

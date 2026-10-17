@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { SOCIAL_PROMPTS, type TrendStatus } from "@/content";
+import { ALL_PROMPTS, type TrendStatus } from "@/content";
+const SOCIAL_PROMPTS = ALL_PROMPTS.filter((p) => p.kind === "social");
 import { PromptCard } from "@/components/PromptCard";
 import { SITE } from "@/lib/site";
 

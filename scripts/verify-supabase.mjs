@@ -25,7 +25,7 @@ const URL_ = process.env.NEXT_PUBLIC_SUPABASE_URL, KEY = process.env.NEXT_PUBLIC
 if (!URL_ || !KEY) { console.error("Missing NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY (.env.local)"); process.exit(2); }
 
 let pass = 0, fail = 0, skip = 0;
-const ok = (name, cond, extra = "") => { cond ? pass++ : fail++; console.log(`${cond ? "PASS" : "FAIL"}  ${name}${extra ? `  (${extra})` : ""}`); };
+const ok = (name, cond, extra = "") => { if (cond) pass++; else fail++; console.log(`${cond ? "PASS" : "FAIL"}  ${name}${extra ? `  (${extra})` : ""}`); };
 const skipped = (name, why) => { skip++; console.log(`SKIP  ${name}  (${why})`); };
 const client = () => createClient(URL_, KEY, { auth: { persistSession: false, autoRefreshToken: false }, realtime: { transport: WebSocket } });
 

@@ -2,22 +2,29 @@ export const SITE = {
   name: "PromptPilot AI",
   url: (process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000").replace(/\/+$/, ""),
   description:
-    "Free deterministic prompt builder for ChatGPT, Claude, Gemini, Grok, Perplexity, image and video models, plus AGENTS.md, CLAUDE.md and Cursor rules generators for Laravel, Node.js and Next.js.",
+    "Free AI prompt builder for everyone. Describe what you want in plain words and get a clear, structured prompt for ChatGPT, Claude, Gemini, Grok, Perplexity, image and video tools. No sign-up or API key needed.",
   /** Content last reviewed date (static so pages stay prerenderable). */
   lastReviewed: "2026-10-17",
 };
 
 export const NAV = [
-  { href: "/builder", label: "Builder" },
-  { href: "/agent-templates", label: "Agent Templates" },
-  { href: "/developer-prompts", label: "Developer Prompts" },
-  { href: "/instagram-studio", label: "Instagram Studio" },
-  { href: "/trending", label: "Trending" },
+  { href: "/builder", label: "Prompt Builder" },
+  { href: "/categories", label: "Categories" },
+  { href: "/library", label: "Prompt Library" },
+  { href: "/prompts-for", label: "Use Cases" },
   { href: "/enhancer", label: "Enhancer" },
-  { href: "/library", label: "Library" },
   { href: "/pricing", label: "Pricing" },
 ];
 
 export function absoluteUrl(path: string) {
   return `${SITE.url}${path.startsWith("/") ? path : `/${path}`}`;
+}
+
+/** Link that opens the builder pre-filled (and auto-generated) with a goal. */
+export function builderHref(goal: string, opts: { sub?: string; cat?: string; platform?: string } = {}) {
+  const p = new URLSearchParams({ goal });
+  if (opts.cat) p.set("cat", opts.cat);
+  if (opts.sub) p.set("sub", opts.sub);
+  if (opts.platform) p.set("platform", opts.platform);
+  return `/builder?${p.toString()}`;
 }

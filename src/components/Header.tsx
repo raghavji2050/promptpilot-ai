@@ -20,7 +20,7 @@ export function Header() {
               {n.label}
             </Link>
           ))}
-          <Link href="/dashboard" className="ml-2 btn-secondary !py-1.5 text-sm">Dashboard</Link>
+          <Link href="/dashboard" className="ml-2 btn-secondary !py-1.5 text-sm">My Prompts</Link>
         </nav>
         <button className="rounded-md p-2 text-slate-700 lg:hidden" aria-label="Toggle menu" aria-expanded={open} onClick={() => setOpen(!open)}>
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d={open ? "M6 6l12 12M6 18L18 6" : "M4 7h16M4 12h16M4 17h16"} /></svg>
@@ -28,7 +28,7 @@ export function Header() {
       </div>
       {open && (
         <nav className="border-t border-slate-200 bg-white px-4 py-2 lg:hidden" aria-label="Mobile">
-          {[...NAV, { href: "/dashboard", label: "Dashboard" }].map((n) => (
+          {[...NAV, { href: "/dashboard", label: "My Prompts" }].map((n) => (
             <Link key={n.href} href={n.href} onClick={() => setOpen(false)} className="block rounded-md px-2 py-2 text-slate-700 hover:bg-slate-50">{n.label}</Link>
           ))}
         </nav>

@@ -11,7 +11,8 @@ export const metadata: Metadata = {
 export default function AgentTemplatesPage() {
   return (
     <div className="mx-auto max-w-6xl px-4 py-10">
-      <h1 className="h1">Agent Templates</h1>
+      <p className="text-sm text-slate-500"><Link className="text-indigo-700" href="/categories/coding">Coding &amp; Technology</Link> / Agent context kit</p>
+      <h1 className="h1 mt-2">Agent Templates</h1>
       <p className="lead">Give Cursor, Claude Code, Codex and other coding agents the context they need: your stack, commands, conventions and the things they must never do. Pick a stack to start.</p>
       <div className="mt-8 grid gap-4 md:grid-cols-3">
         {STACKS.map((s) => (

@@ -1,3 +1,5 @@
+import type { CategoryId } from "@/lib/categories/types";
+
 export type LibraryKind = "developer" | "social" | "general";
 export type TrendStatus = "current" | "seasonal" | "evergreen";
 
@@ -20,4 +22,20 @@ export interface LibraryItem {
   trend?: { status: TrendStatus; note: string; sources: Source[]; lastVerified: string };
   aspect?: string;
   requiresPhoto?: boolean;
+  /** Goal-based category (registry id). Derived for legacy items if missing. */
+  cat?: CategoryId;
+  /** Registry subcategory id, used to open the builder preset. */
+  sub?: string;
+  /** Who it's for. */
+  audience?: string;
+  /** Short use-case label. */
+  useCase?: string;
+  /** What the AI returns, e.g. "Plan", "Email", "Table", "Image prompt". */
+  outputType?: string;
+  /** ISO date the prompt was added (for "newest" sorting). */
+  added?: string;
+  /** Premium packs are not live; every current prompt is free. */
+  premium?: boolean;
+  /** Illustrative example of what an AI might return. Always labelled as an example in the UI. */
+  exampleOutput?: string;
 }

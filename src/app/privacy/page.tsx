@@ -9,7 +9,8 @@ export default function PrivacyPage() {
       <h1 className="h1">Privacy Policy</h1>
       <p className="mt-2 text-sm text-slate-500">Draft, last updated {SITE.lastReviewed}. This draft needs legal review before commercial launch.</p>
       <h2>What runs in your browser</h2>
-      <p>The Prompt Builder, Agent Templates generator, Instagram Studio composer and Enhancer analysis run entirely in your browser. Text you type there is not sent to our servers.</p>
+      <p>The Prompt Builder, coding agent kit generator, Instagram Studio composer and Enhancer analysis run in your browser. Text you type into those forms is not sent to our servers.</p>
+      <p>Exception: when you start from the homepage box, a category starter link or a builder share link, your goal and options are part of the page URL, so they reach our hosting provider like any web request and may appear in its standard request logs. Don&apos;t put sensitive personal information in prompts or share links.</p>
       <h2>Saved prompts</h2>
       <ul>
         <li>If you are not signed in, saved prompts are stored in your browser&apos;s localStorage on your device.</li>
