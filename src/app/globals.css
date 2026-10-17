@@ -1,0 +1,26 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+html { scroll-behavior: smooth; }
+body { @apply bg-white text-slate-800 antialiased; font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif; }
+
+@layer components {
+  .card { @apply rounded-xl border border-slate-200 bg-white shadow-sm; }
+  .btn-primary { @apply inline-flex items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-indigo-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:cursor-not-allowed disabled:opacity-50; }
+  .btn-secondary { @apply inline-flex items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50; }
+  .chip { @apply rounded-full border border-slate-300 px-3 py-1 text-sm text-slate-700 transition hover:border-indigo-400; }
+  .chip-active { @apply border-indigo-600 bg-indigo-600 text-white hover:border-indigo-600; }
+  .input { @apply w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 focus:outline-none; }
+  .label { @apply mb-1 block text-sm font-medium text-slate-700; }
+  .output { @apply max-h-[32rem] overflow-auto rounded-lg bg-slate-900 p-4 font-mono text-[13px] leading-relaxed whitespace-pre-wrap text-slate-100; }
+  .h1 { @apply text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl; }
+  .lead { @apply mt-3 max-w-3xl text-lg text-slate-600; }
+  .prose-simple h2 { @apply mt-8 mb-2 text-xl font-semibold text-slate-900; }
+  .prose-simple p, .prose-simple li { @apply text-slate-700; }
+  .prose-simple ul { @apply ml-5 list-disc space-y-1; }
+  .prose-simple a { @apply text-indigo-700 underline; }
+}
