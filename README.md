@@ -14,7 +14,19 @@ npm run build && npm start
 | Var | Purpose |
 |---|---|
 | `NEXT_PUBLIC_SITE_URL` | Canonical / sitemap / OG base URL (default `http://localhost:3000`) |
-| `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Enables magic-link login and cloud-saved prompts. Apply `../schema.sql` first. Without these, saves go to localStorage. |
+| `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Enables magic-link login and cloud-saved prompts. Apply `supabase/schema.sql` first. Without these, saves go to localStorage. |
+
+### Supabase setup
+1. Apply `supabase/schema.sql` (tables, RLS, functions), then `supabase/seed-library.sql` (the 50 library prompts, needed for **favorites**). Regenerate the seed with `npx tsx scripts/gen-library-seed.ts` after editing `src/content`.
+2. Put the URL and publishable key in `.env.local` (this file is gitignored).
+3. Verify the live project with the publishable key only:
+   ```bash
+   node scripts/verify-supabase.mjs        # anon RLS checks
+   VERIFY_EMAIL_A=… VERIFY_PASSWORD_A=… VERIFY_EMAIL_B=… VERIFY_PASSWORD_B=… node scripts/verify-supabase.mjs
+   ```
+   The authenticated checks cover save/list/delete, cross-user isolation, share links, quotas and favorites. Add `VERIFY_SIGNUP=1` to try signups first; it reports when email confirmation is enabled.
+
+Account features when Supabase is configured: magic-link login, saved prompts, favorites (☆ on prompt pages), unlisted share links at `/s/<slug>` (`create_share` / `get_shared_prompt`, limited by the daily `share_create` quota), and today's usage on `/dashboard`.
 
 The server never stores LLM keys. The Enhancer sends a user's own key per request in the `x-llm-key` header to `/api/enhance`, which proxies it to OpenAI, Anthropic, xAI or an OpenAI-compatible base URL (with an SSRF guard).
 
@@ -28,6 +40,6 @@ The server never stores LLM keys. The Enhancer sends a user's own key per reques
 ## Known gaps
 - The rate limit is in memory and per instance. The SSRF guard checks hostnames and IPs but does not resolve DNS.
 - There are no payments yet. Pro is shown as "planned".
-- Supabase auth and saves have not been tested against a live project. Share links and quotas from the schema are not wired into the UI.
+- Supabase auth and saves have not been tested against a live project. Quota checks run from the browser, so they are a soft limit; the `/api/enhance` route does not check them on the server.
 - No OG images, no E2E tests, and no Cloudflare adapter yet (OpenNext/vinext).
 - Privacy and Terms are drafts and need legal review.

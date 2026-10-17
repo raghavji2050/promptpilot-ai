@@ -10,6 +10,20 @@ export interface SavedPrompt {
   target_id: string | null;
   output: string;
   created_at: string;
+  visibility?: "private" | "unlisted" | "public";
+  share_slug?: string | null;
+}
+
+/** Target ids seeded in public.targets (schema.sql §13). Others (image-generic, video) are stored as null to satisfy the FK. */
+export const DB_TARGET_IDS = new Set(["chatgpt", "claude", "gemini", "grok", "perplexity", "cursor", "claude-code", "codex", "midjourney", "flux", "veo", "kling"]);
+export const dbTargetId = (id: string | null | undefined) => (id && DB_TARGET_IDS.has(id) ? id : null);
+
+/** Maps Postgres/PostgREST errors raised by schema.sql functions to readable text. */
+export function friendlyDbError(msg: string): string {
+  if (msg.includes("FREE_SAVE_LIMIT")) return "Free plan save limit reached (25 prompts).";
+  if (msg.includes("AUTH_REQUIRED")) return "Please sign in first.";
+  if (msg.includes("NOT_FOUND")) return "Item not found (or not yours).";
+  return msg;
 }
 
 const LS_KEY = "promptpilot.saved.v1";
@@ -48,7 +62,7 @@ export function useSavedPrompts() {
   const load = useCallback(async (): Promise<{ items: SavedPrompt[]; error: string | null }> => {
     const sb = getSupabase();
     if (sb && session) {
-      const { data, error } = await sb.from("saved_prompts").select("id,title,source,target_id,output,created_at").order("created_at", { ascending: false }).limit(200);
+      const { data, error } = await sb.from("saved_prompts").select("id,title,source,target_id,output,created_at,visibility,share_slug").order("created_at", { ascending: false }).limit(200);
       return error ? { items: [], error: error.message } : { items: (data ?? []) as SavedPrompt[], error: null };
     }
     return { items: readLocal(), error: null };
@@ -70,12 +84,12 @@ export function useSavedPrompts() {
     const sb = getSupabase();
     if (sb && session) {
       const { error } = await sb.from("saved_prompts").insert({
-        title: p.title.slice(0, 140), source: p.source, target_id: p.target_id, output: p.output.slice(0, 40000),
+        title: p.title.slice(0, 140), source: p.source, target_id: dbTargetId(p.target_id), output: p.output.slice(0, 40000),
         builder_input: p.builder_input ?? {}, template_key: p.template_key ?? null,
       });
-      if (error) throw new Error(error.message.includes("FREE_SAVE_LIMIT") ? "Free plan save limit reached." : error.message);
+      if (error) throw new Error(friendlyDbError(error.message));
     } else {
-      const item: SavedPrompt = { id: `local-${Date.now()}`, created_at: new Date().toISOString(), title: p.title.slice(0, 140), source: p.source, target_id: p.target_id, output: p.output };
+      const item: SavedPrompt = { id: `local-${Date.now()}`, created_at: new Date().toISOString(), title: p.title.slice(0, 140), source: p.source, target_id: dbTargetId(p.target_id), output: p.output };
       writeLocal([item, ...readLocal()]);
     }
     await refresh();
@@ -92,5 +106,20 @@ export function useSavedPrompts() {
     await refresh();
   }, [session, refresh]);
 
-  return { items, save, remove, remote, session, ready, error, refresh };
+  /** Create/revoke an unlisted share link. Consumes the daily share_create quota first. */
+  const share = useCallback(async (id: string, visibility: "private" | "unlisted"): Promise<string | null> => {
+    const sb = getSupabase();
+    if (!sb || !session) throw new Error("Sign in to share prompts.");
+    if (visibility !== "private") {
+      const { data: left, error: qe } = await sb.rpc("consume_quota", { p_action: "share_create" });
+      if (qe) throw new Error(friendlyDbError(qe.message));
+      if (left === -1) throw new Error("Daily share limit reached. Try again tomorrow (UTC).");
+    }
+    const { data, error } = await sb.rpc("create_share", { p_kind: "prompt", p_id: id, p_visibility: visibility });
+    if (error) throw new Error(friendlyDbError(error.message));
+    await refresh();
+    return (data as string | null) ?? null;
+  }, [session, refresh]);
+
+  return { items, save, remove, share, remote, session, ready, error, refresh };
 }

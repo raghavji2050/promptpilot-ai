@@ -5,6 +5,7 @@ import { ALL_PROMPTS, getPrompt } from "@/content";
 import { TARGETS } from "@/lib/engine";
 import { CopyButton } from "@/components/CopyButton";
 import { SaveButton } from "@/components/SaveButton";
+import { FavoriteButton } from "@/components/FavoriteButton";
 import { TrendBadge } from "@/components/TrendBadge";
 import { PromptCard } from "@/components/PromptCard";
 import { JsonLd } from "@/components/JsonLd";
@@ -64,6 +65,7 @@ export default async function PromptDetail({ params }: { params: Promise<{ slug:
         <div className="mt-3 flex flex-wrap gap-2">
           <CopyButton text={p.body} label="Copy prompt" />
           <SaveButton title={p.title} output={p.body} source={p.kind === "developer" ? "developer" : "library"} targetId={p.targets[0]} />
+          <FavoriteButton slug={p.slug} />
         </div>
         <p className="mt-3 text-xs text-slate-500">Replace [bracketed] parts with your own details before sending.</p>
       </div>

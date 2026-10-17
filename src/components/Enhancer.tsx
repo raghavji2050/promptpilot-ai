@@ -4,6 +4,7 @@ import { adaptText, analyzePrompt, expandText, improveText, shortenText, TARGETS
 import { PROVIDERS, type ProviderId } from "@/lib/llm/providers-meta";
 import { CopyButton } from "./CopyButton";
 import { SaveButton } from "./SaveButton";
+import { getSupabase } from "@/lib/supabase";
 
 const KEY_STORE = "pp.byok.v1";
 
@@ -50,6 +51,16 @@ export function Enhancer() {
     if (remember) localStorage.setItem(KEY_STORE, JSON.stringify({ provider, model, apiKey, baseUrl }));
     else localStorage.removeItem(KEY_STORE);
     try {
+      // Signed-in users: count against the daily enhance_byok quota (schema.sql consume_quota).
+      // This is a soft, client-initiated counter; the server route is still IP rate-limited.
+      const sb = getSupabase();
+      if (sb) {
+        const { data: s } = await sb.auth.getSession();
+        if (s.session) {
+          const { data: left, error: qe } = await sb.rpc("consume_quota", { p_action: "enhance_byok" });
+          if (!qe && left === -1) throw new Error("Daily AI enhancement limit reached");
+        }
+      }
       const res = await fetch("/api/enhance", {
         method: "POST",
         headers: { "content-type": "application/json", "x-llm-key": apiKey },
