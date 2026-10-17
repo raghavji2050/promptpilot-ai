@@ -5,6 +5,7 @@ import { ALL_PROMPTS, getPrompt, requiredInputs } from "@/content";
 import { getCategory, findSubcategory } from "@/lib/categories";
 import { TARGETS } from "@/lib/engine";
 import { CopyButton } from "@/components/CopyButton";
+import { TryInButtons } from "@/components/TryInButtons";
 import { SaveButton } from "@/components/SaveButton";
 import { FavoriteButton } from "@/components/FavoriteButton";
 import { TrendBadge } from "@/components/TrendBadge";
@@ -76,6 +77,7 @@ export default async function PromptDetail({ params }: { params: Promise<{ slug:
           <SaveButton title={p.title} output={p.body} source={p.kind === "developer" ? "developer" : "library"} targetId={p.targets[0]} />
           <FavoriteButton slug={p.slug} />
         </div>
+        <TryInButtons text={p.body} />
         <p className="mt-3 text-xs text-slate-500">Replace [bracketed] parts with your own details before sending.{sub && <> Want it tailored? <Link className="text-indigo-700 underline" href={`/builder?cat=${p.cat}&sub=${sub.id}`}>Build a custom {sub.name.toLowerCase()} prompt</Link>.</>}</p>
       </div>
 
