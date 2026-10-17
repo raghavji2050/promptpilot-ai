@@ -64,6 +64,7 @@ begin
   on conflict (id) do nothing;
   return new;
 end $$;
+revoke all on function public.handle_new_user() from public, anon, authenticated;
 drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created after insert on auth.users
   for each row execute function public.handle_new_user();
@@ -346,6 +347,7 @@ begin
   end if;
   return new;
 end $$;
+revoke all on function public.enforce_saved_prompt_cap() from public, anon, authenticated;
 create trigger trg_saved_prompt_cap before insert on public.saved_prompts
   for each row execute function public.enforce_saved_prompt_cap();
 
@@ -407,7 +409,7 @@ begin
   if not found then raise exception 'NOT_FOUND'; end if;
   return v_slug;
 end $$;
-revoke all on function public.create_share(text, uuid, public.visibility) from public;
+revoke all on function public.create_share(text, uuid, public.visibility) from public, anon;
 grant execute on function public.create_share(text, uuid, public.visibility) to authenticated;
 -- NOTE: on Supabase, pgcrypto lives in the `extensions` schema. If your project
 -- installed it elsewhere, adjust the qualified name above.
@@ -508,7 +510,7 @@ begin
   if v_new is null then return -1; end if;
   return v_limit - v_new;
 end $$;
-revoke all on function public.consume_quota(public.quota_action) from public;
+revoke all on function public.consume_quota(public.quota_action) from public, anon;
 grant execute on function public.consume_quota(public.quota_action) to authenticated;
 
 -- 9b. LLM call log (metadata only; never prompts or keys). Inserted by the server.

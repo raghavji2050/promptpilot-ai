@@ -17,7 +17,7 @@ npm run build && npm start
 | `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Enables magic-link login and cloud-saved prompts. Apply `supabase/schema.sql` first. Without these, saves go to localStorage. |
 
 ### Supabase setup
-1. Apply `supabase/schema.sql` (tables, RLS, functions), then `supabase/seed-library.sql` (the 50 library prompts, needed for **favorites**). Regenerate the seed with `npx tsx scripts/gen-library-seed.ts` after editing `src/content`.
+1. Apply `supabase/schema.sql` (tables, RLS, functions). If you applied an older copy, also run `supabase/fix-function-grants.sql`. Then apply `supabase/seed-library.sql` (the 50 library prompts, needed for **favorites**). Regenerate the seed with `npx tsx scripts/gen-library-seed.ts` after editing `src/content`.
 2. Put the URL and publishable key in `.env.local` (this file is gitignored).
 3. Verify the live project with the publishable key only:
    ```bash

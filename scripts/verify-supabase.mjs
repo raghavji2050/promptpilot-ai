@@ -12,6 +12,7 @@
  */
 import { readFileSync, existsSync } from "node:fs";
 import { createClient } from "@supabase/supabase-js";
+import WebSocket from "ws"; // Node 20 has no global WebSocket; realtime-js requires a transport even if unused.
 
 for (const f of [".env.local", ".env"]) {
   if (!existsSync(f)) continue;
@@ -26,7 +27,14 @@ if (!URL_ || !KEY) { console.error("Missing NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBL
 let pass = 0, fail = 0, skip = 0;
 const ok = (name, cond, extra = "") => { cond ? pass++ : fail++; console.log(`${cond ? "PASS" : "FAIL"}  ${name}${extra ? `  (${extra})` : ""}`); };
 const skipped = (name, why) => { skip++; console.log(`SKIP  ${name}  (${why})`); };
-const client = () => createClient(URL_, KEY, { auth: { persistSession: false, autoRefreshToken: false } });
+const client = () => createClient(URL_, KEY, { auth: { persistSession: false, autoRefreshToken: false }, realtime: { transport: WebSocket } });
+
+// ---------- public auth settings (no signup needed) ----------
+try {
+  const r = await fetch(`${URL_}/auth/v1/settings`, { headers: { apikey: KEY } });
+  const st = await r.json();
+  console.log(`INFO  auth: signups ${st.disable_signup ? "DISABLED" : "enabled"}; email confirmation ${st.mailer_autoconfirm ? "OFF (autoconfirm)" : "ON — signUp sends a real email, no session until confirmed"}; providers: ${Object.entries(st.external ?? {}).filter(([, v]) => v).map(([k]) => k).join(", ")}`);
+} catch (e) { console.log(`INFO  could not read auth settings: ${e.message}`); }
 
 // ---------- anon ----------
 const anon = client();
@@ -55,6 +63,26 @@ for (const t of ["favorites", "usage_counters", "purchases", "llm_calls", "profi
 {
   const { error } = await anon.rpc("consume_quota", { p_action: "share_create" });
   ok("anon cannot call consume_quota", !!error, error?.code ?? error?.message ?? "allowed!");
+}
+// Function EXECUTE grants. On Supabase, default privileges grant EXECUTE to anon directly,
+// so "revoke ... from public" alone is not enough. 42501 = no EXECUTE (ideal).
+// P0001 AUTH_REQUIRED = executed but failed closed (safe, but grant should be revoked).
+// All probes are side-effect free (unknown ids / refs).
+for (const [fn, args, mustDeny] of [
+  ["grant_pro_from_purchase", { p_provider: "manual", p_ref: "verify-probe-nonexistent" }, true],
+  ["create_share", { p_kind: "prompt", p_id: "00000000-0000-0000-0000-000000000000", p_visibility: "unlisted" }, false],
+  ["consume_quota", { p_action: "report" }, false],
+]) {
+  const { error } = await anon.rpc(fn, args);
+  const code = error?.code ?? "no error";
+  if (code === "42501") ok(`anon has no EXECUTE on ${fn}`, true, code);
+  else if (!mustDeny && /AUTH_REQUIRED/.test(error?.message ?? "")) ok(`anon ${fn} fails closed (AUTH_REQUIRED) — EXECUTE grant still present, apply supabase/fix-function-grants.sql`, true, code);
+  else ok(`anon blocked from ${fn}`, false, `${code} ${error?.message ?? ""}`);
+}
+// Trigger functions must not be exposed as RPC (PostgREST hides trigger-returning functions).
+for (const fn of ["handle_new_user", "enforce_saved_prompt_cap", "set_updated_at"]) {
+  const { error } = await anon.rpc(fn, {});
+  ok(`trigger fn ${fn} not callable via RPC`, !!error, error?.code ?? "callable!");
 }
 {
   const { data, error } = await anon.rpc("get_shared_prompt", { p_slug: "deadbeefdeadbeefde" });
