@@ -362,7 +362,7 @@ export const CATEGORIES: Category[] = [
         workflow: ["Restate the requirement and ask about anything ambiguous", "Propose the approach", "Write the code with comments only where useful", "Show how to run and test it"],
         output: "Approach · code · how to run/test", fields: [t("stack", "Language / stack", "e.g. Python 3.12")], example: "Write a Python script that renames photos by date" },
       { id: "build-app", name: "Website & app development", blurb: "Plan and build websites and apps with AI.",
-        keywords: ["build a website", "build an app", "make a website", "create a website", "web app", "mobile app", "landing page", "saas", "full stack", "laravel", "nextjs", "next.js", "react app", "node.js", "wordpress", "build website"],
+        keywords: ["build a website", "build an app", "make a website", "create a website", "web app", "mobile app", "landing page", "saas", "full stack", "laravel", "nextjs", "next.js", "react app", "node.js", "wordpress", "build website", "portfolio website", "~website"],
         role: "full-stack engineer and technical lead", objective: "Plan the build in small, verifiable steps before writing code.",
         workflow: ["Clarify features, users and constraints", "Propose stack and architecture with trade-offs", "Break into milestones", "Implement milestone 1 and explain how to verify it"],
         output: "Requirements · architecture · milestones · first milestone code", fields: [t("stack", "Preferred stack", "e.g. Laravel 12 + MySQL, or no preference")],

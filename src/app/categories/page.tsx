@@ -10,12 +10,13 @@ export const metadata: Metadata = {
 
 export default function CategoriesPage() {
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10">
-      <h1 className="h1">What do you want to do?</h1>
+    <div className="mx-auto max-w-6xl px-4 py-10 sm:py-14">
+      <p className="eyebrow">Categories</p>
+      <h1 className="h1 mt-2">What do you want to do?</h1>
       <p className="lead">Pick a goal. Each category has task types with their own structure, so the prompt fits what you&apos;re actually trying to do.</p>
       <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {CATEGORIES.map((c) => (
-          <section key={c.id} className="card flex flex-col p-5">
+          <section key={c.id} className="card card-hover flex flex-col p-5">
             <h2 className="text-lg font-semibold text-slate-900"><Link href={`/categories/${c.id}`} className="hover:text-indigo-700"><span aria-hidden>{c.icon}</span> {c.name}</Link></h2>
             <p className="mt-1 text-sm text-slate-600">{c.description}</p>
             <ul className="mt-3 flex flex-wrap gap-1.5">

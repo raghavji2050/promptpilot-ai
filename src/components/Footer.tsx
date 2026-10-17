@@ -5,7 +5,7 @@ import { USE_CASES } from "@/content/use-cases";
 
 export function Footer() {
   return (
-    <footer className="mt-16 border-t border-slate-200 bg-slate-50">
+    <footer className="mt-16 border-t border-line bg-surface [&_a:hover]:text-accent-text">
       <div className="mx-auto grid max-w-6xl gap-8 px-4 py-10 text-sm sm:grid-cols-2 lg:grid-cols-5">
         <div>
           <p className="font-semibold text-slate-900">{SITE.name}</p>
@@ -20,6 +20,8 @@ export function Footer() {
             <li><Link href="/instagram-studio">Instagram Studio</Link></li>
             <li><Link href="/agent-templates">Coding agent kit</Link></li>
             <li><Link href="/trending">Trending photo prompts</Link></li>
+            <li><Link href="/tools">All AI tools</Link></li>
+            <li><Link href="/dashboard">My saved prompts</Link></li>
           </ul>
         </div>
         <div className="lg:col-span-2">

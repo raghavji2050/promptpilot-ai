@@ -7,7 +7,7 @@ import { absoluteUrl, SITE } from "@/lib/site";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const lastModified = SITE.lastReviewed;
-  const staticPaths = ["/", "/builder", "/library", "/categories", "/prompts-for", "/enhancer", "/instagram-studio", "/trending", "/agent-templates", "/developer-prompts", "/builder/classic", "/pricing", "/privacy", "/terms"];
+  const staticPaths = ["/", "/builder", "/library", "/categories", "/prompts-for", "/enhancer", "/instagram-studio", "/trending", "/agent-templates", "/developer-prompts", "/builder/classic", "/pricing", "/privacy", "/terms", "/tools"];
   return [
     ...staticPaths.map((p) => ({ url: absoluteUrl(p), lastModified, changeFrequency: (p === "/trending" ? "weekly" : "monthly") as "weekly" | "monthly", priority: p === "/" ? 1 : 0.8 })),
     ...USE_CASES.map((u) => ({ url: absoluteUrl(`/prompts-for/${u.slug}`), lastModified, changeFrequency: "monthly" as const, priority: 0.9 })),

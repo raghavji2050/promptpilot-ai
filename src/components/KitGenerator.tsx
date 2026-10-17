@@ -77,7 +77,7 @@ export function KitGenerator({ stack }: { stack: StackId }) {
         <div className="card p-4">
           <div className="flex flex-wrap items-center gap-2">
             <button type="button" className="btn-primary" onClick={downloadZip} disabled={!kit.length || zipping}>{zipping ? "Building ZIP…" : `Download ZIP (${kit.length} files)`}</button>
-            {current && <CopyButton text={current.content} label={`Copy ${current.path.split("/").pop()}`} className="!bg-slate-800 hover:!bg-slate-900" />}
+            {current && <CopyButton text={current.content} label={`Copy ${current.path.split("/").pop()}`} className="!bg-[var(--code-bg)] hover:!opacity-90" />}
           </div>
           <p className="mt-2 text-xs text-slate-500">Generated in your browser. Nothing is uploaded. Review before committing: these are starting points, not guarantees.</p>
         </div>
@@ -85,7 +85,7 @@ export function KitGenerator({ stack }: { stack: StackId }) {
           <div className="card overflow-hidden">
             <div className="flex gap-1 overflow-x-auto border-b border-slate-200 bg-slate-50 p-2" role="tablist">
               {kit.map((f, i) => (
-                <button key={f.path} role="tab" aria-selected={i === active} onClick={() => setActive(i)} className={`whitespace-nowrap rounded-md px-2.5 py-1 font-mono text-xs ${i === active ? "bg-white text-indigo-700 shadow-sm" : "text-slate-600 hover:text-slate-900"}`}>
+                <button key={f.path} role="tab" aria-selected={i === active} onClick={() => setActive(i)} className={`whitespace-nowrap rounded-md px-2.5 py-1 font-mono text-xs ${i === active ? "bg-surface text-indigo-700 shadow-sm" : "text-slate-600 hover:text-slate-900"}`}>
                   {f.path}
                 </button>
               ))}

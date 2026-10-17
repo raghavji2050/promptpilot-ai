@@ -6,6 +6,10 @@ import { useFavorites, useUsage } from "@/lib/favorites";
 import { getSupabase, supabaseConfigured } from "@/lib/supabase";
 import { getPrompt } from "@/content";
 import { CopyButton } from "./CopyButton";
+import { Dialog } from "./ui/Dialog";
+import { CardSkeleton } from "./ui/Skeleton";
+import { EmptyState } from "./ui/EmptyState";
+import { useToast } from "./ui/Toast";
 
 // Mirrors the free-plan limits in schema.sql consume_quota() / enforce_saved_prompt_cap().
 const FREE_LIMITS: Record<string, { label: string; limit: number }> = {
@@ -41,6 +45,8 @@ export function Dashboard() {
   const { items, remove, share, remote, session, ready, error } = useSavedPrompts();
   const fav = useFavorites();
   const usage = useUsage();
+  const toast = useToast();
+  const [confirm, setConfirm] = useState<SavedPrompt | null>(null);
   return (
     <div className="mt-6 space-y-6">
       <div className="card flex flex-wrap items-center justify-between gap-3 p-5 text-sm">
@@ -61,8 +67,8 @@ export function Dashboard() {
       <section>
         <h2 className="text-xl font-semibold text-slate-900">Saved prompts {ready && <span className="text-sm font-normal text-slate-400">({items.length}{remote ? ", account" : ", this browser"})</span>}</h2>
         {error && <p className="mt-2 rounded bg-rose-50 p-3 text-sm text-rose-800">{error}</p>}
-        {!ready ? <p className="mt-4 text-slate-500">Loading…</p> : items.length === 0 ? (
-          <p className="mt-4 text-slate-500">Nothing saved yet. Use <strong>Save</strong> in the <Link className="text-indigo-700 underline" href="/builder">Builder</Link>, <Link className="text-indigo-700 underline" href="/enhancer">Enhancer</Link> or any prompt page.</p>
+        {!ready ? <div className="mt-4"><CardSkeleton count={3} /></div> : items.length === 0 ? (
+          <div className="mt-4"><EmptyState icon="☆" title="Nothing saved yet" action={<Link className="btn-primary" href="/builder">Build a prompt</Link>}>Use <strong>Save</strong> in the Builder, the Enhancer or on any prompt page and it will show up here.</EmptyState></div>
         ) : (
           <ul className="mt-4 space-y-3">
             {items.map((it) => (
@@ -74,7 +80,7 @@ export function Dashboard() {
                   </div>
                   <div className="flex gap-2">
                     <CopyButton text={it.output} />
-                    <button className="btn-secondary" onClick={() => remove(it.id)}>Delete</button>
+                    <button className="btn-secondary" onClick={() => setConfirm(it)}>Delete</button>
                   </div>
                 </div>
                 <pre className="mt-3 max-h-40 overflow-auto rounded bg-slate-50 p-3 text-xs whitespace-pre-wrap text-slate-700">{it.output}</pre>
@@ -99,6 +105,10 @@ export function Dashboard() {
           </ul>
         )}
       </section>
+      <Dialog open={!!confirm} onClose={() => setConfirm(null)} title="Delete this prompt?"
+        footer={<><button className="btn-secondary" onClick={() => setConfirm(null)}>Cancel</button><button className="btn-primary !bg-[#e11d48] hover:!bg-[#be123c]" onClick={async () => { const it = confirm; setConfirm(null); if (!it) return; try { await remove(it.id); toast("Prompt deleted"); } catch (e) { toast((e as Error).message, { tone: "error" }); } }}>Delete</button></>}>
+        <p>“{confirm?.title}” will be removed{remote ? " from your account" : " from this browser"}. This can&apos;t be undone.</p>
+      </Dialog>
       <section className="card p-5 text-sm text-slate-600">
         <h2 className="font-semibold text-slate-900">Plan &amp; today&apos;s usage</h2>
         <p className="mt-1">Free. Paid plans are not available yet. See <Link className="text-indigo-700 underline" href="/pricing">Pricing</Link>.</p>

@@ -1,152 +1,193 @@
 import Link from "next/link";
 import { ALL_PROMPTS, searchLibrary } from "@/content";
-import { USE_CASES } from "@/content/use-cases";
 import { CATEGORIES } from "@/lib/categories";
 import { TARGETS } from "@/lib/engine";
 import { PromptCard } from "@/components/PromptCard";
 import { JsonLd } from "@/components/JsonLd";
-import { SITE, builderHref } from "@/lib/site";
-
-const QUICK = [
-  { goal: "Help me grow my Instagram account", label: "Grow my Instagram" },
-  { goal: "Help me prepare for a job interview", label: "Prepare for an interview" },
-  { goal: "Validate my business idea for a tiffin service", label: "Validate a business idea" },
-  { goal: "Make a 4-week study plan to learn Excel", label: "Make a study plan" },
-  { goal: "Write a polite email asking for a deadline extension", label: "Write a professional email" },
-  { goal: "Plan a 5-day trip to Kerala on a budget", label: "Plan a trip" },
-];
+import { HeroBuilder } from "@/components/HeroBuilder";
+import { CategoryCard } from "@/components/ui/CategoryCard";
+import { ButtonLink } from "@/components/ui/Button";
+import { SITE } from "@/lib/site";
 
 const TOOLS = [
-  { href: "/builder", title: "Prompt Builder", body: "Describe your goal, pick an AI, get a structured prompt. Improve, simplify, change tone or convert to another platform in one click." },
-  { href: "/library", title: "Prompt Library", body: `${ALL_PROMPTS.length} free prompts across 10 categories, searchable by category, platform, language and output type.` },
-  { href: "/enhancer", title: "Prompt Enhancer", body: "Paste any prompt for a checklist of what's missing and rule-based fixes. Optional AI polish with your own API key." },
-  { href: "/instagram-studio", title: "Instagram Studio", body: "Photo-edit prompts for Gemini and ChatGPT that keep your face unchanged. English and Hindi." },
+  { href: "/builder", icon: "✦", title: "Prompt Builder", body: "Describe your goal, pick an AI and get a structured prompt. Refine tone, length, language and format." },
+  { href: "/library", icon: "▤", title: "Prompt Library", body: `${ALL_PROMPTS.length} free, ready-to-use prompts across ${CATEGORIES.length} categories.` },
+  { href: "/enhancer", icon: "◎", title: "Prompt Enhancer", body: "Paste any prompt to see what's missing and get rule-based fixes. Optional AI polish with your own key." },
+  { href: "/instagram-studio", icon: "◐", title: "Instagram Studio", body: "Photo-edit prompts for Gemini and ChatGPT that keep your face unchanged. English and Hindi." },
+];
+
+const STEPS = [
+  { t: "Describe your idea", b: "Type what you want in plain words, in any language. That's the only required field." },
+  { t: "Pick your AI", b: "ChatGPT, Claude, Gemini, Grok, Perplexity, image and video tools, or coding assistants." },
+  { t: "Copy, try and refine", b: "Copy the prompt or open it in your AI. Make it shorter, more detailed or regenerate a new structure." },
+];
+
+const FAQ = [
+  { q: "Is PromptPilot free?", a: "Yes. The builder, library and enhancer checklist are free and don't need an account. A Premium plan is listed as coming soon; there is no price and no way to pay today." },
+  { q: "Does PromptPilot send my text to an AI?", a: "No. Prompts are built from templates in your browser, so the same inputs always give the same prompt. Nothing reaches an AI unless you paste it into one yourself, or choose the optional Enhancer polish with your own API key." },
+  { q: "Which AI tools does it support?", a: "ChatGPT, Claude, Gemini, Grok, Perplexity, Copilot-style assistants, Midjourney and other image tools, video generators, and coding agents like Cursor. Each platform gets formatting it handles well (for example XML sections for Claude)." },
+  { q: "Do I need to sign up?", a: "No. You can build, copy and try prompts without an account. Signing in lets you save prompts to your account; without it you can still save in this browser from the full builder." },
+  { q: "Why does \"Try in ChatGPT\" ask me to paste?", a: "None of these sites offer an official, documented way to pre-fill a prompt from a link, so we copy the prompt to your clipboard and open the site. You paste it with Ctrl/⌘ + V." },
+  { q: "Are the example outputs real AI responses?", a: "No. They are short illustrative samples we wrote to show the shape of a good answer. Real results vary by model." },
 ];
 
 export default function Home() {
   const examples = ALL_PROMPTS.filter((p) => p.exampleOutput).slice(0, 3);
   const recent = searchLibrary(ALL_PROMPTS.filter((p) => p.kind === "general"), { sort: "newest" }).filter((p) => !examples.includes(p)).slice(0, 6);
-  const trending = ALL_PROMPTS.filter((p) => p.trend?.status === "current").slice(0, 3);
-  const chatTargets = TARGETS.filter((t) => t.family !== "coding_agent");
+  const platforms = [
+    ...TARGETS.filter((t) => t.family === "chat" || t.family === "search").map((t) => ({ id: t.id, name: t.name.split(" (")[0] })),
+    ...TARGETS.filter((t) => t.family === "image" || t.family === "video").map((t) => ({ id: t.id, name: t.name.split(" (")[0] })),
+    { id: "cursor", name: "Cursor / coding agents" },
+  ];
+  const counts = Object.fromEntries(CATEGORIES.map((c) => [c.id, ALL_PROMPTS.filter((p) => p.cat === c.id).length]));
   return (
     <>
       <JsonLd data={{ "@context": "https://schema.org", "@type": "WebApplication", name: SITE.name, applicationCategory: "UtilitiesApplication", operatingSystem: "Web", isAccessibleForFree: true, offers: { "@type": "Offer", price: "0", priceCurrency: "USD" }, description: SITE.description, url: SITE.url }} />
+      <JsonLd data={{ "@context": "https://schema.org", "@type": "FAQPage", mainEntity: FAQ.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })) }} />
 
-      {/* Hero with the universal input */}
-      <section className="border-b border-slate-200 bg-gradient-to-b from-indigo-50/70 to-white">
-        <div className="mx-auto max-w-4xl px-4 py-14 text-center sm:py-20">
-          <p className="inline-block rounded-full bg-white px-3 py-1 text-xs font-medium text-indigo-700 ring-1 ring-indigo-200">Free · No sign-up · No API key needed</p>
-          <h1 className="mt-4 text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">Create Better AI Prompts for Anything</h1>
-          <p className="mx-auto mt-4 max-w-2xl text-lg text-slate-600">Say what you want in plain words. PromptPilot turns it into a clear, structured prompt for ChatGPT, Claude, Gemini, Grok, Perplexity, image and video tools.</p>
+      {/* ---------------------------------------------------------------- hero */}
+      <section className="border-b border-line" aria-labelledby="hero-title">
+        <div className="mx-auto max-w-5xl px-4 pb-14 pt-12 text-center sm:pb-20 sm:pt-20">
+          <p className="badge badge-accent">Free · No sign-up · No API key needed</p>
+          <h1 id="hero-title" className="mx-auto mt-5 max-w-3xl text-4xl font-semibold tracking-tight text-fg sm:text-5xl lg:text-6xl">Turn Any Idea Into the Perfect AI Prompt.</h1>
+          <p className="mx-auto mt-5 max-w-2xl text-lg text-muted sm:text-xl">Create better prompts for ChatGPT, Claude, Gemini, Grok, and more. Get clearer results with less effort.</p>
+          <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
+            <ButtonLink href="/builder" size="lg">Build My Prompt</ButtonLink>
+            <ButtonLink href="/library" variant="secondary" size="lg">Explore Prompt Library</ButtonLink>
+          </div>
+          <HeroBuilder platforms={platforms} />
+          <p className="mt-6 text-xs text-subtle">Works with ChatGPT · Claude · Gemini · Grok · Perplexity · Copilot · Midjourney · video tools · Cursor. Not affiliated with any of them.</p>
+        </div>
+      </section>
 
-          <form action="/builder" method="get" className="card mx-auto mt-8 max-w-3xl p-4 text-left sm:p-5">
-            <label htmlFor="home-goal" className="label !text-base">What do you want AI to help you with?</label>
-            <textarea id="home-goal" name="goal" required maxLength={1500} rows={3} className="input text-base" placeholder="e.g. Help me grow my Instagram account, plan a trip, prepare for an interview…" />
-            <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-end">
-              <div className="sm:w-64">
-                <label htmlFor="home-platform" className="label">AI platform</label>
-                <select id="home-platform" name="platform" className="input" defaultValue="chatgpt">
-                  {chatTargets.map((t) => <option key={t.id} value={t.id}>{t.name.split(" (")[0]}</option>)}
-                  <option value="cursor">Cursor / coding agents</option>
-                </select>
-              </div>
-              <button type="submit" className="btn-primary !px-6 !py-2.5 text-base sm:ml-auto">Generate my prompt →</button>
-            </div>
-          </form>
-          <div className="mt-4 flex flex-wrap justify-center gap-2" aria-label="Try an example">
-            {QUICK.map((q) => <Link key={q.goal} href={builderHref(q.goal)} className="chip bg-white !text-xs sm:!text-sm">{q.label}</Link>)}
+      {/* ---------------------------------------------------------------- how it works */}
+      <section className="section" aria-labelledby="how">
+        <p className="eyebrow">How it works</p>
+        <h2 id="how" className="h2 mt-2">From rough idea to a clear prompt in seconds</h2>
+        <ol className="mt-8 grid gap-4 md:grid-cols-3">
+          {STEPS.map((s, i) => (
+            <li key={s.t} className="card p-6">
+              <span className="grid h-9 w-9 place-items-center rounded-full bg-accent-soft text-sm font-semibold text-accent-text" aria-hidden>{i + 1}</span>
+              <h3 className="mt-4 font-semibold text-fg">{s.t}</h3>
+              <p className="mt-1.5 text-sm text-muted">{s.b}</p>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      {/* ---------------------------------------------------------------- real examples */}
+      <section className="border-y border-line bg-surface" aria-labelledby="examples">
+        <div className="section">
+          <p className="eyebrow">Examples</p>
+          <h2 id="examples" className="h2 mt-2">Real prompts from the library, and the kind of answer they get</h2>
+          <p className="mt-2 text-sm text-muted">Prompts are real library entries. Example outputs are short illustrative samples we wrote, not actual AI responses.</p>
+          <div className="mt-8 grid gap-4 lg:grid-cols-3">
+            {examples.map((p) => (
+              <article key={p.slug} className="card card-hover flex flex-col p-5">
+                <p className="text-xs text-subtle">{p.audience}</p>
+                <h3 className="mt-1 font-semibold text-fg"><Link href={`/p/${p.slug}`} className="hover:text-accent-text">{p.title}</Link></h3>
+                <p className="mt-4 text-xs font-medium text-subtle">Prompt (excerpt)</p>
+                <pre className="output mt-1 !max-h-36 !p-3 !text-xs">{p.body.split("\n").slice(0, 7).join("\n")}…</pre>
+                <p className="mt-4 text-xs font-medium text-subtle">Example output (illustrative)</p>
+                <pre className="mt-1 max-h-36 overflow-auto whitespace-pre-wrap rounded-xl bg-surface-2 p-3 font-sans text-xs text-muted">{p.exampleOutput}</pre>
+                <Link href={`/p/${p.slug}`} className="link mt-auto pt-4 text-sm font-medium">Use this prompt →</Link>
+              </article>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* How it works */}
-      <section className="mx-auto max-w-6xl px-4 py-12" aria-labelledby="how">
-        <h2 id="how" className="text-2xl font-bold text-slate-900">How it works</h2>
-        <ol className="mt-6 grid gap-4 md:grid-cols-4">
-          {[
-            ["Describe your goal", "In plain language, any language. That's the only required field."],
-            ["Pick your AI", "ChatGPT, Claude, Gemini, Grok, Perplexity, Midjourney, video tools and more."],
-            ["Get a structured prompt", "Role, context, objective, steps, constraints and output format, matched to your task."],
-            ["Copy, refine, save", "Improve, simplify, change tone or convert to another AI without retyping."],
-          ].map(([t, b], i) => (
-            <li key={t} className="card p-5"><span className="grid h-8 w-8 place-items-center rounded-full bg-indigo-600 text-sm font-semibold text-white" aria-hidden>{i + 1}</span><h3 className="mt-3 font-semibold text-slate-900">{t}</h3><p className="mt-1 text-sm text-slate-600">{b}</p></li>
-          ))}
-        </ol>
-        <p className="mt-4 text-sm text-slate-600">Generating a prompt does not call any AI; it runs on templates in your browser. You then paste the prompt into the AI tool you use.</p>
+      {/* ---------------------------------------------------------------- categories */}
+      <section className="section" aria-labelledby="cats">
+        <div className="flex flex-wrap items-end justify-between gap-2">
+          <div><p className="eyebrow">Categories</p><h2 id="cats" className="h2 mt-2">Prompts for every part of life and work</h2></div>
+          <Link href="/categories" className="link text-sm font-medium">All categories →</Link>
+        </div>
+        <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+          {CATEGORIES.map((c) => <CategoryCard key={c.id} category={c} count={counts[c.id]} />)}
+        </div>
       </section>
 
-      {/* Categories */}
-      <section className="mx-auto max-w-6xl px-4 py-8" aria-labelledby="cats">
-        <div className="flex items-end justify-between"><h2 id="cats" className="text-2xl font-bold text-slate-900">Popular categories</h2><Link href="/categories" className="text-sm text-indigo-700">All categories →</Link></div>
-        <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-          {CATEGORIES.map((c) => (
-            <Link key={c.id} href={`/categories/${c.id}`} className="card p-4 transition hover:-translate-y-0.5 hover:shadow-md motion-reduce:transition-none">
-              <span className="text-2xl" aria-hidden>{c.icon}</span>
-              <h3 className="mt-2 text-sm font-semibold text-slate-900">{c.name}</h3>
-              <p className="mt-1 hidden text-xs text-slate-500 sm:block">{c.subcategories.slice(0, 3).map((s) => s.name).join(" · ")}</p>
+      {/* ---------------------------------------------------------------- tools */}
+      <section className="section !pt-0" aria-labelledby="tools">
+        <p className="eyebrow">AI tools</p>
+        <h2 id="tools" className="h2 mt-2">Free tools</h2>
+        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {TOOLS.map((f) => (
+            <Link key={f.href} href={f.href} className="card card-hover group p-5">
+              <span className="grid h-10 w-10 place-items-center rounded-xl bg-accent-soft text-accent-text" aria-hidden>{f.icon}</span>
+              <h3 className="mt-4 font-semibold text-fg group-hover:text-accent-text">{f.title}</h3>
+              <p className="mt-1.5 text-sm text-muted">{f.body}</p>
             </Link>
           ))}
         </div>
       </section>
 
-      {/* Examples with outputs */}
-      <section className="mx-auto max-w-6xl px-4 py-12" aria-labelledby="examples">
-        <h2 id="examples" className="text-2xl font-bold text-slate-900">Example prompts and what they produce</h2>
-        <p className="mt-1 text-sm text-slate-600">Example outputs are short illustrative samples written by us to show the shape of a good answer, not real AI responses.</p>
-        <div className="mt-6 grid gap-4 lg:grid-cols-3">
-          {examples.map((p) => (
-            <article key={p.slug} className="card flex flex-col p-5">
-              <h3 className="font-semibold text-slate-900"><Link href={`/p/${p.slug}`} className="hover:text-indigo-700">{p.title}</Link></h3>
-              <p className="mt-1 text-xs text-slate-500">{p.audience}</p>
-              <p className="mt-3 text-xs font-medium uppercase tracking-wide text-slate-500">Prompt (excerpt)</p>
-              <pre className="output mt-1 !max-h-40 !text-xs">{p.body.split("\n").slice(0, 8).join("\n")}…</pre>
-              <p className="mt-3 text-xs font-medium uppercase tracking-wide text-slate-500">Example output (illustrative)</p>
-              <pre className="mt-1 max-h-40 overflow-auto whitespace-pre-wrap rounded-lg bg-slate-50 p-3 text-xs text-slate-700 ring-1 ring-slate-200">{p.exampleOutput}</pre>
-              <Link href={`/p/${p.slug}`} className="mt-auto pt-3 text-sm font-medium text-indigo-700">Use this prompt →</Link>
-            </article>
+      {/* ---------------------------------------------------------------- recent */}
+      <section className="section !pt-0" aria-labelledby="recent">
+        <div className="flex flex-wrap items-end justify-between gap-2">
+          <div><p className="eyebrow">Library</p><h2 id="recent" className="h2 mt-2">Recently added prompts</h2></div>
+          <Link href="/library" className="link text-sm font-medium">Browse all {ALL_PROMPTS.length} →</Link>
+        </div>
+        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{recent.map((p) => <PromptCard key={p.slug} item={p} />)}</div>
+      </section>
+
+      {/* ---------------------------------------------------------------- privacy + external APIs */}
+      <section className="border-y border-line bg-surface" aria-labelledby="privacy">
+        <div className="section grid gap-10 lg:grid-cols-2">
+          <div>
+            <p className="eyebrow">Privacy & data</p>
+            <h2 id="privacy" className="h2 mt-2">What happens to what you type</h2>
+            <ul className="mt-6 space-y-4 text-sm text-muted">
+              <li><strong className="text-fg">Built in your browser.</strong> Generating, refining and regenerating prompts runs on templates on your device. No AI is called.</li>
+              <li><strong className="text-fg">Nothing stored unless you save.</strong> Saving while signed out stays in this browser. Signed-in saves go to your account, protected by row-level security.</li>
+              <li><strong className="text-fg">Links contain your text.</strong> If you share a builder link or submit the form without JavaScript, your goal is in the URL and can appear in hosting logs.</li>
+              <li><strong className="text-fg">No third-party analytics or advertising.</strong> <Link className="link" href="/privacy">Read the privacy policy</Link>.</li>
+            </ul>
+          </div>
+          <div>
+            <p className="eyebrow">External services</p>
+            <h2 className="h2 mt-2">Which features use an outside API</h2>
+            <div className="mt-6 overflow-x-auto rounded-xl border border-line">
+              <table className="w-full text-left text-sm">
+                <thead className="bg-surface-2 text-xs text-subtle"><tr><th scope="col" className="px-4 py-2.5 font-medium">Feature</th><th scope="col" className="px-4 py-2.5 font-medium">External API?</th></tr></thead>
+                <tbody className="divide-y divide-[var(--border)] text-muted">
+                  <tr><td className="px-4 py-3 text-fg">Prompt Builder, library, enhancer checklist</td><td className="px-4 py-3">None. Runs on templates.</td></tr>
+                  <tr><td className="px-4 py-3 text-fg">Try in ChatGPT / Claude / Gemini / Grok</td><td className="px-4 py-3">None. Copies to your clipboard and opens the official site.</td></tr>
+                  <tr><td className="px-4 py-3 text-fg">Enhancer “AI polish” (optional)</td><td className="px-4 py-3">Yes: the provider you choose, with your own API key, billed by them. Your key isn&apos;t stored.</td></tr>
+                  <tr><td className="px-4 py-3 text-fg">Sign-in, account saves, favourites, share links</td><td className="px-4 py-3">Yes: Supabase (our database and auth provider).</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ---------------------------------------------------------------- FAQ */}
+      <section className="section max-w-3xl" aria-labelledby="faq">
+        <p className="eyebrow text-center">FAQ</p>
+        <h2 id="faq" className="h2 mt-2 text-center">Questions, answered honestly</h2>
+        <div className="mt-8 divide-y divide-[var(--border)] rounded-2xl border border-line bg-surface">
+          {FAQ.map((f) => (
+            <details key={f.q} className="details-clean group px-5">
+              <summary className="flex min-h-14 items-center justify-between gap-4 py-4 font-medium text-fg">
+                {f.q}<span aria-hidden className="text-subtle transition-transform group-open:rotate-45">+</span>
+              </summary>
+              <p className="pb-5 text-sm text-muted">{f.a}</p>
+            </details>
           ))}
         </div>
       </section>
 
-      {/* Use cases by audience */}
-      <section className="mx-auto max-w-6xl px-4 py-8" aria-labelledby="audiences">
-        <h2 id="audiences" className="text-2xl font-bold text-slate-900">Made for everyone</h2>
-        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {USE_CASES.map((u) => <Link key={u.slug} href={`/prompts-for/${u.slug}`} className="card p-4 transition hover:shadow-md"><h3 className="font-semibold text-slate-900">{u.short} →</h3><p className="mt-1 text-sm text-slate-600">{u.starters.map((s) => s.goal).slice(0, 2).join(" · ")}</p></Link>)}
-        </div>
-      </section>
-
-      {/* Free tools */}
-      <section className="mx-auto max-w-6xl px-4 py-12" aria-labelledby="tools">
-        <h2 id="tools" className="text-2xl font-bold text-slate-900">Free tools</h2>
-        <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {TOOLS.map((f) => <Link key={f.href} href={f.href} className="card p-5 transition hover:-translate-y-0.5 hover:shadow-md motion-reduce:transition-none"><h3 className="font-semibold text-slate-900">{f.title} →</h3><p className="mt-2 text-sm text-slate-600">{f.body}</p></Link>)}
-        </div>
-      </section>
-
-      {/* Recent + trending */}
-      <section className="mx-auto max-w-6xl px-4 py-8" aria-labelledby="recent">
-        <div className="flex items-end justify-between"><h2 id="recent" className="text-2xl font-bold text-slate-900">Recently added</h2><Link href="/library" className="text-sm text-indigo-700">Browse the library →</Link></div>
-        <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{recent.map((p) => <PromptCard key={p.slug} item={p} />)}</div>
-      </section>
-      {trending.length > 0 && (
-        <section className="mx-auto max-w-6xl px-4 py-8" aria-labelledby="trending">
-          <div className="flex items-end justify-between"><h2 id="trending" className="text-2xl font-bold text-slate-900">Trending photo prompts</h2><Link href="/trending" className="text-sm text-indigo-700">See all →</Link></div>
-          <p className="mt-1 text-sm text-slate-600">Formats a dated third-party source reported as trending. We link the source; we don&apos;t have view counts.</p>
-          <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{trending.map((p) => <PromptCard key={p.slug} item={p} />)}</div>
-        </section>
-      )}
-
-      {/* Trust + CTA */}
-      <section className="mx-auto max-w-6xl px-4 py-12">
-        <div className="card grid gap-6 p-6 md:grid-cols-3">
-          <div><h3 className="font-semibold text-slate-900">Works without AI APIs</h3><p className="mt-1 text-sm text-slate-600">Prompts are built from templates in your browser. Same inputs, same output. Optional AI polish uses your own key.</p></div>
-          <div><h3 className="font-semibold text-slate-900">Private by default</h3><p className="mt-1 text-sm text-slate-600">Nothing is stored unless you press Save. No account needed to save in your browser.</p></div>
-          <div><h3 className="font-semibold text-slate-900">Honest by design</h3><p className="mt-1 text-sm text-slate-600">No fake stats, testimonials or user counts. Health, legal and money prompts include responsible guardrails.</p></div>
-        </div>
-        <div className="mt-10 text-center">
-          <h2 className="text-2xl font-bold text-slate-900">Ready to write a better prompt?</h2>
-          <div className="mt-4 flex flex-wrap justify-center gap-3"><Link href="/builder" className="btn-primary !px-5 !py-3 text-base">Open the Prompt Builder</Link><Link href="/library" className="btn-secondary !px-5 !py-3 text-base">Explore prompts</Link></div>
+      {/* ---------------------------------------------------------------- CTA */}
+      <section className="section !pt-0 text-center">
+        <div className="card px-6 py-12">
+          <h2 className="h2">Ready to write a better prompt?</h2>
+          <p className="mx-auto mt-2 max-w-xl text-muted">It takes one sentence. No account, no API key.</p>
+          <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
+            <ButtonLink href="/builder" size="lg">Build My Prompt</ButtonLink>
+            <ButtonLink href="/library" variant="secondary" size="lg">Explore Prompt Library</ButtonLink>
+          </div>
         </div>
       </section>
     </>

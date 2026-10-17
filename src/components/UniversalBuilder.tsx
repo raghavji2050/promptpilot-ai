@@ -33,20 +33,22 @@ export function UniversalBuilder({ initial = {}, autoGenerate = false }: { initi
   const [generated, setGenerated] = useState(autoGenerate && !!initial.goal?.trim());
   const [panel, setPanel] = useState<"" | "variations" | "explain">("");
   const [shareMsg, setShareMsg] = useState("");
+  const [alt, setAlt] = useState(0);
   const goalRef = useRef<HTMLTextAreaElement>(null);
   const resultRef = useRef<HTMLDivElement>(null);
 
-  const set = (patch: Partial<UniversalInput>) => setInput((p) => ({ ...p, ...patch }));
-  const setExtra = (k: string, v: string) => setInput((p) => ({ ...p, extra: { ...(p.extra ?? {}), [k]: v } }));
+  const set = (patch: Partial<UniversalInput>) => { setAlt(0); setInput((p) => ({ ...p, ...patch })); };
+  const setExtra = (k: string, v: string) => { setAlt(0); setInput((p) => ({ ...p, extra: { ...(p.extra ?? {}), [k]: v } })); };
 
   const result = useMemo(() => buildUniversal(input), [input]);
-  const vars = useMemo(() => (panel === "variations" && generated ? variations(input) : []), [panel, generated, input]);
+  const vars = useMemo(() => ((panel === "variations" || alt > 0) && generated ? variations(input) : []), [panel, alt, generated, input]);
   const reasons = useMemo(() => (panel === "explain" ? explainPrompt(result) : []), [panel, result]);
   const selectedCat = getCategory(input.categoryId);
   const subOptions = selectedCat?.subcategories ?? [];
   const visualFields: FieldDef[] = result.kind === "image" ? COMMON_IMAGE_FIELDS.filter((f) => f.key !== "subject") : result.kind === "video" ? COMMON_VIDEO_FIELDS.filter((f) => f.key !== "subject") : [];
   const subFields = result.kind === "text" ? result.sub?.fields ?? [] : [];
-  const text = generated ? result.text : "";
+  const altVar = alt > 0 ? vars[(alt - 1) % Math.max(vars.length, 1)] : undefined;
+  const text = generated ? (altVar?.text ?? result.text) : "";
 
   function generate() {
     if (!input.goal.trim()) { goalRef.current?.focus(); setGenerated(false); return; }
@@ -164,16 +166,18 @@ export function UniversalBuilder({ initial = {}, autoGenerate = false }: { initi
         <div className="card p-5">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <h2 className="font-semibold text-slate-900">Your prompt</h2>
-            <span className="text-xs text-slate-500">For {shortName(result.target.name)} · {detectedLabel}</span>
+            <span className="badge badge-accent">For {shortName(result.target.name)}</span>
           </div>
+          <p className="mt-1 text-sm text-slate-600">{generated && input.goal.trim() ? <><span className="font-medium text-slate-800">{input.goal.trim().length > 90 ? `${input.goal.trim().slice(0, 88)}…` : input.goal.trim()}</span> · {detectedLabel}{altVar ? ` · ${altVar.label}` : ""}</> : "Your generated prompt will appear here."}</p>
 
           <div className="mt-3 flex flex-wrap gap-2" role="group" aria-label="Refine">
             <button type="button" className={`chip ${input.improve ? "chip-active" : ""}`} aria-pressed={!!input.improve} disabled={!generated} onClick={() => set({ improve: !input.improve })}>Improve</button>
-            <button type="button" className={`chip ${input.mode === "detailed" ? "chip-active" : ""}`} aria-pressed={input.mode === "detailed"} disabled={!generated} onClick={() => set({ mode: input.mode === "detailed" ? "standard" : "detailed" })}>More detailed</button>
-            <button type="button" className={`chip ${input.mode === "concise" ? "chip-active" : ""}`} aria-pressed={input.mode === "concise"} disabled={!generated} onClick={() => set({ mode: input.mode === "concise" ? "standard" : "concise" })}>Simplify</button>
+            <button type="button" className={`chip ${input.mode === "detailed" ? "chip-active" : ""}`} aria-pressed={input.mode === "detailed"} disabled={!generated} onClick={() => set({ mode: input.mode === "detailed" ? "standard" : "detailed" })}>Make more detailed</button>
+            <button type="button" className={`chip ${input.mode === "concise" ? "chip-active" : ""}`} aria-pressed={input.mode === "concise"} disabled={!generated} onClick={() => set({ mode: input.mode === "concise" ? "standard" : "concise" })}>Make shorter</button>
             <button type="button" className={`chip ${input.fillGaps ? "chip-active" : ""}`} aria-pressed={!!input.fillGaps} disabled={!generated || result.kind !== "text"} onClick={() => set({ fillGaps: !input.fillGaps })}>Add missing context</button>
             <button type="button" className={`chip ${panel === "variations" ? "chip-active" : ""}`} aria-pressed={panel === "variations"} disabled={!generated} onClick={() => setPanel(panel === "variations" ? "" : "variations")}>Variations</button>
             <button type="button" className={`chip ${panel === "explain" ? "chip-active" : ""}`} aria-pressed={panel === "explain"} disabled={!generated} onClick={() => setPanel(panel === "explain" ? "" : "explain")}>Why this works</button>
+            <button type="button" className="chip" disabled={!generated} onClick={() => setAlt((a) => (a % 3) + 1)} title="Rebuild the same inputs with a different structure">↻ Regenerate</button>
           </div>
           <div className="mt-3 flex flex-wrap gap-3 text-sm">
             <label className="flex items-center gap-2 text-slate-600">Change tone
@@ -187,7 +191,7 @@ export function UniversalBuilder({ initial = {}, autoGenerate = false }: { initi
               </select>
             </label>
           </div>
-          <p className="mt-2 text-xs text-slate-500">These actions are rule-based and instant: no AI API is called, and your inputs are kept when you switch platforms.</p>
+          <p className="mt-2 text-xs text-slate-500">Regenerate cycles through alternative structures for the same inputs. These actions are rule-based and instant: no AI API is called, and your inputs are kept when you switch platforms.</p>
 
           {generated && result.warnings.length > 0 && (
             <ul className="mt-3 space-y-1 rounded-lg bg-amber-50 p-3 text-sm text-amber-900">{result.warnings.map((w) => <li key={w}>{w}</li>)}</ul>

@@ -14,13 +14,19 @@ export const SITE = {
 };
 
 export const NAV = [
+  { href: "/", label: "Home" },
   { href: "/builder", label: "Prompt Builder" },
+  { href: "/library", label: "Explore Prompts" },
   { href: "/categories", label: "Categories" },
-  { href: "/library", label: "Prompt Library" },
-  { href: "/prompts-for", label: "Use Cases" },
-  { href: "/enhancer", label: "Enhancer" },
+  { href: "/tools", label: "AI Tools" },
+  // Pricing is honest: everything is free today; Premium is labelled "coming soon" with no price or pay button.
   { href: "/pricing", label: "Pricing" },
 ];
+
+export function isActive(path: string | null | undefined, href: string) {
+  if (!path) return false;
+  return href === "/" ? path === "/" : path === href || path.startsWith(`${href}/`);
+}
 
 export function absoluteUrl(path: string) {
   return `${SITE.url}${path.startsWith("/") ? path : `/${path}`}`;
