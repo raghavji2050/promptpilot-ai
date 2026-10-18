@@ -7,6 +7,7 @@ import { CopyButton } from "./CopyButton";
 import { SaveButton } from "./SaveButton";
 import { TryInButtons } from "./TryInButtons";
 import { LiveBeforeAfter } from "./LiveBeforeAfter";
+import { ShareCard } from "./ShareCard";
 
 const shortName = (n: string) => n.split(" (")[0];
 /** Languages offered by "Change language" (Indian languages first). */
@@ -59,6 +60,7 @@ export const ResultsPanel = forwardRef<HTMLHeadingElement, { input: UniversalInp
           {shareMsg && <p className="mt-2 break-all text-xs text-subtle" role="status">{shareMsg}</p>}
           <TryInButtons text={text} />
           <LiveBeforeAfter goal={input.goal} result={result} text={text} />
+          <ShareCard input={input} festivalName={result.festival?.name} />
 
           <div className="mt-5 border-t border-line pt-4">
             <p className="text-sm font-medium text-fg">Refine</p>

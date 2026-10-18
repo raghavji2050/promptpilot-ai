@@ -4,7 +4,8 @@ import { notFound } from "next/navigation";
 import { formatDate, formatRange, getFestival, istToday, nextInstance } from "@/lib/festivals";
 import { loadFestivals } from "@/lib/festivals/server";
 import { festiveStyle } from "@/lib/festivals/ui";
-import { buildUniversal, festivalGoalLabel, festivalGoalSentence } from "@/lib/engine";
+import { buildUniversal, festivalGoalLabel, festivalGoalSentence, type UniversalInput } from "@/lib/engine";
+import { ShareCard } from "@/components/ShareCard";
 import { FESTIVAL_TOPICS, getTopic } from "@/content/festival-topics";
 import { CopyButton } from "@/components/CopyButton";
 import { TryInButtons } from "@/components/TryInButtons";
@@ -52,10 +53,11 @@ export default async function FestivalTopicPage({ params }: { params: Promise<{ 
   const s = t.sample;
   const extra: Record<string, string> = { festival: f.slug, fgoal: s.goal, ...(s.platform ? { platform: s.platform } : {}), ...(s.extra ?? {}) };
   const lang = s.language && s.language !== "English" ? s.language : undefined;
-  const sample = buildUniversal({
+  const sampleInput: UniversalInput = {
     goal: festivalGoalSentence({ festivalName: f.name, goal: s.goal, audience: s.audience, language: lang, platform: s.platform, extra }),
     targetId: s.targetId ?? "chatgpt", language: lang, audience: s.audience, mode: "standard", extra,
-  });
+  };
+  const sample = buildUniversal(sampleInput);
   const related = FESTIVAL_TOPICS.filter((x) => x !== t).sort((a, b) => Number(b.festival === slug) - Number(a.festival === slug)).slice(0, 4);
   const url = absoluteUrl(`/festivals/${slug}/${topic}`);
 
@@ -101,6 +103,7 @@ export default async function FestivalTopicPage({ params }: { params: Promise<{ 
             <Link href={studioLink(f.slug, s.goal, s.platform, s.language)} className="btn-secondary">Customise in the {f.name} studio</Link>
           </div>
           <TryInButtons text={sample.text} />
+          <ShareCard input={sampleInput} festivalName={f.name} />
         </section>
 
         <section className="mt-10" aria-labelledby="var-h">

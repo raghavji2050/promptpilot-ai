@@ -3,14 +3,25 @@ import Link from "next/link";
 import { UniversalBuilder } from "@/components/UniversalBuilder";
 import { fromShareParams, TARGETS } from "@/lib/engine";
 import { getCategory } from "@/lib/categories";
+import { cardUrl } from "@/lib/share";
 
-export const metadata: Metadata = {
-  title: "Free AI Prompt Builder for ChatGPT, Claude, Gemini, Grok & More",
-  description: "Describe your goal in plain language and get a clear, structured prompt for ChatGPT, Claude, Gemini, Grok, Perplexity, image and video tools. Free, no sign-up, no API key.",
-  alternates: { canonical: "/builder" },
-};
+const TITLE = "Free AI Prompt Builder for ChatGPT, Claude, Gemini, Grok & More";
+const DESCRIPTION = "Describe your goal in plain language and get a clear, structured prompt for ChatGPT, Claude, Gemini, Grok, Perplexity, image and video tools. Free, no sign-up, no API key.";
 
 type SP = Record<string, string | string[] | undefined>;
+
+/** Shared prompt links (?goal=…) get a Before vs After card as their social preview image. */
+export async function generateMetadata({ searchParams }: { searchParams: Promise<SP> }): Promise<Metadata> {
+  const sp = await searchParams;
+  const base: Metadata = { title: TITLE, description: DESCRIPTION, alternates: { canonical: "/builder" } };
+  const get = (k: string) => { const v = sp[k]; return Array.isArray(v) ? v[0] : v; };
+  const initial = fromShareParams(get, Object.keys(sp));
+  if (!initial.goal) return base;
+  const image = cardUrl({ ...initial, goal: initial.goal, targetId: initial.targetId ?? "chatgpt" }, "wide");
+  const title = "Before vs after: a structured AI prompt built with PromptPilot AI";
+  const description = "See a one-line idea turned into a detailed prompt, then open it in the free builder and make it your own.";
+  return { ...base, robots: { index: false, follow: true }, openGraph: { title, description, url: "/builder", images: [{ url: image, width: 1200, height: 630, alt: "Before vs after prompt card" }] }, twitter: { card: "summary_large_image", title, description, images: [image] } };
+}
 
 export default async function BuilderPage({ searchParams }: { searchParams: Promise<SP> }) {
   const sp = await searchParams;
