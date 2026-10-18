@@ -10,6 +10,8 @@ import { festiveStyle, festivalOptions } from "@/lib/festivals/ui";
 import { FestivalCountdown } from "@/components/FestivalCountdown";
 import { FestivalBuilderWithParams } from "@/components/FestivalBuilder";
 import { absoluteUrl } from "@/lib/site";
+import { topicsFor } from "@/content/festival-topics";
+import { JsonLd } from "@/components/JsonLd";
 
 export const revalidate = 3600;
 export const dynamicParams = false;
@@ -24,7 +26,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (!f) return {};
   const title = `${f.name} AI Prompts: Greetings, Reels, Posts & Business Campaigns`;
   const description = `Free ${f.name} prompt builder for ChatGPT, Claude, Gemini and image tools: greetings in Hindi, Hinglish and regional languages, Instagram posts, Reel scripts, posters and honest small-business campaigns.`;
-  return { title, description, alternates: { canonical: absoluteUrl(`/festivals/${f.slug}`) }, openGraph: { title, description, url: absoluteUrl(`/festivals/${f.slug}`) } };
+  return { title, description, alternates: { canonical: absoluteUrl(`/festivals/${f.slug}`) }, openGraph: { title, description, url: absoluteUrl(`/festivals/${f.slug}`) }, twitter: { card: "summary_large_image", title, description } };
 }
 
 export default async function FestivalStudioPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -40,6 +42,11 @@ export default async function FestivalStudioPage({ params }: { params: Promise<{
 
   return (
     <div style={festiveStyle(f)} className="festive">
+      <JsonLd data={{ "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Home", item: absoluteUrl("/") },
+        { "@type": "ListItem", position: 2, name: "Festivals", item: absoluteUrl("/festivals") },
+        { "@type": "ListItem", position: 3, name: f.name, item: absoluteUrl(`/festivals/${f.slug}`) },
+      ] }} />
       <nav aria-label="Breadcrumb" className="mx-auto max-w-6xl px-4 pt-6 text-sm text-subtle">
         <Link href="/" className="link">Home</Link> <span aria-hidden>›</span> <Link href="/festivals" className="link">Festivals</Link> <span aria-hidden>›</span> <span aria-current="page">{f.name}</span>
       </nav>
@@ -60,6 +67,13 @@ export default async function FestivalStudioPage({ params }: { params: Promise<{
           <div className="shrink-0"><FestivalCountdown festival={f} serverToday={today} /></div>
         </div>
       </header>
+
+      {topicsFor(f.slug).length > 0 && (
+        <nav aria-label={`${f.name} guides`} className="mx-auto max-w-6xl px-4 pb-6">
+          <p className="text-sm font-medium text-fg">{f.name} guides</p>
+          <ul className="mt-2 flex flex-wrap gap-2">{topicsFor(f.slug).map((t) => <li key={t.topic}><Link href={`/festivals/${f.slug}/${t.topic}`} className="chip">{t.h1}</Link></li>)}</ul>
+        </nav>
+      )}
 
       <section id="builder" className="mx-auto max-w-6xl scroll-mt-20 px-4 pb-12" aria-label="Festival prompt builder">
         <FestivalBuilderWithParams festivals={options} fallbackSlug={f.slug} />

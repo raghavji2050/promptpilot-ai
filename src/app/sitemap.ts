@@ -5,6 +5,7 @@ import { CATEGORIES } from "@/lib/categories";
 import { STACKS, TARGETS } from "@/lib/engine";
 import { absoluteUrl, SITE } from "@/lib/site";
 import { FESTIVALS } from "@/lib/festivals";
+import { FESTIVAL_TOPICS } from "@/content/festival-topics";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const lastModified = SITE.lastReviewed;
@@ -12,6 +13,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   return [
     ...staticPaths.map((p) => ({ url: absoluteUrl(p), lastModified, changeFrequency: (p === "/trending" ? "weekly" : "monthly") as "weekly" | "monthly", priority: p === "/" ? 1 : 0.8 })),
     ...FESTIVALS.map((f) => ({ url: absoluteUrl(`/festivals/${f.slug}`), lastModified: "2026-10-18", changeFrequency: "weekly" as const, priority: 0.8 })),
+    ...FESTIVAL_TOPICS.map((t) => ({ url: absoluteUrl(`/festivals/${t.festival}/${t.topic}`), lastModified: "2026-10-18", changeFrequency: "weekly" as const, priority: 0.8 })),
     ...USE_CASES.map((u) => ({ url: absoluteUrl(`/prompts-for/${u.slug}`), lastModified, changeFrequency: "monthly" as const, priority: 0.9 })),
     ...CATEGORIES.map((c) => ({ url: absoluteUrl(`/categories/${c.id}`), lastModified, changeFrequency: "monthly" as const, priority: 0.8 })),
     ...TARGETS.map((t) => ({ url: absoluteUrl(`/builder/${t.id}`), lastModified, changeFrequency: "monthly" as const, priority: 0.6 })),
