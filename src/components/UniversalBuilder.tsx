@@ -9,6 +9,7 @@ import { CATEGORIES, getCategory } from "@/lib/categories";
 import { CopyButton } from "./CopyButton";
 import { SaveButton } from "./SaveButton";
 import { TryInButtons } from "./TryInButtons";
+import { LiveBeforeAfter } from "./LiveBeforeAfter";
 
 const GROUPS: { family: TargetFamily[]; label: string }[] = [
   { family: ["chat"], label: "Chat assistants" },
@@ -206,6 +207,7 @@ export function UniversalBuilder({ initial = {}, autoGenerate = false }: { initi
           </div>
           {shareMsg && <p className="mt-2 break-all text-xs text-slate-600" role="status">{shareMsg}</p>}
           <TryInButtons text={text} />
+          <LiveBeforeAfter goal={input.goal} result={result} text={text} />
           <div className="mt-4 rounded-lg border border-dashed border-slate-300 p-3 text-xs text-slate-600">
             <strong className="text-slate-800">Optional: polish with an AI model.</strong> Generating above never calls an AI. If you want an LLM to rewrite this prompt, use the{" "}
             <a className="text-indigo-700 underline" href="/enhancer?from=builder" onClick={() => { if (text) sessionStorage.setItem("pp.enhance", text); }}>Enhancer</a> with your own API key (billed by your provider; we don&apos;t store it).

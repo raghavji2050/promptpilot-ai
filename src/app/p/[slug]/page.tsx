@@ -6,6 +6,9 @@ import { getCategory, findSubcategory } from "@/lib/categories";
 import { TARGETS } from "@/lib/engine";
 import { CopyButton } from "@/components/CopyButton";
 import { TryInButtons } from "@/components/TryInButtons";
+import { BeforeAfterCompare } from "@/components/BeforeAfter";
+import { pairForSlug, ILLUSTRATION_NOTE } from "@/content/before-after";
+import { analyzePromptText } from "@/lib/engine/compare";
 import { SaveButton } from "@/components/SaveButton";
 import { FavoriteButton } from "@/components/FavoriteButton";
 import { TrendBadge } from "@/components/TrendBadge";
@@ -34,6 +37,9 @@ export default async function PromptDetail({ params }: { params: Promise<{ slug:
   const cat = getCategory(p.cat);
   const sec = cat ? { href: `/categories/${cat.id}`, label: cat.name } : { href: "/library", label: "Library" };
   const sub = findSubcategory(p.sub)?.sub;
+  const pair = pairForSlug(p.slug);
+  // The vague request people typically type for this task (used when we have no curated pair).
+  const vagueVersion = (p.useCase || p.title).replace(/[.:].*$/, "").toLowerCase();
   const inputs = requiredInputs(p.body);
   const related = ALL_PROMPTS.filter((x) => x.slug !== p.slug && x.cat === p.cat && (x.sub === p.sub || x.category === p.category || x.tags.some((t) => p.tags.includes(t)))).slice(0, 3);
   return (
@@ -81,10 +87,18 @@ export default async function PromptDetail({ params }: { params: Promise<{ slug:
         <p className="mt-3 text-xs text-slate-500">Replace [bracketed] parts with your own details before sending.{sub && <> Want it tailored? <Link className="text-indigo-700 underline" href={`/builder?cat=${p.cat}&sub=${sub.id}`}>Build a custom {sub.name.toLowerCase()} prompt</Link>.</>}</p>
       </div>
 
+      <section className="mt-8" aria-labelledby="ba-h">
+        <h2 id="ba-h" className="h2 text-xl">Before vs after</h2>
+        <p className="mt-1 text-sm text-muted">{pair ? "A typical one-line request compared with this prompt." : "A typical one-line request compared with this prompt. We only show sample responses where we've written an illustration."}</p>
+        <div className="mt-4">
+          <BeforeAfterCompare beforePrompt={pair?.before.prompt ?? vagueVersion} beforeResponse={pair?.before.response} afterPrompt={p.body} afterResponse={pair?.after.response} changes={pair?.changes} chips={analyzePromptText(p.body)} afterSubtitle="This library prompt" />
+        </div>
+      </section>
+
       {p.exampleOutput && (
         <div className="card mt-6 p-5">
           <h2 className="font-semibold text-slate-900">Example output</h2>
-          <p className="mt-1 text-xs text-slate-500">Illustrative sample written by PromptPilot to show the shape of a good answer. Not a real AI response; actual results vary.</p>
+          <p className="mt-1 text-xs text-slate-500">{ILLUSTRATION_NOTE} Actual results vary.</p>
           <pre className="mt-3 overflow-auto whitespace-pre-wrap rounded-lg bg-slate-50 p-4 text-sm text-slate-700 ring-1 ring-slate-200">{p.exampleOutput}</pre>
         </div>
       )}

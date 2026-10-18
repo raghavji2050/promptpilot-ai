@@ -6,3 +6,4 @@ export * from "./analyze";
 export * from "./agent";
 export * from "./studio";
 export * from "./universal";
+export * from "./compare";

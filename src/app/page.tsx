@@ -5,6 +5,7 @@ import { TARGETS } from "@/lib/engine";
 import { PromptCard } from "@/components/PromptCard";
 import { JsonLd } from "@/components/JsonLd";
 import { HeroBuilder } from "@/components/HeroBuilder";
+import { BeforeAfterShowcase } from "@/components/BeforeAfterShowcase";
 import { CategoryCard } from "@/components/ui/CategoryCard";
 import { ButtonLink } from "@/components/ui/Button";
 import { SITE } from "@/lib/site";
@@ -32,8 +33,7 @@ const FAQ = [
 ];
 
 export default function Home() {
-  const examples = ALL_PROMPTS.filter((p) => p.exampleOutput).slice(0, 3);
-  const recent = searchLibrary(ALL_PROMPTS.filter((p) => p.kind === "general"), { sort: "newest" }).filter((p) => !examples.includes(p)).slice(0, 6);
+  const recent = searchLibrary(ALL_PROMPTS.filter((p) => p.kind === "general"), { sort: "newest" }).slice(0, 6);
   const platforms = [
     ...TARGETS.filter((t) => t.family === "chat" || t.family === "search").map((t) => ({ id: t.id, name: t.name.split(" (")[0] })),
     ...TARGETS.filter((t) => t.family === "image" || t.family === "video").map((t) => ({ id: t.id, name: t.name.split(" (")[0] })),
@@ -75,25 +75,13 @@ export default function Home() {
         </ol>
       </section>
 
-      {/* ---------------------------------------------------------------- real examples */}
+      {/* ---------------------------------------------------------------- before vs after */}
       <section className="border-y border-line bg-surface" aria-labelledby="examples">
         <div className="section">
-          <p className="eyebrow">Examples</p>
-          <h2 id="examples" className="h2 mt-2">Real prompts from the library, and the kind of answer they get</h2>
-          <p className="mt-2 text-sm text-muted">Prompts are real library entries. Example outputs are short illustrative samples we wrote, not actual AI responses.</p>
-          <div className="mt-8 grid gap-4 lg:grid-cols-3">
-            {examples.map((p) => (
-              <article key={p.slug} className="card card-hover flex flex-col p-5">
-                <p className="text-xs text-subtle">{p.audience}</p>
-                <h3 className="mt-1 font-semibold text-fg"><Link href={`/p/${p.slug}`} className="hover:text-accent-text">{p.title}</Link></h3>
-                <p className="mt-4 text-xs font-medium text-subtle">Prompt (excerpt)</p>
-                <pre className="output mt-1 !max-h-36 !p-3 !text-xs">{p.body.split("\n").slice(0, 7).join("\n")}…</pre>
-                <p className="mt-4 text-xs font-medium text-subtle">Example output (illustrative)</p>
-                <pre className="mt-1 max-h-36 overflow-auto whitespace-pre-wrap rounded-xl bg-surface-2 p-3 font-sans text-xs text-muted">{p.exampleOutput}</pre>
-                <Link href={`/p/${p.slug}`} className="link mt-auto pt-4 text-sm font-medium">Use this prompt →</Link>
-              </article>
-            ))}
-          </div>
+          <p className="eyebrow">Before vs after</p>
+          <h2 id="examples" className="h2 mt-2">Same request, two prompts. See the difference.</h2>
+          <p className="mt-2 max-w-3xl text-sm text-muted">Left: the one-liner most people type. Right: the prompt PromptPilot builds, generated live by the same engine as the builder. Sample responses on both sides are written by us for illustration; they are not live AI responses.</p>
+          <div className="mt-8"><BeforeAfterShowcase /></div>
         </div>
       </section>
 

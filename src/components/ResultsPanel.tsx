@@ -6,6 +6,7 @@ import { useSession } from "@/lib/saved";
 import { CopyButton } from "./CopyButton";
 import { SaveButton } from "./SaveButton";
 import { TryInButtons } from "./TryInButtons";
+import { LiveBeforeAfter } from "./LiveBeforeAfter";
 
 const shortName = (n: string) => n.split(" (")[0];
 
@@ -45,6 +46,7 @@ export const ResultsPanel = forwardRef<HTMLHeadingElement, { input: UniversalInp
               : <Link href="/login" className="btn-ghost text-sm">Log in to save</Link>}
           </div>
           <TryInButtons text={text} />
+          <LiveBeforeAfter goal={input.goal} result={result} text={text} />
 
           <div className="mt-5 border-t border-line pt-4">
             <p className="text-sm font-medium text-fg">Refine</p>
