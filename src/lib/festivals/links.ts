@@ -1,4 +1,3 @@
-import { builderHref } from "@/lib/site";
 import type { Festival, FestivalGoal } from "./types";
 
 /** Quick-start goals shown as "collections" for a festival (first matching 4). */
@@ -15,8 +14,10 @@ export function quickGoals(f: Festival, n = 4) {
   return QUICK_GOALS.filter((q) => f.goals.includes(q.goal)).slice(0, n);
 }
 
-/** Where "Create Festival Content" goes for a festival. */
-export function festivalHref(f: Festival, goal?: FestivalGoal): string {
-  const q = goal ? QUICK_GOALS.find((x) => x.goal === goal) : undefined;
-  return builderHref(q ? q.text(f) : `Create ${f.name} content for my audience`);
+/** The festival studio, optionally opening the builder on a goal (auto-generates). */
+export function festivalHref(f: Festival, goal?: FestivalGoal, platform?: string): string {
+  if (!goal) return `/festivals/${f.slug}`;
+  const p = new URLSearchParams({ goal });
+  if (platform) p.set("platform", platform);
+  return `/festivals/${f.slug}?${p.toString()}#builder`;
 }

@@ -1,24 +1,15 @@
 "use client";
 import Link from "next/link";
-import { useSyncExternalStore, type CSSProperties } from "react";
 import {
-  activeCampaign, countdown, formatDate, formatRange, istToday, sourceList, upcomingInstances,
+  activeCampaign, countdown, formatDate, formatRange, sourceList, upcomingInstances,
   type Festival, type FestivalInstance,
 } from "@/lib/festivals";
 import { festivalHref, quickGoals } from "@/lib/festivals/links";
+import { useISTToday } from "@/lib/festivals/useISTToday";
+import { festiveStyle } from "@/lib/festivals/ui";
 
-const noop = () => () => {};
 
-/** Today in IST: server snapshot during SSR/hydration, the live IST date afterwards. */
-function useISTToday(serverToday: string) {
-  return useSyncExternalStore(noop, () => istToday(), () => serverToday);
-}
-
-export function festiveStyle(f: Festival): CSSProperties {
-  return { "--festive": f.theme.accent, "--festive-soft": f.theme.soft, "--festive-dark": f.theme.accentDark } as CSSProperties;
-}
-
-function StatusLabel({ inst }: { inst: FestivalInstance }) {
+export function StatusLabel({ inst }: { inst: FestivalInstance }) {
   const o = inst.occurrence;
   return o.status === "verified" ? (
     <p className="text-xs text-subtle">Date checked {formatDate(o.lastVerified, { weekday: false })} against {sourceList(o.sources).slice(0, 2).map((s) => s.label.split(" (")[0]).join(" and ")}.</p>

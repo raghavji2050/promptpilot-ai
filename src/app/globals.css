@@ -211,3 +211,5 @@ p { text-wrap: pretty; }
 .festive-btn { background: var(--f); border-color: var(--f); }
 .dark .festive-btn { color: #111318; }
 .festive-btn:hover { filter: brightness(0.92); }
+/* Radio chips (visually hidden input inside a label): show keyboard focus on the chip. */
+.chip:has(input:focus-visible) { outline: 2px solid var(--ring); outline-offset: 2px; }

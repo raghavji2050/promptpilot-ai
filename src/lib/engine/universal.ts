@@ -7,6 +7,7 @@ import { CATEGORIES, GUARDRAILS, getCategory, findSubcategory, type Category, ty
 import { buildVisual } from "./visual";
 import { expertFor, GENERIC_BLOCK, type ExpertBlock, type Slot } from "./expert";
 import { getTarget, TARGETS } from "./targets";
+import { festivalBlock, festivalContextFor, festivalContextLines, festivalGoalCategory, festivalGoalLabel, festivalVisualExtra, languageRules, FESTIVAL_FIELDS, IMAGE_TEXT_NOTE, type FestivalContext } from "./festival";
 import type { CheckResult, FieldDef, Mode, Section, Target } from "./types";
 
 export const TONES = ["", "friendly", "professional", "casual", "persuasive", "encouraging", "formal", "playful", "direct", "empathetic", "academic"] as const;
@@ -70,6 +71,8 @@ export interface UniversalResult {
   missing: MissingItem[];
   checks: CheckResult[];
   score: number;
+  /** Set when the prompt was built by the festival layer (input.extra.festival + fgoal). */
+  festival?: { slug: string; name: string; goal: string; goalLabel: string };
 }
 
 // ------------------------------------------------------------------ text utils
@@ -188,7 +191,7 @@ function fieldsForSub(sub: Subcategory | null): FieldDef[] {
   return sub?.fields ?? [];
 }
 
-const TOP_LEVEL = new Set(["audience", "context", "tone", "format", "constraints"]);
+const TOP_LEVEL = new Set(["audience", "context", "tone", "format", "constraints", "language"]);
 function slotValue(input: UniversalInput, key: string | undefined): string {
   if (!key) return "";
   if (TOP_LEVEL.has(key)) return cleanText((input as unknown as Record<string, string | undefined>)[key], 4000);
@@ -206,8 +209,8 @@ export function slotStates(input: UniversalInput, block: ExpertBlock): SlotState
   });
 }
 
-export function missingContext(input: UniversalInput, sub: Subcategory | null, cat: Category | null = sub ? findSubcategory(sub.id)?.category ?? null : null): MissingItem[] {
-  const block = expertFor(cat, sub) ?? GENERIC_BLOCK;
+export function missingContext(input: UniversalInput, sub: Subcategory | null, cat: Category | null = sub ? findSubcategory(sub.id)?.category ?? null : null, blockOverride?: ExpertBlock): MissingItem[] {
+  const block = blockOverride ?? expertFor(cat, sub) ?? GENERIC_BLOCK;
   const out: MissingItem[] = slotStates(input, block).filter((x) => !x.value && !x.detected).map((x) => ({ key: x.slot.key ?? x.slot.label, label: x.slot.label, question: x.slot.question }));
   if (!cleanText(input.format) && !out.some((m) => m.key === "format")) out.push({ key: "format", label: "Output format", question: "What format and length do you want?" });
   return out;
@@ -215,13 +218,13 @@ export function missingContext(input: UniversalInput, sub: Subcategory | null, c
 
 const shortRole = (role: string) => role.split(/,? who |\. |, known for /)[0];
 
-function textSections(input: UniversalInput, target: Target, cat: Category | null, sub: Subcategory | null): Section[] {
+function textSections(input: UniversalInput, target: Target, cat: Category | null, sub: Subcategory | null, fest: FestivalContext | null = null): Section[] {
   const mode: Mode = input.mode ?? "standard";
   const concise = mode === "concise";
   const improve = !!input.improve;
   const fill = !!input.fillGaps;
   const askFirst = !!input.askFirst;
-  const block = expertFor(cat, sub) ?? GENERIC_BLOCK;
+  const block = fest ? festivalBlock(fest) : expertFor(cat, sub) ?? GENERIC_BLOCK;
   const goal = cleanText(input.goal, 1500);
   const s: Section[] = [];
 
@@ -230,7 +233,7 @@ function textSections(input: UniversalInput, target: Target, cat: Category | nul
 
   // Context: the user's actual details.
   const states = slotStates(input, block);
-  const ctx: string[] = [];
+  const ctx: string[] = fest ? festivalContextLines(fest) : [];
   const used = new Set<string>();
   for (const st of states) {
     if (st.slot.key) used.add(st.slot.key);
@@ -241,6 +244,14 @@ function textSections(input: UniversalInput, target: Target, cat: Category | nul
     if (used.has(f.key)) continue;
     const v = cleanText(input.extra?.[f.key], f.maxLen ?? 4000);
     if (v) ctx.push(v.includes("\n") ? `${f.label}:\n${v}` : `${f.label}: ${v}`);
+  }
+  if (fest) {
+    for (const f of [{ key: "platform", label: "Platform" }, ...FESTIVAL_FIELDS]) {
+      if (used.has(f.key)) continue;
+      used.add(f.key);
+      const v = cleanText(input.extra?.[f.key], 600);
+      if (v) ctx.push(`${f.label.replace(/ \(.*\)$/, "")}: ${v}`);
+    }
   }
   for (const k of ["context", "audience"] as const) {
     if (used.has(k)) continue;
@@ -283,9 +294,9 @@ function textSections(input: UniversalInput, target: Target, cat: Category | nul
   const tone = cleanText(input.tone, 60);
   if (tone) user.push(`Tone: ${tone}`);
   const lang = cleanText(input.language, 60);
-  if (lang && lang !== "English") user.push(`Respond in ${lang}`);
+  if (lang && lang !== "English") user.push(`Respond in ${lang}`, ...languageRules(lang));
   user.push(...lines(cleanText(input.constraints, 2000)));
-  const guard = sub?.sensitive ? GUARDRAILS[sub.sensitive] : [];
+  const guard = fest ? fest.festival.care : sub?.sensitive ? GUARDRAILS[sub.sensitive] : [];
   let constraints = concise
     ? [...user, ...block.constraints.slice(0, 1), ...guard, ...platformRules(target, cat)]
     : [...user, ...block.constraints, ...guard, ...platformRules(target, cat),
@@ -374,29 +385,35 @@ function scoreOf(checks: CheckResult[]): number {
 // ------------------------------------------------------------------ public API
 export function buildUniversal(input: UniversalInput): UniversalResult {
   const target = TARGETS.some((t) => t.id === input.targetId) ? getTarget(input.targetId) : getTarget("chatgpt");
-  const { category, sub, source, detection } = resolveIntent(input);
+  const fest = festivalContextFor(input.extra);
+  const { category, sub, source, detection } = fest
+    ? { category: getCategory(festivalGoalCategory(fest.goal)) ?? null, sub: null, source: "user" as const, detection: null }
+    : resolveIntent(input);
   const mode: Mode = input.mode ?? "standard";
   const warnings: string[] = [];
   const goal = cleanText(input.goal, 1500);
 
   let kind: UniversalResult["kind"] = "text";
   if (target.family === "image" || target.family === "video") kind = target.family;
+  else if (fest?.goal === "image") kind = "image";
   else if (sub?.visual === "video") kind = "video";
   else if (sub?.visual === "image") kind = "image";
 
-  const missing = kind === "text" ? missingContext(input, sub) : [];
+  const missing = kind === "text" ? missingContext(input, sub, category, fest ? festivalBlock(fest) : undefined) : [];
   let text = "";
   let sections: Section[] = [];
 
   if (kind !== "text") {
     const visualTarget = target.family === kind ? target : getTarget(kind === "image" ? "image-generic" : "video");
-    const r = buildVisual({ kind, subId: sub?.id, goal, extra: visualValues(input), target: target.family === "image" || target.family === "video" ? visualTarget : target, mode, improve: !!input.improve || !!input.fillGaps });
+    const vx = fest ? festivalVisualExtra(fest, visualValues(input), goal) : visualValues(input);
+    const r = buildVisual({ kind, subId: fest ? null : sub?.id, goal, extra: vx, target: target.family === "image" || target.family === "video" ? visualTarget : target, mode, improve: !!input.improve || !!input.fillGaps });
     text = r.text;
     sections = r.sections;
     if (target.family !== kind) warnings.push(`This looks like a${kind === "image" ? "n image" : " video"} task, so the prompt is a visual description you can paste into ${target.name} or any ${kind} tool. Whether ${target.name} can create ${kind}s depends on your plan and the tool.`);
+    if (fest) warnings.push(IMAGE_TEXT_NOTE);
     if (target.family === "image" && sub && !sub.visual) warnings.push(`${target.name} is an image tool, so your goal was turned into an image description.`);
   } else {
-    sections = textSections(input, target, category, sub);
+    sections = textSections(input, target, category, sub, fest);
     text = goal ? formatUniversal(sections, target, mode) : "";
     if (target.family === "coding_agent" && category?.id !== "coding") warnings.push(`${target.name} is built for coding. For this task a chat assistant (ChatGPT, Claude, Gemini, Grok) is usually a better fit.`);
   }
@@ -404,7 +421,8 @@ export function buildUniversal(input: UniversalInput): UniversalResult {
   if (goal && source === "none") warnings.push("We couldn't match a category, so a general-purpose structure was used. Pick a category for a more specific prompt.");
 
   const checks = checksFor(input, sub, kind);
-  return { text, sections, target, category, sub, source, detection, kind, warnings, missing, checks, score: scoreOf(checks) };
+  const festival = fest ? { slug: fest.festival.slug, name: fest.festival.name, goal: fest.goal, goalLabel: festivalGoalLabel(fest.goal) } : undefined;
+  return { text, sections, target, category, sub, source, detection, kind, warnings, missing, checks, score: scoreOf(checks), ...(festival ? { festival } : {}) };
 }
 
 export interface Variation { id: string; label: string; description: string; text: string }
@@ -445,13 +463,15 @@ export function explainPrompt(result: UniversalResult): string[] {
     out.push("It lists things to avoid when you add them, which reduces common artefacts.");
     return out;
   }
-  const block = expertFor(result.category, result.sub) ?? GENERIC_BLOCK;
+  const fest = result.festival ? festivalContextFor({ festival: result.festival.slug, fgoal: result.festival.goal, occasion: result.festival.name }) : null;
+  const block = fest ? festivalBlock(fest) : expertFor(result.category, result.sub) ?? GENERIC_BLOCK;
   out.push(`Role: the AI acts as ${withArticle(shortRole(block.role))}, which sets the expertise, vocabulary and standards of the answer.`);
   if (has("context")) out.push("Context: your real details are passed in, so the answer is about your situation rather than an average one.");
   out.push("Success criterion: the prompt says what a great answer must achieve, so the AI knows what \"done\" looks like.");
   if (has("questions")) out.push("Clarifying questions: the AI asks for the missing key details first instead of guessing.");
   else if (has("assumptions")) out.push("Assumptions: for details you didn't give, the AI uses sensible defaults and states them up front so you can correct them.");
-  out.push(`Steps: a workflow specific to ${result.sub ? result.sub.name.toLowerCase() : "this kind of task"} makes the AI work in the order an expert would, instead of jumping to a generic answer.`);
+  if (fest) out.push(`Festival context: the real ${fest.festival.name} date (in IST, marked provisional when sources disagree) and cultural-care rules are built in, so the AI doesn't guess dates or invent customs.`);
+  out.push(`Steps: a workflow specific to ${result.festival ? result.festival.goalLabel.toLowerCase() : result.sub ? result.sub.name.toLowerCase() : "this kind of task"} makes the AI work in the order an expert would, instead of jumping to a generic answer.`);
   if (has("constraints")) out.push("Constraints: concrete limits (length, banned clichés, no invented facts) stop the usual padding and made-up details.");
   if (result.sub?.sensitive) out.push(`Guardrails: because this touches on ${result.sub.sensitive} topics, the prompt asks for reliable sources and recommends consulting a qualified professional.`);
   out.push("Output format: named sections and tables make the result easy to scan and reuse.");
