@@ -7,7 +7,7 @@ import { CATEGORIES, GUARDRAILS, getCategory, findSubcategory, type Category, ty
 import { buildVisual } from "./visual";
 import { expertFor, GENERIC_BLOCK, type ExpertBlock, type Slot } from "./expert";
 import { getTarget, TARGETS } from "./targets";
-import { festivalBlock, festivalContextFor, festivalContextLines, festivalGoalCategory, festivalGoalLabel, festivalVisualExtra, languageRules, FESTIVAL_FIELDS, IMAGE_TEXT_NOTE, type FestivalContext } from "./festival";
+import { detectFestivalIntent, festivalBlock, festivalContextFor, festivalContextLines, festivalGoalCategory, festivalGoalLabel, festivalVisualExtra, languageRules, FESTIVAL_FIELDS, IMAGE_TEXT_NOTE, type FestivalContext } from "./festival";
 import type { CheckResult, FieldDef, Mode, Section, Target } from "./types";
 
 export const TONES = ["", "friendly", "professional", "casual", "persuasive", "encouraging", "formal", "playful", "direct", "empathetic", "academic"] as const;
@@ -154,6 +154,8 @@ export function detectIntent(goal: string): Detection | null {
 }
 
 // ------------------------------------------------------------------ resolution
+const SINGLE_PIECE = /\b(post|caption|captions|reel|story|carousel|bio|hashtags?)\b/i;
+const GROWTH_ASK = /\b(ideas|grow|growth|followers?|strategy|plan|calendar|reach|engagement|algorithm|30[- ]day|audit|niche)\b/i;
 export function resolveIntent(input: Pick<UniversalInput, "goal" | "categoryId" | "subcategoryId">): { category: Category | null; sub: Subcategory | null; source: UniversalResult["source"]; detection: Detection | null } {
   const detection = detectIntent(input.goal);
   if (input.subcategoryId) {
@@ -170,7 +172,10 @@ export function resolveIntent(input: Pick<UniversalInput, "goal" | "categoryId" 
   }
   if (detection) {
     const cat = getCategory(detection.categoryId)!;
-    const sub = detection.subcategoryId ? cat.subcategories.find((s) => s.id === detection.subcategoryId) ?? null : null;
+    let subId = detection.subcategoryId;
+    // A single post/caption/reel request is never a growth plan unless growth is actually asked for.
+    if (subId === "instagram-growth" && SINGLE_PIECE.test(input.goal) && !GROWTH_ASK.test(input.goal)) subId = /\breels?\b/i.test(input.goal) ? "tiktok" : "captions-hooks";
+    const sub = subId ? cat.subcategories.find((s) => s.id === subId) ?? null : null;
     return { category: cat, sub, source: "detected", detection };
   }
   return { category: null, sub: null, source: "none", detection: null };
@@ -383,11 +388,26 @@ function scoreOf(checks: CheckResult[]): number {
 }
 
 // ------------------------------------------------------------------ public API
-export function buildUniversal(input: UniversalInput): UniversalResult {
+/**
+ * Free-text festival routing: "Diwali sale post for my boutique in Mohali, Hinglish, Instagram" becomes a festival
+ * builder input (festival + goal + platform/business/location/language). Skipped when the user picked a category or
+ * festival themselves, or when the request is clearly a coding/data task that merely mentions a festival.
+ */
+export function withFestivalIntent(input: UniversalInput): UniversalInput | null {
+  if (input.extra?.festival || input.categoryId || input.subcategoryId) return null;
+  const det = detectFestivalIntent(cleanText(input.goal, 1500));
+  if (!det) return null;
+  const generic = detectIntent(input.goal);
+  if (generic && (generic.categoryId === "coding" || generic.categoryId === "data") && generic.score >= 3) return null;
+  return { ...input, language: input.language || det.language, extra: { ...det.extra, ...(input.extra ?? {}), festival: det.extra.festival, fgoal: det.extra.fgoal, autoFestival: "1" } };
+}
+
+export function buildUniversal(rawInput: UniversalInput): UniversalResult {
+  const input = withFestivalIntent(rawInput) ?? rawInput;
   const target = TARGETS.some((t) => t.id === input.targetId) ? getTarget(input.targetId) : getTarget("chatgpt");
   const fest = festivalContextFor(input.extra);
   const { category, sub, source, detection } = fest
-    ? { category: getCategory(festivalGoalCategory(fest.goal)) ?? null, sub: null, source: "user" as const, detection: null }
+    ? { category: getCategory(festivalGoalCategory(fest.goal)) ?? null, sub: null, source: input.extra?.autoFestival ? "detected" as const : "user" as const, detection: null }
     : resolveIntent(input);
   const mode: Mode = input.mode ?? "standard";
   const warnings: string[] = [];

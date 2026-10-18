@@ -142,6 +142,7 @@ export function festivalBlock(c: FestivalContext): ExpertBlock {
         "Write alt text for the image (one sentence)",
         "Turn the same idea into a 5-slide carousel and 3 story frames (with a poll or question sticker idea)",
         `Note when to post relative to ${dateNote}, and tell me to check my Insights for the best time instead of claiming a universal one`,
+        ...(c.extra?.promo === "1" ? ["This is a sale/offer post: make the offer the clear focus, stated exactly as I wrote it; if I didn't give the details, use [YOUR OFFER], [VALID DATES] and [HOW TO ORDER] placeholders instead of inventing them"] : []),
       ],
       constraints: [NO_INVENT_OFFER, "No engagement bait (\"comment YES\", \"tag 10 friends\") and no fake urgency", "No claims that a format or hashtag is trending or will go viral"],
       output: ["**Angles** table: angle | why it fits | format", "**Final post**: hook · caption · CTA · hashtags · alt text", "**Carousel** table: slide | headline (max 8 words) | visual", "**Stories** table: frame | text | sticker"],
@@ -286,4 +287,78 @@ export function festivalGoalSentence(c: { festivalName: string; goal: FestivalGo
     case "event-planning": return `Plan a ${e.eventType || `${n} celebration`}${e.guests ? ` for ${e.guests}` : ""}${lang}`;
     case "image": return `Create an image prompt for a ${n} ${e.product ? `${e.product} photo` : "poster"}${on}`;
   }
+}
+
+// ------------------------------------------------------------------ free-text festival intent
+/** Aliases too ambiguous to trigger festival mode from free text (e.g. "khichdi" recipes). */
+const AMBIGUOUS_ALIASES = new Set(["khichdi", "sakat", "bhogi", "padwa", "maghi", "26 january", "christmas day", "new year's day"]);
+const esc = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/['’]/g, "['’]?").replace(/[\s-]+/g, "[\\s-]*");
+
+interface NameMatcher { slug: string; re: RegExp; len: number }
+let matchers: NameMatcher[] | null = null;
+function festivalMatchers(): NameMatcher[] {
+  if (matchers) return matchers;
+  const out: NameMatcher[] = [];
+  for (const f of FESTIVALS) {
+    const names = new Set([f.name, ...f.name.split(/\s*&\s*/), ...f.aliases].map((n) => n.trim()).filter((n) => n.length > 2 && !AMBIGUOUS_ALIASES.has(n.toLowerCase())));
+    if (f.slug === "christmas") names.add("Xmas");
+    for (const n of names) out.push({ slug: f.slug, re: new RegExp(`(?:^|[^a-z0-9])${esc(n)}(?:'s)?(?=$|[^a-z0-9])`, "i"), len: n.length });
+  }
+  matchers = out.sort((a, b) => b.len - a.len); // longest name first ("Gudi Padwa" before "Padwa", "Gujarati New Year" before "New Year")
+  return matchers;
+}
+
+/** First festival named in the text (by name or alias), or null. */
+export function findFestivalInText(text: string): Festival | null {
+  for (const m of festivalMatchers()) if (m.re.test(text)) return FESTIVALS.find((f) => f.slug === m.slug) ?? null;
+  return null;
+}
+
+const has = (t: string, re: RegExp) => re.test(t);
+const SALE = /\b(sale|sales|offer|offers|discount|discounts|deal|deals|promo|promotion|promotional|clearance)\b/i;
+const POSTISH = /\b(post|posts|caption|captions|story|stories|status|carousel|ad|ads|tweet)\b/i;
+
+/** Which festival goal a free-text request asks for, or null if it only mentions the festival. */
+export function festivalGoalFromText(t: string): FestivalGoal | null {
+  if (has(t, /\b(essay|speech|explain|explainer|history|significance|meaning|why (do |is |we )|story of|quiz|lesson|for (kids|students|class))\b/i)) return "educational";
+  if (has(t, /\b(reel|reels|shorts|tiktok|video|videos)\b/i)) return "reel";
+  if (has(t, /\b(poster|banner|flyer|image|picture|photo|wallpaper|thumbnail|illustration|graphic)\b/i)) return "image";
+  if (has(t, /\b(campaign|marketing|strategy)\b/i)) return "business-campaign";
+  if (has(t, POSTISH)) return "social-post";
+  if (has(t, /\b(product description|gift box|hamper|catalogue|catalog|product copy)\b/i)) return "product-promo";
+  if (has(t, SALE)) return "business-campaign";
+  if (has(t, /\b(greeting|greetings|wish|wishes|wishing|card|cards|message|messages|msg|shayari|quote|quotes|happy)\b/i)) return "greeting";
+  if (has(t, /\b(letter|note to)\b/i)) return "personal-message";
+  if (has(t, /\b(party|event|celebration|decor|decoration|menu|games|potluck|puja at (home|office))\b/i)) return "event-planning";
+  return null;
+}
+
+const PLATFORM_WORDS: [RegExp, string][] = [
+  [/\binstagram|\binsta\b|\big\b/i, "Instagram"], [/\bwhats ?app\b/i, "WhatsApp"], [/\bfacebook|\bfb\b/i, "Facebook"], [/\blinked ?in\b/i, "LinkedIn"],
+  [/\byoutube|\bshorts\b/i, "YouTube Shorts"], [/\btwitter\b|\btweet\b|\bon x\b/i, "X (Twitter)"], [/\bgoogle business\b/i, "Google Business Profile"], [/\bemail\b/i, "Email"],
+];
+const RECIPIENT = /\b(mom|mother|maa|mummy|dad|father|papa|parents|sister|brother|bhai|didi|wife|husband|son|daughter|friend|friends|family|grandparents|nani|dadi|in-laws|boss|team|colleagues|clients|customers|teacher)\b/i;
+
+/** Parse a one-line request like "Diwali sale post for my boutique in Mohali, Hinglish, Instagram" into festival builder fields. */
+export function detectFestivalIntent(goal: string): { festival: Festival; goal: FestivalGoal; extra: Record<string, string>; language?: string } | null {
+  const t = goal.trim();
+  if (!t) return null;
+  const festival = findFestivalInText(t);
+  if (!festival) return null;
+  const g = festivalGoalFromText(t);
+  if (!g || !festival.goals.includes(g)) return null;
+  const extra: Record<string, string> = { festival: festival.slug, fgoal: g };
+  const platform = PLATFORM_WORDS.find(([re]) => re.test(t))?.[1];
+  if (platform) extra.platform = platform;
+  if (g === "social-post" && SALE.test(t)) extra.promo = "1";
+  const forWho = t.match(/\bfor (?:my|our|the) ([a-z][a-z &'-]{1,40}?)(?=\s+(?:in|at|on|from|with)\b|[,.;!?]|$)/i)?.[1]?.trim();
+  if (forWho) {
+    if ((g === "greeting" || g === "personal-message") && RECIPIENT.test(forWho)) extra.recipient = forWho;
+    else if (g !== "greeting" && g !== "personal-message" && g !== "educational") extra.business = forWho;
+    else extra.recipient = forWho;
+  }
+  const loc = t.match(/\b(?:in|at|from) ([A-Z][a-zA-Z]+(?: [A-Z][a-zA-Z]+)?)\b/)?.[1];
+  if (loc && !(FESTIVAL_LANGUAGES as readonly string[]).includes(loc) && !PLATFORM_WORDS.some(([re]) => re.test(loc))) extra.location = loc;
+  const lang = FESTIVAL_LANGUAGES.find((l) => l !== "English" && new RegExp(l === "Hinglish" ? "\\bhinglish\\b" : `(?:\\bin ${l}\\b|(?:^|,)\\s*${l}\\s*(?:,|$)|\\b${l} (?:language|mein|me)\\b)`, "i").test(t));
+  return { festival, goal: g, extra, ...(lang ? { language: lang } : {}) };
 }
