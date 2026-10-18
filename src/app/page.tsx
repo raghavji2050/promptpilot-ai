@@ -9,6 +9,12 @@ import { BeforeAfterShowcase } from "@/components/BeforeAfterShowcase";
 import { CategoryCard } from "@/components/ui/CategoryCard";
 import { ButtonLink } from "@/components/ui/Button";
 import { SITE } from "@/lib/site";
+import { ComingUpInIndia } from "@/components/ComingUpInIndia";
+import { istToday } from "@/lib/festivals";
+import { loadFestivals } from "@/lib/festivals/server";
+
+// Re-render hourly so the festival section never shows an expired campaign (the client also recomputes in IST).
+export const revalidate = 3600;
 
 const TOOLS = [
   { href: "/builder", icon: "✦", title: "Prompt Builder", body: "Describe your goal, pick an AI and get a structured prompt. Refine tone, length, language and format." },
@@ -32,7 +38,8 @@ const FAQ = [
   { q: "Are the example outputs real AI responses?", a: "No. They are short illustrative samples we wrote to show the shape of a good answer. Real results vary by model." },
 ];
 
-export default function Home() {
+export default async function Home() {
+  const festivals = await loadFestivals();
   const recent = searchLibrary(ALL_PROMPTS.filter((p) => p.kind === "general"), { sort: "newest" }).slice(0, 6);
   const platforms = [
     ...TARGETS.filter((t) => t.family === "chat" || t.family === "search").map((t) => ({ id: t.id, name: t.name.split(" (")[0] })),
@@ -59,6 +66,9 @@ export default function Home() {
           <p className="mt-6 text-xs text-subtle">Works with ChatGPT · Claude · Gemini · Grok · Perplexity · Copilot · Midjourney · video tools · Cursor. Not affiliated with any of them.</p>
         </div>
       </section>
+
+      {/* ---------------------------------------------------------------- seasonal layer (below the universal hero) */}
+      <ComingUpInIndia festivals={festivals} serverToday={istToday()} />
 
       {/* ---------------------------------------------------------------- how it works */}
       <section className="section" aria-labelledby="how">

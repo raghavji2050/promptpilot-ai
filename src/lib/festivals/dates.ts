@@ -139,7 +139,7 @@ export function countdown(inst: FestivalInstance, today: ISODate): Countdown {
   const days = daysBetween(today, primary);
   if (days === 0) return { phase: "today", days, label: "Today" };
   if (days > 0) {
-    if (start <= today) return { phase: "ongoing", days, label: `On now · main day in ${days} ${days === 1 ? "day" : "days"}` };
+    if (start <= today) return { phase: "ongoing", days, label: days === 1 ? "On now · main day tomorrow" : `On now · main day in ${days} days` };
     return { phase: "upcoming", days, label: days === 1 ? "Tomorrow" : `In ${days} days` };
   }
   // Main day passed but the festival continues (end >= today).

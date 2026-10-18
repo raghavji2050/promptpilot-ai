@@ -196,3 +196,18 @@ p { text-wrap: pretty; }
   .details-clean > summary { list-style: none; }
   .details-clean > summary::-webkit-details-marker { display: none; }
 }
+
+/* ------------------------------------------------------------------ seasonal festival accent
+   Set --festive / --festive-soft / --festive-dark inline from the active campaign (festivals/data.ts). */
+.festive { --f: var(--festive, var(--accent-text)); --f-soft: var(--festive-soft, var(--accent-soft)); }
+[style*="--festive"] { --f: var(--festive); --f-soft: var(--festive-soft); }
+.dark [style*="--festive"] { --f: var(--festive-dark); --f-soft: color-mix(in srgb, var(--festive-dark) 14%, transparent); }
+.festive-text { color: var(--f); }
+.festive-card { border-top: 4px solid var(--f); }
+.festive-count { background: var(--f-soft); color: var(--f); }
+.festive-badge { background: var(--f-soft); color: var(--f); }
+.festive-link { transition: border-color 140ms var(--ease), background-color 140ms var(--ease); }
+.festive-link:hover { border-color: var(--f); background: var(--f-soft); }
+.festive-btn { background: var(--f); border-color: var(--f); }
+.dark .festive-btn { color: #111318; }
+.festive-btn:hover { filter: brightness(0.92); }
