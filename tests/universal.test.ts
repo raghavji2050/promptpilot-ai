@@ -97,7 +97,7 @@ describe("buildUniversal", () => {
     expect(r.text).toMatch(/ideas/i);
     expect(r.text).toMatch(/measurable|metrics/i);
     expect(r.text).toMatch(/^## Role/m);
-    expect(r.text).toMatch(/## Objective\nHelp me grow my Instagram account\./);
+    expect(r.text).toMatch(/## Task\nHelp me grow my Instagram account\.\nSuccess looks like:/);
   });
 
   it("interview goal yields interview prep, not a coding prompt", () => {
@@ -119,9 +119,9 @@ describe("buildUniversal", () => {
     const input = base({ audience: "home bakers", tone: "friendly", extra: { niche: "baking" } });
     const gpt = buildUniversal(input).text;
     const claude = buildUniversal({ ...input, targetId: "claude" }).text;
-    expect(claude).toMatch(/<objective>\nHelp me grow my Instagram account\./);
+    expect(claude).toMatch(/<task>\nHelp me grow my Instagram account\./);
     expect(claude).toContain("Audience: home bakers");
-    expect(claude).toContain("Niche / topic: baking");
+    expect(claude).toContain("Niche and ideal follower: baking");
     expect(gpt).toContain("Audience: home bakers");
     for (const t of TARGETS.filter((x) => x.family === "chat" || x.family === "search")) expect(buildUniversal({ ...input, targetId: t.id }).text).toContain("home bakers");
   });
@@ -136,11 +136,12 @@ describe("buildUniversal", () => {
     expect(mj.text).toMatch(/--ar 16:9/);
     const viaChat = buildUniversal(base({ goal: "Generate an image of a red fox in a snowy forest" }));
     expect(viaChat.kind).toBe("image");
-    expect(viaChat.text).toMatch(/^Create an image of/);
+    expect(viaChat.text).toMatch(/^Generate an image with these specifications\.\nPrompt: a red fox in a snowy forest, /);
     expect(viaChat.warnings.join(" ")).toMatch(/depends on your plan/);
     const vid = buildUniversal(base({ goal: "a barista pours latte art", targetId: "video", extra: { camera: "slow dolly in" } }));
     expect(vid.kind).toBe("video");
-    expect(vid.text).toContain("Camera: slow dolly in");
+    expect(vid.text).toMatch(/^Prompt: slow dolly in, a barista pours latte art/);
+    expect(vid.text).toMatch(/Negative prompt/);
   });
 
   it("Simplify is shorter than standard, which is shorter than More detailed", () => {
@@ -153,10 +154,10 @@ describe("buildUniversal", () => {
 
   it("Add missing context inserts placeholders and a clarifying-questions step", () => {
     const r = buildUniversal(base({ fillGaps: true }));
-    expect(r.text).toContain("Audience: [who the result is for]");
-    expect(r.text).toContain("Niche / topic: [niche / topic]");
-    expect(r.text).toMatch(/ask me up to 3 short questions/);
-    expect(r.missing.map((m) => m.key)).toContain("audience");
+    expect(r.text).toContain("Niche and ideal follower: [niche and ideal follower]");
+    expect(r.text).toContain("Current stats: [current stats]");
+    expect(r.text).toMatch(/## Before you start\nAsk me these 4 questions in one message, then wait/);
+    expect(r.missing.map((m) => m.key)).toContain("niche");
   });
 
   it("tone and language are applied", () => {
@@ -174,7 +175,7 @@ describe("buildUniversal", () => {
   it("unmatched goals fall back to a general structure with a hint", () => {
     const r = buildUniversal(base({ goal: "qwzx plorb" }));
     expect(r.source).toBe("none");
-    expect(r.text).toMatch(/## Instructions/);
+    expect(r.text).toMatch(/## Steps\n1\. Restate the core problem/);
     expect(r.warnings.join(" ")).toMatch(/couldn't match a category/);
   });
 

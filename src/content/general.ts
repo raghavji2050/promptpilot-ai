@@ -66,28 +66,57 @@ Turn my notes below into an X thread of 5–7 posts.
 Numbered posts.` }),
   G({ slug: "gemini-study-plan", title: "4-week study plan (Gemini)", category: "Learning", targets: ["gemini", "chatgpt"], tags: ["learning", "study"],
     summary: "Week-by-week plan with self-checks.",
-    body: `## Task
-Create a 4-week plan to learn [skill] from [current level].
+    body: `## Role
+You are a learning coach who uses spaced repetition and hands-on practice, and sizes every task to my real schedule.
 
-## Context
-I have [time per day]. My goal is [goal, e.g. build a small project / pass an exam].
+## Task
+Create a 4-week plan to learn [skill], starting from [current level, e.g. complete beginner].
+Success looks like: by week 4 I can [concrete outcome, e.g. build a monthly sales report on my own], proven by a final mini-project.
+
+## My situation
+- Time: [minutes per day] on [days per week]
+- Why I'm learning: [job task / exam / project]
+
+## Steps
+1. Turn the goal into 3 things I'll be able to do, plus a final mini-project
+2. Order topics by dependency into 4 weekly milestones
+3. Each day: one learn task + one practice task, within my daily time
+4. Spaced review on days 1, 3 and 7 after each topic; a 5-question self-test each week
+5. A weekly catch-up slot, and what to cut if I fall behind
 
 ## Output format
-For each week: goal, daily tasks (30–60 min each), one free resource type to use, and a 5-question self-check. Finish with a mini-project idea.` }),
+- Weekly milestones table: week | milestone | proof I can do it
+- Daily plan table: day | learn (min) | practise (min) | review
+- Weekly self-test (5 questions)
+- Final mini-project brief
+
+## Rules
+- Every day includes doing, not just watching or reading
+- Name resource types (official docs, practice datasets), not invented course titles or links
+- If anything in [brackets] is missing, ask me before planning` }),
   G({ slug: "meeting-notes-summary", title: "Meeting notes → decisions and actions", category: "Productivity", targets: ["chatgpt", "claude", "gemini"], tags: ["meetings", "summary"],
     summary: "Clean summary with owners and deadlines.",
-    body: `Summarise these meeting notes:
+    body: `You are a chief of staff who turns messy meeting notes into clear decisions and owned action items.
+
+Meeting: [name / purpose], attendees: [names]
+Notes or transcript:
 """
 [paste notes or transcript]
 """
+
+Success looks like: anyone who missed the meeting knows what was decided, who does what by when, and what's still open.
+
 Output:
-1. Decisions made (bullets)
-2. Action items as a table: task | owner | deadline (write "unassigned"/"no date" if missing)
-3. Open questions
-Only use what is in the notes.` }),
+1. Summary (2 sentences, outcome first)
+2. Decisions made (bullets, with who decided if stated)
+3. Action items table: task | owner | deadline | status. Write "unassigned" or "no date" when missing; never guess an owner
+4. Open questions and risks
+5. A 5-line follow-up message I can send to attendees
+
+Rules: use only what is in the notes; keep names, numbers and dates exactly as written; flag contradictions.` }),
   G({ slug: "midjourney-product-hero", title: "Product hero image (Midjourney)", category: "Image", targets: ["midjourney"], tags: ["product", "midjourney"],
     summary: "Studio product shot with Midjourney parameters.",
-    body: `[product] on a [material] pedestal, studio product photography, soft gradient background in [color], soft key light with subtle rim light, crisp reflections, minimal composition, high detail --ar 4:5 --no text, watermark` }),
+    body: `[product, with colour and material], on a [material, e.g. travertine] pedestal, commercial product photography, soft gradient background in [colour], large softbox key light from the left with subtle rim light, soft shadow, 45-degree angle, 100mm macro lens, product centred and in sharp focus, shallow depth of field, true-to-life colours, minimal composition --ar 4:5 --no text, watermark, warped label, extra objects, harsh reflections` }),
   G({ slug: "resume-bullets", title: "Rewrite resume bullets with impact", category: "Career", targets: ["chatgpt", "claude", "gemini"], tags: ["resume", "career"],
     summary: "Action + result bullets without invented numbers.",
     body: `Rewrite these resume bullets for a [target role] application:

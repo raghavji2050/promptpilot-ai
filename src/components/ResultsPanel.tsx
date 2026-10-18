@@ -50,6 +50,7 @@ export const ResultsPanel = forwardRef<HTMLHeadingElement, { input: UniversalInp
             <p className="text-sm font-medium text-fg">Refine</p>
             <div className="mt-2 flex flex-wrap gap-2" role="group" aria-label="Refine the prompt">
               <button type="button" className={`chip ${input.improve ? "chip-active" : ""}`} aria-pressed={!!input.improve} onClick={() => change({ improve: !input.improve })}>Improve</button>
+              {result.kind === "text" && <button type="button" className={`chip ${input.askFirst ? "chip-active" : ""}`} aria-pressed={!!input.askFirst} onClick={() => change({ askFirst: !input.askFirst })}>Ask me questions first</button>}
               <button type="button" className={`chip ${input.mode === "concise" ? "chip-active" : ""}`} aria-pressed={input.mode === "concise"} onClick={() => change({ mode: input.mode === "concise" ? "standard" : "concise" })}>Make shorter</button>
               <button type="button" className={`chip ${input.mode === "detailed" ? "chip-active" : ""}`} aria-pressed={input.mode === "detailed"} onClick={() => change({ mode: input.mode === "detailed" ? "standard" : "detailed" })}>Make more detailed</button>
               <button type="button" className="chip" onClick={() => setAlt((a) => (a % 3) + 1)}>↻ Regenerate</button>

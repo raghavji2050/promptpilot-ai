@@ -368,7 +368,7 @@ export const CATEGORIES: Category[] = [
         output: "Requirements · architecture · milestones · first milestone code", fields: [t("stack", "Preferred stack", "e.g. Laravel 12 + MySQL, or no preference")],
         example: "Help me build a website for my restaurant with online booking" },
       { id: "debugging", name: "Debugging", blurb: "Find the root cause, not just the symptom.",
-        keywords: ["debug", "debugging", "bug", "error", "exception", "stack trace", "not working", "crash", "fix my code", "traceback"],
+        keywords: ["debug", "debugging", "bug", "fix a bug", "fix the bug", "bug in my", "error", "exception", "stack trace", "not working", "crash", "fix my code", "traceback"],
         role: "debugging specialist", objective: "Find the root cause, then propose the smallest safe fix.",
         workflow: ["Restate the expected vs actual behaviour", "List likely causes ranked by probability", "Explain how to confirm the cause", "Propose the minimal fix and a test that would have caught it"],
         output: "Diagnosis · confirmation steps · fix · regression test", fields: [ta("errorText", "Error message / stack trace"), ta("code", "Relevant code")],

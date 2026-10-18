@@ -170,28 +170,46 @@ Never invent specifications, certifications or claims.` }),
   U({ slug: "professional-email-any-situation", title: "Professional email for any situation", cat: "writing", sub: "email", category: "Emails", targets: CHAT, tags: ["email", "professional", "communication"],
     audience: "Anyone writing work emails", useCase: "Write a clear email", outputType: "Email",
     summary: "Clear subject line, main point first, polite tone and one specific ask.",
-    body: `Write an email.
+    body: `You are a senior communications coach who writes clear, warm emails that get a yes on the first read.
+
 To: [recipient and relationship, e.g. my manager]
-Purpose: [what you need]
-Key details: [dates, facts, context]
+What I need: [the one ask]
+Key facts: [dates, reason, what's already done, what I'm offering]
 Tone: [polite / warm / firm]
 
-Rules: specific subject line; main point in the first two lines; short paragraphs; one clear ask or next step; under 150 words.
-Give the email plus a shorter version I could send on chat.`,
+Success looks like: the reader knows what I need in the first two lines and can reply yes in one sentence.
+
+Steps:
+1. Subject line that states the ask (e.g. "Request: 2-day extension for the Q3 report")
+2. First two lines: the ask and the date
+3. One sentence of reason, then the plan that reduces their effort or risk
+4. Close with one clear question
+
+Rules: under 150 words; paragraphs of 1–3 sentences; no "I hope this email finds you well", over-apologising or "Please do the needful"; use [placeholders] for anything I haven't told you.
+
+Output: subject line (+1 alternative), the email, and a WhatsApp/chat version under 50 words.`,
     exampleOutput: `Subject: Request for leave on 23–24 October
 Hi Priya,
 I'd like to request two days of leave on 23 and 24 October for a family function. My reports will be submitted by the 22nd, and Rohan has agreed to cover client calls…` }),
   U({ slug: "summarize-any-document", title: "Summarize any article or document", cat: "writing", sub: "summarization", category: "Summarization", targets: CHAT, tags: ["summary", "reading", "notes"],
     audience: "Students and professionals", useCase: "Get the key points fast", outputType: "Summary",
     summary: "Short summary, key points and action items using only the provided text.",
-    body: `Summarize the text below for [audience/purpose].
+    body: `You are an analyst who writes accurate executive summaries for busy readers, using only the source.
 
+Summarise for: [who will read it, and what they'll do with it]
 """
 [paste text]
 """
 
-Give: a 3-sentence summary, 5–7 key points, any decisions or action items, and anything ambiguous or missing.
-Use only information from the text. Quote briefly when precision matters.` }),
+Success looks like: the reader can make the right decision without opening the original.
+
+Output:
+1. Summary in 3 sentences, conclusion first
+2. 5–7 key points (keep numbers, names and dates exact)
+3. Decisions or action items, if any
+4. What's unclear, missing or unsupported in the text
+
+Rules: use only information in the text; quote briefly when exact wording matters; no opinions unless I ask.` }),
   U({ slug: "translate-naturally", title: "Natural translation that keeps the tone", cat: "writing", sub: "translation", category: "Translation", targets: CHAT, tags: ["translation", "language", "localization"],
     audience: "Anyone working across languages", useCase: "Translate text", outputType: "Translation",
     summary: "Meaning-first translation that preserves tone, names and formatting, with notes on tricky phrases.",
@@ -206,12 +224,25 @@ Translate meaning, not word by word. Keep names, numbers, links and formatting i
   U({ slug: "presentation-outline", title: "Presentation outline with speaker notes", cat: "writing", sub: "presentations", category: "Presentations", targets: CHAT, tags: ["presentation", "slides", "public speaking"],
     audience: "Students and professionals", useCase: "Build a slide deck", outputType: "Table",
     summary: "Slide-by-slide structure, one idea per slide, visuals and speaker notes.",
-    body: `Create a presentation on [topic] for [audience].
-Length: [number] slides, about [minutes] minutes.
-The one thing they should remember: [key takeaway]
+    body: `You are a presentation coach who builds talks around one memorable message and slides with one idea each.
 
-Output a table: slide # · title · up to 3 bullets · suggested visual · speaker notes (2–4 sentences).
-Start with a hook slide and end with a clear summary and call to action.` }),
+Topic: [topic]
+Audience: [who, and what they already know]
+Length: [number] slides, [minutes] minutes
+The one thing they should remember: [key takeaway]
+What I want them to do afterwards: [action]
+
+Success looks like: someone who missed the talk can repeat the key takeaway after skimming the slides.
+
+Steps:
+1. Write the key takeaway as one sentence and build the story around it: hook → problem → insight → evidence → action
+2. One idea per slide; slide titles are full-sentence claims, not labels ("Late deliveries cost us 12% of repeat orders", not "Deliveries")
+3. For each slide, suggest a visual (chart type, photo, diagram) instead of text bullets
+4. Write speaker notes I can say in the time available (about 130 words per minute)
+
+Output: a table with slide # | headline claim | up to 3 bullets (≤8 words each) | visual | speaker notes (2–4 sentences). Then 3 likely audience questions with short answers.
+
+Rules: no more than 3 bullets per slide; use [placeholder] for any data I haven't given; the timing must add up to my talk length.` }),
   U({ slug: "bedtime-story-for-kids", title: "Personalised bedtime story", cat: "writing", sub: "creative-writing", category: "Creative writing", targets: CHAT, tags: ["story", "kids", "creative"],
     audience: "Parents and teachers", useCase: "Write a story for a child", outputType: "Story",
     summary: "A gentle, age-appropriate story with the child's interests and a soft lesson.",
@@ -248,26 +279,43 @@ Remind me to check the official syllabus and pattern; don't assume they're curre
   U({ slug: "flashcards-from-notes", title: "Flashcards from your notes", cat: "education", sub: "quiz-flashcards", category: "Quizzes & flashcards", targets: CHAT, tags: ["flashcards", "anki", "revision"],
     audience: "Students", useCase: "Make revision cards", outputType: "Flashcards",
     summary: "Accurate question/answer cards from your own notes, ready to import into a flashcard app.",
-    body: `Turn my notes into [number] flashcards.
+    body: `You are a learning scientist who writes flashcards for active recall and spaced repetition.
 
+Notes:
 """
 [paste notes]
 """
+Number of cards: [number]
+Exam or goal: [e.g. biology class 12 board exam]
 
-Rules: one fact or idea per card; questions that test understanding, not just recall; answers under 25 words; use only my notes.
-Format each as: Front: … | Back: …  (one card per line, so I can import it).` }),
+Success looks like: cards that test understanding, so I can tell what I actually know.
+
+Rules:
+- One idea per card; no "list everything about X" cards
+- Mix types: definition, why/how, apply-to-an-example, compare two concepts
+- Answers under 25 words; use only my notes
+- Add a cloze card (fill-in-the-blank) for key formulas or terms
+
+Output: one card per line as "Front | Back" so I can import it into Anki or Quizlet, then the 3 concepts from my notes most likely to be tested.` }),
   U({ slug: "explain-like-im-new", title: "Explain a difficult concept simply", cat: "education", sub: "explain-simply", category: "Explain concepts", targets: CHAT, tags: ["explain", "eli5", "learning"],
     audience: "Anyone curious", useCase: "Understand a concept", outputType: "Explanation",
     summary: "Plain answer, everyday analogy, deeper layer, a common misconception and a check question.",
-    body: `Explain [concept] to me. My background: [e.g. no science background].
+    body: `You are a patient teacher who explains hard ideas with everyday analogies and checks understanding before going deeper.
+
+Explain: [concept]
+My background: [e.g. no science background, class 10 maths]
+Why I'm asking: [e.g. a news article, an exam, work]
+
+Success looks like: I can explain it back to a friend in two sentences and avoid the most common misunderstanding.
 
 Structure:
-1. One-sentence plain answer.
-2. An everyday analogy.
-3. A slightly deeper explanation.
-4. A common misconception and why it's wrong.
-5. One quick question to check I understood.
-Define any technical word the first time you use it.` }),
+1. One-sentence plain answer
+2. An everyday analogy, and where the analogy breaks down
+3. A slightly deeper explanation (under 150 words)
+4. A common misconception and why it's wrong
+5. One question to check I understood; wait for my answer
+
+Rules: define every technical word the first time; no jargon without a definition; under 350 words before the check question.` }),
   // ---------------------------------------------------------------- E Design
   U({ slug: "product-photo-prompt", title: "Realistic product photo prompt", cat: "design", sub: "product-photo", category: "Product photography", targets: ["image-generic", "midjourney", "chatgpt", "gemini"], tags: ["product photo", "ecommerce", "image"],
     audience: "Online sellers and marketers", useCase: "Create product visuals", outputType: "Image prompt",
@@ -328,12 +376,23 @@ Mock interview — Question 1: "Walk me through your resume in 90 seconds."` }),
   U({ slug: "resume-bullet-upgrade", title: "Upgrade resume bullets without exaggerating", cat: "career", sub: "resume", category: "Resume improvement", targets: CHAT, tags: ["resume", "cv", "ats"],
     audience: "Job seekers", useCase: "Improve a resume", outputType: "Rewrite",
     summary: "Action + result bullets tailored to a target role, asking for real numbers instead of inventing them.",
-    body: `Target role: [job title]
+    body: `You are a recruiter who has screened thousands of resumes for [job title] roles and knows what ATS filters and 6-second scans look for.
+
+Target role: [job title]
 Job description (key parts): [paste]
 My current bullets:
 [paste bullets]
 
-Rewrite each bullet as action verb + what I did + result. Where a number would help, ask me for it with [add metric] instead of inventing one. Match relevant keywords from the job description naturally. Then list gaps in my resume for this role.` }),
+Success looks like: every bullet shows action + result, matches the job's keywords, and nothing is invented.
+
+Steps:
+1. Pull the 10 most important keywords from the job description
+2. Rewrite each bullet as strong verb + what I did + result; where a number would help, write [add metric] instead of inventing one
+3. Reorder bullets so the most relevant proof comes first
+4. List gaps between my resume and the role, and honest ways to address them
+
+Output: keyword table (keyword | in my resume? | where to add) · before → after bullets · gaps · 3 questions whose answers would make my weakest bullets stronger.
+Rules: max 2 lines per bullet; no "responsible for"; never invent metrics, tools or titles.` }),
   U({ slug: "salary-raise-conversation", title: "Ask for a raise: talking points and script", cat: "career", sub: "workplace-comms", category: "Workplace communication", targets: CHAT, tags: ["salary", "negotiation", "raise"],
     audience: "Employees", useCase: "Prepare a tough conversation", outputType: "Script",
     summary: "Evidence-based talking points, an opening script, likely responses and a follow-up email.",
@@ -385,12 +444,24 @@ If any diet is for a medical condition, remind me to follow my doctor's or dieti
   U({ slug: "habit-system-design", title: "Build a habit that sticks", cat: "productivity", sub: "habits", category: "Habits", targets: CHAT, tags: ["habits", "routine", "behaviour"],
     audience: "Anyone building routines", useCase: "Start a new habit", outputType: "Plan",
     summary: "Tiny starting version, a trigger, a simple tracker and a plan for missed days.",
-    body: `I want to build this habit: [habit]
+    body: `You are a behaviour-change coach who designs habits using tiny starting versions, existing routines as triggers, and simple tracking.
+
+Habit I want: [habit]
 Why it matters to me: [reason]
-My current routine: [typical day]
+My typical day: [wake time, work hours, evenings]
 What stopped me before: [obstacles]
 
-Design: the smallest version I can do daily, the existing routine to attach it to, a simple tracker (text table I can copy), how to handle missed days, and how to grow it after 2 weeks.` }),
+Success looks like: a habit small enough to do on my worst day, attached to something I already do, with a plan for missed days.
+
+Steps:
+1. Define the 2-minute version I can do daily, and the full version I'm building towards
+2. Pick an anchor: "After I [existing routine], I will [tiny habit]" (give 3 options from my day)
+3. Remove friction for each obstacle I listed with one specific change
+4. Give a copy-paste tracker (text table, 4 weeks)
+5. Rules for missed days (never miss twice) and how to grow the habit every 2 weeks
+
+Output: tiny version · 3 anchor options · obstacle → fix table · 4-week tracker · growth plan.
+Rules: no motivation speeches; every suggestion is a concrete action with a time or place.` }),
   // ---------------------------------------------------------------- I Data
   U({ slug: "spreadsheet-formula-helper", title: "Spreadsheet formula with explanation", cat: "data", sub: "spreadsheet", category: "Spreadsheet formulas", targets: CHAT, tags: ["excel", "google sheets", "formula"],
     audience: "Office workers and students", useCase: "Write a formula", outputType: "Formula",
@@ -436,11 +507,23 @@ Don't over-claim from small samples.` }),
   U({ slug: "compare-options-table", title: "Compare options side by side", cat: "data", sub: "compare-alternatives", category: "Comparing alternatives", targets: [...CHAT, "perplexity"], tags: ["compare", "decision", "research"],
     audience: "Anyone choosing between options", useCase: "Choose between options", outputType: "Table",
     summary: "Criteria-based comparison table and a recommendation for your priorities.",
-    body: `Compare [option A], [option B] and [option C] for [my use case].
-What matters most to me (in order): [criteria, e.g. price, ease of use, privacy]
-Budget: [ ]
+    body: `You are a neutral research analyst who compares options against the buyer's own priorities and is clear about what needs verifying.
 
-Give a comparison table across my criteria, note which details may be outdated and should be verified, then recommend the best fit for my priorities and one alternative for a different priority.` }),
+Options: [option A], [option B], [option C]
+My use case: [what I'll use it for]
+What matters most (in order): [criteria, e.g. price, ease of use, privacy]
+Budget: [amount]
+
+Success looks like: I can see which option fits my priorities best, why, and what to double-check before buying.
+
+Steps:
+1. Assign weights to my criteria (summing to 100) based on my order
+2. Score each option 1–5 per criterion with a one-line reason
+3. Calculate weighted totals and show the maths
+4. Recommend the best fit, plus one alternative for a different priority
+
+Output: comparison table (option | each criterion score | weighted total) · recommendation · "verify before buying" list.
+Rules: mark any price, spec or feature that may be outdated as [verify]; don't invent specs.` }),
   // ---------------------------------------------------------------- J Finance & knowledge
   U({ slug: "monthly-budget-builder", title: "Monthly budget from your numbers", cat: "finance", sub: "budget", category: "Budget planning", targets: CHAT, tags: ["budget", "saving", "personal finance"],
     audience: "Individuals and families", useCase: "Make a budget", outputType: "Table",

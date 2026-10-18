@@ -4,7 +4,8 @@
  * No network, no randomness: same input, same output.
  */
 import { CATEGORIES, GUARDRAILS, getCategory, findSubcategory, type Category, type Subcategory } from "@/lib/categories";
-import { buildPrompt } from "./render";
+import { buildVisual } from "./visual";
+import { expertFor, GENERIC_BLOCK, type ExpertBlock, type Slot } from "./expert";
 import { getTarget, TARGETS } from "./targets";
 import type { CheckResult, FieldDef, Mode, Section, Target } from "./types";
 
@@ -42,6 +43,8 @@ export interface UniversalInput {
   improve?: boolean;
   /** "Add missing context": insert placeholders and ask clarifying questions. */
   fillGaps?: boolean;
+  /** Ask the AI to ask clarifying questions about missing key details before answering. */
+  askFirst?: boolean;
 }
 
 export interface Detection {
@@ -171,13 +174,6 @@ export function resolveIntent(input: Pick<UniversalInput, "goal" | "categoryId" 
 }
 
 // ------------------------------------------------------------------ building
-const GENERIC = {
-  role: "knowledgeable, practical expert",
-  objective: "Give a specific, accurate and useful answer that fits my situation.",
-  workflow: ["Briefly restate what I want to achieve", "Ask about anything essential that is missing, or state your assumptions", "Work through the task step by step", "Give the final answer in the requested format with clear next steps"],
-  output: "Clear, well-structured answer with headings or bullet points where helpful",
-};
-
 function platformRules(target: Target, cat: Category | null): string[] {
   switch (target.family) {
     case "search": return ["Search for current, reliable sources and cite a source link with its publication date for each factual claim", "Say clearly when sources disagree or information is unavailable"];
@@ -192,75 +188,127 @@ function fieldsForSub(sub: Subcategory | null): FieldDef[] {
   return sub?.fields ?? [];
 }
 
-export function missingContext(input: UniversalInput, sub: Subcategory | null): MissingItem[] {
-  const out: MissingItem[] = [];
-  if (!cleanText(input.context)) out.push({ key: "context", label: "Background / context", question: "What background should the AI know about you or your situation?" });
-  if (!cleanText(input.audience)) out.push({ key: "audience", label: "Audience", question: "Who is the result for?" });
-  for (const f of fieldsForSub(sub)) if (!cleanText(input.extra?.[f.key])) out.push({ key: f.key, label: f.label, question: `${f.label}?` });
-  if (!cleanText(input.format)) out.push({ key: "format", label: "Output format", question: "What format and length do you want?" });
+const TOP_LEVEL = new Set(["audience", "context", "tone", "format", "constraints"]);
+function slotValue(input: UniversalInput, key: string | undefined): string {
+  if (!key) return "";
+  if (TOP_LEVEL.has(key)) return cleanText((input as unknown as Record<string, string | undefined>)[key], 4000);
+  return cleanText(input.extra?.[key], 6000);
+}
+
+export interface SlotState { slot: Slot; value: string; detected: boolean }
+
+/** Which of the task's key details the user gave (in fields or in the goal itself) and which are missing. */
+export function slotStates(input: UniversalInput, block: ExpertBlock): SlotState[] {
+  const goal = cleanText(input.goal, 1500);
+  return block.slots.map((slot) => {
+    const value = slotValue(input, slot.key);
+    return { slot, value, detected: !value && !!slot.detect?.test(goal) };
+  });
+}
+
+export function missingContext(input: UniversalInput, sub: Subcategory | null, cat: Category | null = sub ? findSubcategory(sub.id)?.category ?? null : null): MissingItem[] {
+  const block = expertFor(cat, sub) ?? GENERIC_BLOCK;
+  const out: MissingItem[] = slotStates(input, block).filter((x) => !x.value && !x.detected).map((x) => ({ key: x.slot.key ?? x.slot.label, label: x.slot.label, question: x.slot.question }));
+  if (!cleanText(input.format) && !out.some((m) => m.key === "format")) out.push({ key: "format", label: "Output format", question: "What format and length do you want?" });
   return out;
 }
 
-function textSections(input: UniversalInput, target: Target, cat: Category | null, sub: Subcategory | null, missing: MissingItem[]): Section[] {
+const shortRole = (role: string) => role.split(/,? who |\. |, known for /)[0];
+
+function textSections(input: UniversalInput, target: Target, cat: Category | null, sub: Subcategory | null): Section[] {
   const mode: Mode = input.mode ?? "standard";
+  const concise = mode === "concise";
   const improve = !!input.improve;
   const fill = !!input.fillGaps;
-  const p = sub ?? GENERIC;
+  const askFirst = !!input.askFirst;
+  const block = expertFor(cat, sub) ?? GENERIC_BLOCK;
   const goal = cleanText(input.goal, 1500);
   const s: Section[] = [];
 
-  if (mode !== "concise") s.push({ id: "role", title: "Role", lines: [`You are ${withArticle(p.role)}.`] });
+  // Role: precise and domain-specific (short form when concise).
+  s.push({ id: "role", title: "Role", lines: [`You are ${withArticle(concise ? shortRole(block.role) : block.role)}.`] });
 
+  // Context: the user's actual details.
+  const states = slotStates(input, block);
   const ctx: string[] = [];
-  const context = cleanText(input.context, 4000);
-  if (context) ctx.push(context);
-  else if (fill) ctx.push("[Describe your situation: who you are, what you've tried, relevant facts]");
-  const audience = cleanText(input.audience, 300);
-  if (audience) ctx.push(`Audience: ${audience}`);
-  else if (fill) ctx.push("Audience: [who the result is for]");
+  const used = new Set<string>();
+  for (const st of states) {
+    if (st.slot.key) used.add(st.slot.key);
+    if (st.value) ctx.push(st.value.includes("\n") ? `${st.slot.label}:\n${st.value}` : `${st.slot.label}: ${st.value}`);
+    else if (fill && !st.detected) ctx.push(`${st.slot.label}: [${st.slot.label.toLowerCase()}]`);
+  }
   for (const f of fieldsForSub(sub)) {
+    if (used.has(f.key)) continue;
     const v = cleanText(input.extra?.[f.key], f.maxLen ?? 4000);
-    if (v) ctx.push(f.type === "textarea" && v.includes("\n") ? `${f.label}:\n${v}` : `${f.label}: ${v}`);
-    else if (fill) ctx.push(`${f.label}: [${f.label.toLowerCase()}]`);
+    if (v) ctx.push(v.includes("\n") ? `${f.label}:\n${v}` : `${f.label}: ${v}`);
+  }
+  for (const k of ["context", "audience"] as const) {
+    if (used.has(k)) continue;
+    const v = cleanText(input[k], 4000);
+    if (v) ctx.push(k === "audience" ? `Audience: ${v}` : v);
   }
   if (ctx.length) s.push({ id: "context", title: "Context", lines: ctx });
 
-  s.push({ id: "objective", title: "Objective", lines: mode === "concise" ? [sentence(goal)] : [sentence(goal), p.objective] });
+  // Task + success criterion.
+  s.push({ id: "task", title: "Task", lines: [sentence(goal), `Success looks like: ${block.success}`] });
 
-  let steps = p.workflow.length ? [...p.workflow] : GENERIC.workflow;
-  if (mode === "concise") steps = steps.slice(0, 3);
-  if (fill) steps = ["Before starting, ask me up to 3 short questions about anything in [brackets] or anything essential that is missing; wait for my answers", ...steps];
-  if (mode === "detailed") steps = [...steps, "Finish with a short summary and the single most important next step"];
-  s.push({ id: "instructions", title: "Instructions", lines: steps, list: true, });
+  // Missing details: ask first, or proceed on stated assumptions.
+  const missing = states.filter((x) => !x.value && !x.detected);
+  if (missing.length) {
+    if (askFirst || fill) {
+      s.push({ id: "questions", title: "Before you start", lines: [
+        `Ask me these ${missing.length === 1 ? "question" : `${missing.length} questions`} in one message, then wait for my answers before doing the task:`,
+        ...missing.map((m, i) => `${i + 1}. ${m.slot.question}`),
+      ] });
+    } else if (concise) {
+      s.push({ id: "assumptions", title: "Assume", lines: [`${missing.map((m) => `${m.slot.label.toLowerCase()}: ${m.slot.assume}`).join("; ")}. State these assumptions first.`] });
+    } else {
+      s.push({ id: "assumptions", title: "If details are missing", lines: [
+        "I haven't told you these yet, so assume:",
+        ...missing.map((m) => `- ${m.slot.label}: ${m.slot.assume}`),
+        "State these assumptions in one line at the top of your answer. If one would change the answer a lot, ask me about it first.",
+      ] });
+    }
+  }
 
-  let constraints: string[] = [];
+  // Steps tailored to the task type.
+  let steps = [...block.steps];
+  if (concise) steps = steps.slice(0, 3);
+  if (improve) steps.push("Replace anything generic with something concrete: an example, a number from my details, a template or a script");
+  if (mode === "detailed") steps.push("For each recommendation, add one line on why it fits my situation", "Finish with the single most important next step and how long it will take");
+  s.push({ id: "instructions", title: "Steps", lines: steps, list: true });
+
+  // Concrete constraints.
+  const user: string[] = [];
   const tone = cleanText(input.tone, 60);
-  if (tone) constraints.push(`Tone: ${tone}`);
+  if (tone) user.push(`Tone: ${tone}`);
   const lang = cleanText(input.language, 60);
-  if (lang && lang !== "English") constraints.push(`Respond in ${lang}`);
-  constraints.push(...lines(cleanText(input.constraints, 2000)));
-  constraints.push(...(sub?.rules ?? []));
-  if (sub?.sensitive) constraints.push(...GUARDRAILS[sub.sensitive]);
-  constraints.push(...platformRules(target, cat));
-  if (mode !== "concise") constraints.push("Be specific to my situation; avoid generic filler", "Do not invent facts, numbers, quotes or sources; say when you are unsure");
-  if (improve) constraints.push("If essential information is missing, ask up to 3 clarifying questions before answering", "State any assumptions you make");
+  if (lang && lang !== "English") user.push(`Respond in ${lang}`);
+  user.push(...lines(cleanText(input.constraints, 2000)));
+  const guard = sub?.sensitive ? GUARDRAILS[sub.sensitive] : [];
+  let constraints = concise
+    ? [...user, ...block.constraints.slice(0, 1), ...guard, ...platformRules(target, cat)]
+    : [...user, ...block.constraints, ...guard, ...platformRules(target, cat),
+      "No filler: skip intros, restating my request and closing summaries",
+      "Don't invent facts, statistics, quotes, sources or details about me; flag anything I should verify"];
   constraints = uniq(constraints);
   if (constraints.length) s.push({ id: "constraints", title: "Constraints", lines: constraints, list: true });
 
-  const format = cleanText(input.format, 300) || p.output || GENERIC.output;
-  s.push({ id: "format", title: "Output format", lines: [format] });
+  // Structured output spec.
+  const format = cleanText(input.format, 300);
+  s.push(format
+    ? { id: "format", title: "Output format", lines: [format] }
+    : { id: "format", title: "Output format", lines: concise ? [block.output.map((o) => o.replace(/\*\*/g, "")).join(" · ")] : block.output, list: !concise });
 
   const example = cleanText(input.example, 3000);
-  if (example && mode !== "concise") s.push({ id: "example", title: "Example / reference", lines: [example] });
+  if (example && !concise) s.push({ id: "example", title: "Example / reference", lines: [example] });
 
-  if (mode === "detailed" || improve) {
-    s.push({ id: "quality_checks", title: "Before you answer, check", list: true, lines: ["Every instruction and constraint above is followed", "The answer matches the requested format and length", "Advice is concrete and actionable for my situation"] });
-  }
-  void missing;
+  // Task-specific self-check.
+  if (!concise) s.push({ id: "quality_checks", title: "Before you answer, check", list: true, lines: uniq([...block.checks, ...(user.length ? ["Every constraint I gave is followed"] : [])]) });
   return s;
 }
 
-const XML_IDS = new Set(["role", "context", "objective", "instructions", "constraints", "format", "example", "quality_checks"]);
+const XML_IDS = new Set(["role", "context", "task", "objective", "assumptions", "questions", "instructions", "constraints", "format", "example", "quality_checks"]);
 function neutralise(s: string): string {
   return s.replace(/<\/?([a-z_]+)>/gi, (m, tag: string) => (XML_IDS.has(tag.toLowerCase()) ? m.replace("<", "[").replace(">", "]") : m));
 }
@@ -277,15 +325,16 @@ export function formatUniversal(sections: Section[], target: Target, mode: Mode)
   if (mode === "concise") {
     return sections.map((sec) => {
       const b = sec.list ? sec.lines.join("; ") : sec.lines.join(" ");
-      return sec.id === "objective" ? b : `${sec.title}: ${b}`;
+      return sec.id === "task" ? b : `${sec.title}: ${b}`;
     }).join("\n");
   }
   return sections.map((sec) => `## ${sec.title}\n${body(sec)}`).join("\n\n");
 }
 
 function visualValues(input: UniversalInput): Record<string, string> {
-  const e = input.extra ?? {};
-  return { ...e, subject: cleanText(e.subject) || cleanText(input.goal, 600) };
+  const out: Record<string, string> = {};
+  for (const [k, v] of Object.entries(input.extra ?? {})) { const c = cleanText(v, 600); if (c) out[k] = c; }
+  return out;
 }
 
 // ------------------------------------------------------------------ scoring
@@ -340,14 +389,14 @@ export function buildUniversal(input: UniversalInput): UniversalResult {
   let sections: Section[] = [];
 
   if (kind !== "text") {
-    const visualTarget = target.family === kind ? target.id : kind === "image" ? "image-generic" : "video";
-    const r = buildPrompt({ templateId: kind, targetId: visualTarget, mode, improve: !!input.improve || !!input.fillGaps, values: visualValues(input) });
+    const visualTarget = target.family === kind ? target : getTarget(kind === "image" ? "image-generic" : "video");
+    const r = buildVisual({ kind, subId: sub?.id, goal, extra: visualValues(input), target: target.family === "image" || target.family === "video" ? visualTarget : target, mode, improve: !!input.improve || !!input.fillGaps });
     text = r.text;
     sections = r.sections;
-    if (target.family !== kind) warnings.push(`This looks like a${kind === "image" ? "n image" : " video"} task, so the prompt is a natural-language ${kind} description you can paste into ${target.name} or any ${kind} tool. Whether ${target.name} can create ${kind}s depends on your plan and the tool.`);
+    if (target.family !== kind) warnings.push(`This looks like a${kind === "image" ? "n image" : " video"} task, so the prompt is a visual description you can paste into ${target.name} or any ${kind} tool. Whether ${target.name} can create ${kind}s depends on your plan and the tool.`);
     if (target.family === "image" && sub && !sub.visual) warnings.push(`${target.name} is an image tool, so your goal was turned into an image description.`);
   } else {
-    sections = textSections(input, target, category, sub, missing);
+    sections = textSections(input, target, category, sub);
     text = goal ? formatUniversal(sections, target, mode) : "";
     if (target.family === "coding_agent" && category?.id !== "coding") warnings.push(`${target.name} is built for coding. For this task a chat assistant (ChatGPT, Claude, Gemini, Grok) is usually a better fit.`);
   }
@@ -374,7 +423,7 @@ export function variations(input: UniversalInput): Variation[] {
     ];
   }
   const t = base.target;
-  const ask = buildUniversal({ ...input, fillGaps: true, mode: "concise" });
+  const ask = buildUniversal({ ...input, askFirst: true });
   const options = buildUniversal({ ...input, constraints: [input.constraints ?? "", "Give 3 distinct approaches, compare them briefly (pros/cons), then recommend one and explain why"].filter(Boolean).join("\n") });
   const coach = buildUniversal({ ...input, mode: "detailed", improve: true });
   void t;
@@ -396,13 +445,17 @@ export function explainPrompt(result: UniversalResult): string[] {
     out.push("It lists things to avoid when you add them, which reduces common artefacts.");
     return out;
   }
-  if (has("role")) out.push(`Role: asking the AI to act as ${withArticle((result.sub ?? GENERIC).role)} sets the expertise and vocabulary of the answer.`);
-  if (has("context")) out.push("Context: background the AI cannot guess is the most common thing missing from prompts; it makes answers specific to you.");
-  out.push(`Objective: your goal is restated with what a great answer must achieve${result.sub ? ` for ${result.sub.name.toLowerCase()}` : ""}, so the AI knows what "done" looks like.`);
-  out.push("Instructions: numbered steps make the AI work through the task in a sensible order instead of jumping to a generic answer.");
-  if (has("constraints")) out.push("Constraints: tone, language and rules keep the answer on track and discourage invented facts.");
+  const block = expertFor(result.category, result.sub) ?? GENERIC_BLOCK;
+  out.push(`Role: the AI acts as ${withArticle(shortRole(block.role))}, which sets the expertise, vocabulary and standards of the answer.`);
+  if (has("context")) out.push("Context: your real details are passed in, so the answer is about your situation rather than an average one.");
+  out.push("Success criterion: the prompt says what a great answer must achieve, so the AI knows what \"done\" looks like.");
+  if (has("questions")) out.push("Clarifying questions: the AI asks for the missing key details first instead of guessing.");
+  else if (has("assumptions")) out.push("Assumptions: for details you didn't give, the AI uses sensible defaults and states them up front so you can correct them.");
+  out.push(`Steps: a workflow specific to ${result.sub ? result.sub.name.toLowerCase() : "this kind of task"} makes the AI work in the order an expert would, instead of jumping to a generic answer.`);
+  if (has("constraints")) out.push("Constraints: concrete limits (length, banned clichés, no invented facts) stop the usual padding and made-up details.");
   if (result.sub?.sensitive) out.push(`Guardrails: because this touches on ${result.sub.sensitive} topics, the prompt asks for reliable sources and recommends consulting a qualified professional.`);
-  out.push("Output format: naming the structure makes the result easier to read and reuse.");
+  out.push("Output format: named sections and tables make the result easy to scan and reuse.");
+  if (has("quality_checks")) out.push("Self-check: the AI reviews its answer against task-specific checks before replying.");
   if (result.target.style === "xml") out.push(`Formatting: sections are wrapped in XML tags, a structure ${result.target.name}'s publisher recommends for clarity.`);
   else if (result.target.family === "search") out.push(`Formatting: it asks ${result.target.name} for cited, dated sources because it is a search-focused assistant.`);
   else out.push(`Formatting: clear markdown headings work well in ${result.target.name.split(" (")[0]}.`);
@@ -418,6 +471,7 @@ export function toShareParams(input: UniversalInput): URLSearchParams {
   set("audience", input.audience); set("tone", input.tone); set("lang", input.language); set("format", input.format);
   set("context", input.context); set("constraints", input.constraints);
   if (input.mode && input.mode !== "standard") p.set("mode", input.mode);
+  if (input.askFirst) p.set("ask", "1");
   for (const [k, v] of Object.entries(input.extra ?? {})) if (/^[a-zA-Z]{1,20}$/.test(k)) set(`x_${k}`, v);
   return p;
 }
@@ -434,6 +488,7 @@ export function fromShareParams(get: (k: string) => string | null | undefined, k
     subcategoryId: v("sub") && findSubcategory(v("sub")) ? v("sub") : undefined,
     audience: v("audience"), tone: v("tone"), language: v("lang"), format: v("format"), context: v("context"), constraints: v("constraints"),
     mode: mode === "concise" || mode === "detailed" ? mode : "standard",
+    askFirst: v("ask") === "1" || undefined,
     extra,
   };
 }

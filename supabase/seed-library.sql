@@ -227,22 +227,40 @@ Marketplace: [Amazon / Shopify / Etsy / Flipkart]
 
 Write: a title with key attributes, 5 benefit-led bullets (each tied to a real feature), a short description, care/size details, and 10 search keywords.
 Never invent specifications, certifications or claims.'),
-('professional-email-any-situation', 'Write an email.
+('professional-email-any-situation', 'You are a senior communications coach who writes clear, warm emails that get a yes on the first read.
+
 To: [recipient and relationship, e.g. my manager]
-Purpose: [what you need]
-Key details: [dates, facts, context]
+What I need: [the one ask]
+Key facts: [dates, reason, what''s already done, what I''m offering]
 Tone: [polite / warm / firm]
 
-Rules: specific subject line; main point in the first two lines; short paragraphs; one clear ask or next step; under 150 words.
-Give the email plus a shorter version I could send on chat.'),
-('summarize-any-document', 'Summarize the text below for [audience/purpose].
+Success looks like: the reader knows what I need in the first two lines and can reply yes in one sentence.
 
+Steps:
+1. Subject line that states the ask (e.g. "Request: 2-day extension for the Q3 report")
+2. First two lines: the ask and the date
+3. One sentence of reason, then the plan that reduces their effort or risk
+4. Close with one clear question
+
+Rules: under 150 words; paragraphs of 1–3 sentences; no "I hope this email finds you well", over-apologising or "Please do the needful"; use [placeholders] for anything I haven''t told you.
+
+Output: subject line (+1 alternative), the email, and a WhatsApp/chat version under 50 words.'),
+('summarize-any-document', 'You are an analyst who writes accurate executive summaries for busy readers, using only the source.
+
+Summarise for: [who will read it, and what they''ll do with it]
 """
 [paste text]
 """
 
-Give: a 3-sentence summary, 5–7 key points, any decisions or action items, and anything ambiguous or missing.
-Use only information from the text. Quote briefly when precision matters.'),
+Success looks like: the reader can make the right decision without opening the original.
+
+Output:
+1. Summary in 3 sentences, conclusion first
+2. 5–7 key points (keep numbers, names and dates exact)
+3. Decisions or action items, if any
+4. What''s unclear, missing or unsupported in the text
+
+Rules: use only information in the text; quote briefly when exact wording matters; no opinions unless I ask.'),
 ('translate-naturally', 'Translate the text below into [target language] for [audience, e.g. customers in Mumbai].
 Tone: [formal / friendly / same as original]
 
@@ -251,12 +269,25 @@ Tone: [formal / friendly / same as original]
 """
 
 Translate meaning, not word by word. Keep names, numbers, links and formatting intact. After the translation, list any phrases with no direct equivalent and how you handled them.'),
-('presentation-outline', 'Create a presentation on [topic] for [audience].
-Length: [number] slides, about [minutes] minutes.
-The one thing they should remember: [key takeaway]
+('presentation-outline', 'You are a presentation coach who builds talks around one memorable message and slides with one idea each.
 
-Output a table: slide # · title · up to 3 bullets · suggested visual · speaker notes (2–4 sentences).
-Start with a hook slide and end with a clear summary and call to action.'),
+Topic: [topic]
+Audience: [who, and what they already know]
+Length: [number] slides, [minutes] minutes
+The one thing they should remember: [key takeaway]
+What I want them to do afterwards: [action]
+
+Success looks like: someone who missed the talk can repeat the key takeaway after skimming the slides.
+
+Steps:
+1. Write the key takeaway as one sentence and build the story around it: hook → problem → insight → evidence → action
+2. One idea per slide; slide titles are full-sentence claims, not labels ("Late deliveries cost us 12% of repeat orders", not "Deliveries")
+3. For each slide, suggest a visual (chart type, photo, diagram) instead of text bullets
+4. Write speaker notes I can say in the time available (about 130 words per minute)
+
+Output: a table with slide # | headline claim | up to 3 bullets (≤8 words each) | visual | speaker notes (2–4 sentences). Then 3 likely audience questions with short answers.
+
+Rules: no more than 3 bullets per slide; use [placeholder] for any data I haven''t given; the timing must add up to my talk length.'),
 ('bedtime-story-for-kids', 'Write a bedtime story for a [age]-year-old named [name] who loves [interests].
 Theme or lesson: [e.g. being brave, sharing]
 Length: about [word count] words.
@@ -280,23 +311,40 @@ Study time: [hours per day]
 
 Create: a priority table (topic · weight · my confidence · priority), a day-by-day revision schedule up to the exam with buffer days, a practice-test plan, and a simple mistake-log routine.
 Remind me to check the official syllabus and pattern; don''t assume they''re current.'),
-('flashcards-from-notes', 'Turn my notes into [number] flashcards.
+('flashcards-from-notes', 'You are a learning scientist who writes flashcards for active recall and spaced repetition.
 
+Notes:
 """
 [paste notes]
 """
+Number of cards: [number]
+Exam or goal: [e.g. biology class 12 board exam]
 
-Rules: one fact or idea per card; questions that test understanding, not just recall; answers under 25 words; use only my notes.
-Format each as: Front: … | Back: …  (one card per line, so I can import it).'),
-('explain-like-im-new', 'Explain [concept] to me. My background: [e.g. no science background].
+Success looks like: cards that test understanding, so I can tell what I actually know.
+
+Rules:
+- One idea per card; no "list everything about X" cards
+- Mix types: definition, why/how, apply-to-an-example, compare two concepts
+- Answers under 25 words; use only my notes
+- Add a cloze card (fill-in-the-blank) for key formulas or terms
+
+Output: one card per line as "Front | Back" so I can import it into Anki or Quizlet, then the 3 concepts from my notes most likely to be tested.'),
+('explain-like-im-new', 'You are a patient teacher who explains hard ideas with everyday analogies and checks understanding before going deeper.
+
+Explain: [concept]
+My background: [e.g. no science background, class 10 maths]
+Why I''m asking: [e.g. a news article, an exam, work]
+
+Success looks like: I can explain it back to a friend in two sentences and avoid the most common misunderstanding.
 
 Structure:
-1. One-sentence plain answer.
-2. An everyday analogy.
-3. A slightly deeper explanation.
-4. A common misconception and why it''s wrong.
-5. One quick question to check I understood.
-Define any technical word the first time you use it.'),
+1. One-sentence plain answer
+2. An everyday analogy, and where the analogy breaks down
+3. A slightly deeper explanation (under 150 words)
+4. A common misconception and why it''s wrong
+5. One question to check I understood; wait for my answer
+
+Rules: define every technical word the first time; no jargon without a definition; under 350 words before the check question.'),
 ('product-photo-prompt', 'A professional product photograph of [product, with colour/material], placed on [surface, e.g. light oak table], [setting: clean studio / cosy kitchen / outdoor café].
 Lighting: soft diffused window light from the left, gentle shadow.
 Camera: 45-degree angle, 50mm lens look, shallow depth of field, product in sharp focus.
@@ -334,12 +382,23 @@ Interview type: [HR / technical / case / panel]
 2. For the 3 hardest, show how to structure a strong STAR answer using my real experience (use [placeholders] where you need my examples; never invent experience).
 3. Run a mock interview: ask one question at a time, wait for my answer, then give specific feedback and a stronger version.
 4. Suggest 3 smart questions I can ask the interviewer.'),
-('resume-bullet-upgrade', 'Target role: [job title]
+('resume-bullet-upgrade', 'You are a recruiter who has screened thousands of resumes for [job title] roles and knows what ATS filters and 6-second scans look for.
+
+Target role: [job title]
 Job description (key parts): [paste]
 My current bullets:
 [paste bullets]
 
-Rewrite each bullet as action verb + what I did + result. Where a number would help, ask me for it with [add metric] instead of inventing one. Match relevant keywords from the job description naturally. Then list gaps in my resume for this role.'),
+Success looks like: every bullet shows action + result, matches the job''s keywords, and nothing is invented.
+
+Steps:
+1. Pull the 10 most important keywords from the job description
+2. Rewrite each bullet as strong verb + what I did + result; where a number would help, write [add metric] instead of inventing one
+3. Reorder bullets so the most relevant proof comes first
+4. List gaps between my resume and the role, and honest ways to address them
+
+Output: keyword table (keyword | in my resume? | where to add) · before → after bullets · gaps · 3 questions whose answers would make my weakest bullets stronger.
+Rules: max 2 lines per bullet; no "responsible for"; never invent metrics, tools or titles.'),
 ('salary-raise-conversation', 'Help me ask my manager for a raise.
 My role and time in role: [ ]
 Achievements this year: [ ]
@@ -375,12 +434,24 @@ Budget: [weekly amount]
 
 Give: a table (day · breakfast · lunch · dinner), a grocery list grouped by section, and 3 prep-ahead tips.
 If any diet is for a medical condition, remind me to follow my doctor''s or dietitian''s advice.'),
-('habit-system-design', 'I want to build this habit: [habit]
+('habit-system-design', 'You are a behaviour-change coach who designs habits using tiny starting versions, existing routines as triggers, and simple tracking.
+
+Habit I want: [habit]
 Why it matters to me: [reason]
-My current routine: [typical day]
+My typical day: [wake time, work hours, evenings]
 What stopped me before: [obstacles]
 
-Design: the smallest version I can do daily, the existing routine to attach it to, a simple tracker (text table I can copy), how to handle missed days, and how to grow it after 2 weeks.'),
+Success looks like: a habit small enough to do on my worst day, attached to something I already do, with a plan for missed days.
+
+Steps:
+1. Define the 2-minute version I can do daily, and the full version I''m building towards
+2. Pick an anchor: "After I [existing routine], I will [tiny habit]" (give 3 options from my day)
+3. Remove friction for each obstacle I listed with one specific change
+4. Give a copy-paste tracker (text table, 4 weeks)
+5. Rules for missed days (never miss twice) and how to grow the habit every 2 weeks
+
+Output: tiny version · 3 anchor options · obstacle → fix table · 4-week tracker · growth plan.
+Rules: no motivation speeches; every suggestion is a concrete action with a time or place.'),
 ('spreadsheet-formula-helper', 'App: [Excel / Google Sheets]
 Sheet layout: [e.g. A: date, B: product, C: quantity, D: price; data in rows 2–500]
 What I need: [e.g. total sales per month in a summary table]
@@ -409,11 +480,23 @@ Compute only from the data provided; don''t invent numbers.'),
 3. Highlight differences between segments if the data shows them.
 4. List 3 implications and the limits of this sample.
 Don''t over-claim from small samples.'),
-('compare-options-table', 'Compare [option A], [option B] and [option C] for [my use case].
-What matters most to me (in order): [criteria, e.g. price, ease of use, privacy]
-Budget: [ ]
+('compare-options-table', 'You are a neutral research analyst who compares options against the buyer''s own priorities and is clear about what needs verifying.
 
-Give a comparison table across my criteria, note which details may be outdated and should be verified, then recommend the best fit for my priorities and one alternative for a different priority.'),
+Options: [option A], [option B], [option C]
+My use case: [what I''ll use it for]
+What matters most (in order): [criteria, e.g. price, ease of use, privacy]
+Budget: [amount]
+
+Success looks like: I can see which option fits my priorities best, why, and what to double-check before buying.
+
+Steps:
+1. Assign weights to my criteria (summing to 100) based on my order
+2. Score each option 1–5 per criterion with a one-line reason
+3. Calculate weighted totals and show the maths
+4. Recommend the best fit, plus one alternative for a different priority
+
+Output: comparison table (option | each criterion score | weighted total) · recommendation · "verify before buying" list.
+Rules: mark any price, spec or feature that may be outdated as [verify]; don''t invent specs.'),
 ('monthly-budget-builder', 'You are a personal finance educator, not a financial advisor.
 Monthly take-home income: [amount]
 Fixed costs: [rent, EMIs, bills]
@@ -501,24 +584,53 @@ Turn my notes below into an X thread of 5–7 posts.
 
 ## Output format
 Numbered posts.'),
-('gemini-study-plan', '## Task
-Create a 4-week plan to learn [skill] from [current level].
+('gemini-study-plan', '## Role
+You are a learning coach who uses spaced repetition and hands-on practice, and sizes every task to my real schedule.
 
-## Context
-I have [time per day]. My goal is [goal, e.g. build a small project / pass an exam].
+## Task
+Create a 4-week plan to learn [skill], starting from [current level, e.g. complete beginner].
+Success looks like: by week 4 I can [concrete outcome, e.g. build a monthly sales report on my own], proven by a final mini-project.
+
+## My situation
+- Time: [minutes per day] on [days per week]
+- Why I''m learning: [job task / exam / project]
+
+## Steps
+1. Turn the goal into 3 things I''ll be able to do, plus a final mini-project
+2. Order topics by dependency into 4 weekly milestones
+3. Each day: one learn task + one practice task, within my daily time
+4. Spaced review on days 1, 3 and 7 after each topic; a 5-question self-test each week
+5. A weekly catch-up slot, and what to cut if I fall behind
 
 ## Output format
-For each week: goal, daily tasks (30–60 min each), one free resource type to use, and a 5-question self-check. Finish with a mini-project idea.'),
-('meeting-notes-summary', 'Summarise these meeting notes:
+- Weekly milestones table: week | milestone | proof I can do it
+- Daily plan table: day | learn (min) | practise (min) | review
+- Weekly self-test (5 questions)
+- Final mini-project brief
+
+## Rules
+- Every day includes doing, not just watching or reading
+- Name resource types (official docs, practice datasets), not invented course titles or links
+- If anything in [brackets] is missing, ask me before planning'),
+('meeting-notes-summary', 'You are a chief of staff who turns messy meeting notes into clear decisions and owned action items.
+
+Meeting: [name / purpose], attendees: [names]
+Notes or transcript:
 """
 [paste notes or transcript]
 """
+
+Success looks like: anyone who missed the meeting knows what was decided, who does what by when, and what''s still open.
+
 Output:
-1. Decisions made (bullets)
-2. Action items as a table: task | owner | deadline (write "unassigned"/"no date" if missing)
-3. Open questions
-Only use what is in the notes.'),
-('midjourney-product-hero', '[product] on a [material] pedestal, studio product photography, soft gradient background in [color], soft key light with subtle rim light, crisp reflections, minimal composition, high detail --ar 4:5 --no text, watermark'),
+1. Summary (2 sentences, outcome first)
+2. Decisions made (bullets, with who decided if stated)
+3. Action items table: task | owner | deadline | status. Write "unassigned" or "no date" when missing; never guess an owner
+4. Open questions and risks
+5. A 5-line follow-up message I can send to attendees
+
+Rules: use only what is in the notes; keep names, numbers and dates exactly as written; flag contradictions.'),
+('midjourney-product-hero', '[product, with colour and material], on a [material, e.g. travertine] pedestal, commercial product photography, soft gradient background in [colour], large softbox key light from the left with subtle rim light, soft shadow, 45-degree angle, 100mm macro lens, product centred and in sharp focus, shallow depth of field, true-to-life colours, minimal composition --ar 4:5 --no text, watermark, warped label, extra objects, harsh reflections'),
 ('resume-bullets', 'Rewrite these resume bullets for a [target role] application:
 """
 [paste bullets]

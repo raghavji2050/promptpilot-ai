@@ -172,6 +172,7 @@ export function UniversalBuilder({ initial = {}, autoGenerate = false }: { initi
 
           <div className="mt-3 flex flex-wrap gap-2" role="group" aria-label="Refine">
             <button type="button" className={`chip ${input.improve ? "chip-active" : ""}`} aria-pressed={!!input.improve} disabled={!generated} onClick={() => set({ improve: !input.improve })}>Improve</button>
+            <button type="button" className={`chip ${input.askFirst ? "chip-active" : ""}`} aria-pressed={!!input.askFirst} disabled={!generated || result.kind !== "text"} onClick={() => set({ askFirst: !input.askFirst })} title="The AI asks about missing key details before answering">Ask me questions first</button>
             <button type="button" className={`chip ${input.mode === "detailed" ? "chip-active" : ""}`} aria-pressed={input.mode === "detailed"} disabled={!generated} onClick={() => set({ mode: input.mode === "detailed" ? "standard" : "detailed" })}>Make more detailed</button>
             <button type="button" className={`chip ${input.mode === "concise" ? "chip-active" : ""}`} aria-pressed={input.mode === "concise"} disabled={!generated} onClick={() => set({ mode: input.mode === "concise" ? "standard" : "concise" })}>Make shorter</button>
             <button type="button" className={`chip ${input.fillGaps ? "chip-active" : ""}`} aria-pressed={!!input.fillGaps} disabled={!generated || result.kind !== "text"} onClick={() => set({ fillGaps: !input.fillGaps })}>Add missing context</button>
