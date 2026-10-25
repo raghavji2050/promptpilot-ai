@@ -172,3 +172,13 @@ describe("validation", () => {
     expect(await handleRun({ kind: "video", prompt: "a cat video" }, ctx(ALL, f))).toMatchObject({ code: "VALIDATION" });
   });
 });
+
+import { buildUniversal } from "@/lib/engine/universal";
+describe("intent regression found in live check", () => {
+  it("React hooks route to coding, social hooks stay social", () => {
+    const cat = (g: string) => buildUniversal({ goal: g, targetId: "chatgpt" } as never).category?.id;
+    expect(cat("Write a React hook to debounce search input")).toBe("coding");
+    expect(cat("Write a custom hook for fetching data in React")).toBe("coding");
+    expect(cat("Instagram caption hooks for my salon")).toBe("social");
+  });
+});

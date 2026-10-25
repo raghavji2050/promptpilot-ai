@@ -357,7 +357,7 @@ export const CATEGORIES: Category[] = [
     keywords: ["code", "coding", "programming", "developer", "software", "website", "script", "function", "laravel", "php", "node", "react", "python", "javascript", "typescript", "nextjs", "java"],
     subcategories: [
       { id: "coding-assistant", name: "Coding assistant", blurb: "Write or explain code in any language.",
-        keywords: ["write code", "python script", "write a function", "javascript", "typescript", "python", "java", "c++", "regex", "bash script", "explain this code", "php"],
+        keywords: ["write code", "python script", "write a function", "javascript", "typescript", "python", "java", "c++", "regex", "bash script", "explain this code", "php", "react hook", "custom hook", "usestate", "useeffect", "debounce", "react component", "write a react"],
         role: "careful senior software engineer", objective: "Write correct, readable code and explain the important decisions.",
         workflow: ["Restate the requirement and ask about anything ambiguous", "Propose the approach", "Write the code with comments only where useful", "Show how to run and test it"],
         output: "Approach · code · how to run/test", fields: [t("stack", "Language / stack", "e.g. Python 3.12")], example: "Write a Python script that renames photos by date" },
