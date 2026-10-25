@@ -6,6 +6,7 @@ import { useSession } from "@/lib/saved";
 import { CopyButton } from "./CopyButton";
 import { SaveButton } from "./SaveButton";
 import { TryInButtons } from "./TryInButtons";
+import { RunButton } from "./RunButton";
 import { LiveBeforeAfter } from "./LiveBeforeAfter";
 import { ShareCard } from "./ShareCard";
 
@@ -59,6 +60,7 @@ export const ResultsPanel = forwardRef<HTMLHeadingElement, { input: UniversalInp
           </div>
           {shareMsg && <p className="mt-2 break-all text-xs text-subtle" role="status">{shareMsg}</p>}
           <TryInButtons text={text} />
+          <RunButton text={text} kind={result.kind} />
           <LiveBeforeAfter goal={input.goal} result={result} text={text} />
           <ShareCard input={input} festivalName={result.festival?.name} />
 
