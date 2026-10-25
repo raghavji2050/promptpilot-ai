@@ -24,13 +24,13 @@ const TOOLS = [
 ];
 
 const STEPS = [
-  { t: "Describe your idea", b: "Type what you want in plain words, in any language. That's the only required field." },
+  { t: "Describe your idea", b: "Type what you want in plain words, in English or any language, including Hindi and Hinglish. That's the only required field." },
   { t: "Pick your AI", b: "ChatGPT, Claude, Gemini, Grok, Perplexity, image and video tools, or coding assistants." },
   { t: "Copy, try and refine", b: "Copy the prompt or open it in your AI. Make it shorter, more detailed or regenerate a new structure." },
 ];
 
 const FAQ = [
-  { q: "Is PromptPilot free?", a: "Yes. The builder, library and enhancer checklist are free and don't need an account. A Premium plan is listed as coming soon; there is no price and no way to pay today." },
+  { q: "Is PromptPilot free?", a: "Yes. The builder, library and enhancer checklist are free and don't need an account. A Pro plan is coming soon; there is no price and no way to pay today." },
   { q: "Does PromptPilot send my text to an AI?", a: "No. Prompts are built from templates in your browser, so the same inputs always give the same prompt. Nothing reaches an AI unless you paste it into one yourself, or choose the optional Enhancer polish with your own API key." },
   { q: "Which AI tools does it support?", a: "ChatGPT, Claude, Gemini, Grok, Perplexity, Copilot-style assistants, Midjourney and other image tools, video generators, and coding agents like Cursor. Each platform gets formatting it handles well (for example XML sections for Claude)." },
   { q: "Do I need to sign up?", a: "No. You can build, copy and try prompts without an account. Signing in lets you save prompts to your account; without it you can still save in this browser from the full builder." },

@@ -135,8 +135,8 @@ export function RunButton({ text, kind }: { text: string; kind: "text" | "image"
         {state.s === "error" && !quotaOut && <p className="mt-3 text-sm text-amber-800" role="alert">{state.message}</p>}
         {quotaOut && (
           <div className="mt-3 rounded-lg bg-amber-50 p-3 text-sm text-amber-900" role="alert" data-testid="run-quota">
-            <p className="font-semibold">Aaj ka free quota khatam.</p>
-            <p className="mt-1">Kal phir free run milega. Abhi ke liye apne free account mein try karein:</p>
+            <p className="font-semibold">You&apos;ve used today&apos;s free runs.</p>
+            <p className="mt-1">Free runs reset tomorrow. Meanwhile, try the prompt in your own free account:</p>
             <TryInButtons text={text} platforms={FALLBACK} />
             <p className="mt-2">Or <Link href="/enhancer" className="underline">use your own API key</Link>.</p>
           </div>

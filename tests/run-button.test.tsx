@@ -29,7 +29,7 @@ describe("RunButton", () => {
     await mount({ config: cfg(true), run: { ok: false, code: "QUOTA", message: "x" } });
     fireEvent.click(await screen.findByRole("button", { name: "Run free" }));
     const box = await screen.findByTestId("run-quota");
-    expect(box.textContent).toContain("Aaj ka free quota khatam");
+    expect(box.textContent).toContain("used today's free runs");
     expect(box.textContent).toContain("Try in ChatGPT");
     expect(box.textContent).toContain("own API key");
   });

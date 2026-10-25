@@ -67,8 +67,8 @@ export async function handleRun(raw: unknown, ctx: RunContext): Promise<RunRespo
   const q = await consumeQuota(subject, kind, limit, siteCaps(env)[kind], { env, fetch: f });
   if (!q.allowed) {
     return q.reason === "SITE_CAP"
-      ? fail("SITE_CAP", "Aaj ka free quota khatam (site-wide). Kal phir try karein, ya Try in ChatGPT/Gemini/Grok use karein.")
-      : fail("QUOTA", "Aaj ka free quota khatam. Kal phir try karein, ya Try in ChatGPT/Gemini/Grok use karein.");
+      ? fail("SITE_CAP", "Today's free runs are used up site-wide. Try again tomorrow, or use Try in ChatGPT/Gemini/Grok.")
+      : fail("QUOTA", "You've used today's free runs. Try again tomorrow, or use Try in ChatGPT/Gemini/Grok.");
   }
 
   try {
@@ -83,7 +83,7 @@ export async function handleRun(raw: unknown, ctx: RunContext): Promise<RunRespo
     await releaseQuota(subject, kind, q.degraded, { env, fetch: f });
     const status = e instanceof RunProviderError ? e.status : 502;
     await logCall(env, f, { user_id: caller.userId, mode: "free", provider: chain[0].id, model: chain[0].model, ok: false, error_code: String(status) });
-    if (status === 429) return fail("SITE_CAP", "Aaj ka free quota khatam (providers busy). Try in ChatGPT/Gemini/Grok use karein.");
+    if (status === 429) return fail("SITE_CAP", "Free AI providers are busy right now. Use Try in ChatGPT/Gemini/Grok.");
     return fail("PROVIDER", "The free AI provider couldn't answer right now. Your run wasn't counted. Try again or use Try in ChatGPT/Gemini/Grok.");
   }
 }
