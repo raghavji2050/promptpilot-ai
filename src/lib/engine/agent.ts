@@ -111,13 +111,14 @@ export function normaliseAnswers(stack: StackId, raw: Record<string, unknown>): 
     if (q.type === "checkbox") v = v === "true" ? "true" : "false";
     out[q.key] = v;
   }
-  if (!/^[A-Za-z0-9 ._-]{1,80}$/.test(out.projectName)) out.projectName = out.projectName.replace(/[^A-Za-z0-9 ._-]/g, "").slice(0, 80) || "my-app";
+  const pn = out.projectName ?? "";
+  if (!/^[A-Za-z0-9 ._-]{1,80}$/.test(pn)) out.projectName = pn.replace(/[^A-Za-z0-9 ._-]/g, "").slice(0, 80) || "my-app";
   return out;
 }
 
-const lines = (s: string) => s.split("\n").map((l) => l.replace(/^\s*[-*•]\s*/, "").trim()).filter(Boolean);
+const lines = (s: string | undefined) => (s ?? "").split("\n").map((l) => l.replace(/^\s*[-*•]\s*/, "").trim()).filter(Boolean);
 const bullets = (items: string[]) => items.map((i) => `- ${i}`).join("\n");
-const yes = (v: string) => v === "true";
+const yes = (v: string | undefined) => v === "true";
 
 interface Facts {
   title: string;
@@ -152,7 +153,7 @@ function laravelFacts(a: Record<string, string>): Facts {
     "API only": ["Return API Resources (app/Http/Resources) instead of raw models", "Version routes under routes/api.php and keep responses consistent"],
   };
   return {
-    title: a.projectName,
+    title: a.projectName ?? "my-app",
     stackLine: `Laravel ${a.laravelVersion} on PHP ${a.phpVersion}, ${a.db}, ${a.frontend}, tests with ${a.tests}${a.queue !== "none" ? `, ${a.queue} queue` : ""}.`,
     setup: ["cp .env.example .env", "php artisan key:generate"],
     commands,
@@ -168,7 +169,7 @@ function laravelFacts(a: Record<string, string>): Facts {
       "Keep controllers thin; move logic to Actions/Services",
       "Prefer Eloquent relationships and eager loading (with()) to avoid N+1 queries",
       "Use config() not env() outside config files",
-      ...fe[a.frontend],
+      ...(fe[a.frontend ?? ""] ?? []),
       ...(a.queue !== "none" ? ["Dispatch slow work (mail, external APIs) to queued jobs; make jobs idempotent"] : []),
     ],
     testing: [
@@ -198,7 +199,7 @@ function nodeFacts(a: Record<string, string>): Facts {
   const ts = a.language === "TypeScript";
   const ext = ts ? "ts" : "js";
   return {
-    title: a.projectName,
+    title: a.projectName ?? "my-app",
     stackLine: `${a.framework} on Node.js ${a.nodeVersion} (${a.language}), ${a.orm !== "none" ? a.orm + " + " : ""}${a.db}, tests with ${a.tests}.`,
     setup: [`${pm} install`, "cp .env.example .env"],
     commands: [
@@ -232,7 +233,7 @@ function nextFacts(a: Record<string, string>): Facts {
   const pm = a.pm, run = pm === "npm" ? "npm run" : pm;
   const app = a.router === "App Router";
   return {
-    title: a.projectName,
+    title: a.projectName ?? "my-app",
     stackLine: `Next.js ${a.nextVersion} (${a.router}), ${a.styling}, data via ${a.data}, tests: ${a.tests}.`,
     setup: [`${pm} install`, "cp .env.example .env.local"],
     commands: [["Install", `${pm} install`], ["Dev", `${run} dev`], ["Build", `${run} build`], ["Lint", `${run} lint`], ...(a.tests !== "none yet" ? [["Tests", `${pm} test`] as [string, string]] : [])],
@@ -406,7 +407,7 @@ export function parseMdcFrontmatter(content: string): { description: string; glo
   const m = content.match(/^---\n([\s\S]*?)\n---\n/);
   if (!m) return null;
   const kv: Record<string, string> = {};
-  for (const line of m[1].split("\n")) {
+  for (const line of (m[1] ?? "").split("\n")) {
     const i = line.indexOf(":");
     if (i > 0) kv[line.slice(0, i).trim()] = line.slice(i + 1).trim();
   }

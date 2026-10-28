@@ -102,13 +102,13 @@ function parseSections(s: string): [string, string[]][] {
   const xml = /<([a-z_]+)>\n?([\s\S]*?)\n?<\/\1>/gi;
   let m: RegExpExecArray | null;
   if (/<[a-z_]+>[\s\S]*<\/[a-z_]+>/i.test(s)) {
-    while ((m = xml.exec(s))) out.push([titleCase(m[1].replace(/_/g, " ")), m[2].split("\n").map((l) => l.replace(/^- /, ""))]);
+    while ((m = xml.exec(s))) out.push([titleCase((m[1] ?? "").replace(/_/g, " ")), (m[2] ?? "").split("\n").map((l) => l.replace(/^- /, ""))]);
     return out;
   }
   const heads: { title: string; idx: number; end: number }[] = [];
-  while ((m = md.exec(s))) heads.push({ title: m[1].trim(), idx: m.index, end: m.index + m[0].length });
+  while ((m = md.exec(s))) heads.push({ title: (m[1] ?? "").trim(), idx: m.index, end: m.index + m[0].length });
   heads.forEach((h, i) => {
-    const body = s.slice(h.end, i + 1 < heads.length ? heads[i + 1].idx : undefined).trim();
+    const body = s.slice(h.end, i + 1 < heads.length ? heads[i + 1]!.idx : undefined).trim();
     out.push([h.title, body.split("\n").map((l) => l.replace(/^- /, "")).filter(Boolean)]);
   });
   return out;

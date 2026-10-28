@@ -11,6 +11,6 @@ export function generateStaticParams() {
 
 export default async function Image({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const f = getFestival(slug) ?? FESTIVALS[0];
+  const f = getFestival(slug) ?? FESTIVALS[0]!;
   return festivalOg({ eyebrow: "Festival prompt studio", title: `${f.name} AI prompts`, subtitle: "Greetings · Reels · Posts · Posters · Business campaigns", accent: f.theme.accent, soft: f.theme.soft });
 }

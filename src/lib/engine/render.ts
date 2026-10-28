@@ -51,18 +51,18 @@ function textSections(t: TaskTemplate, target: Target, v: Record<string, string>
   const role = v.role || (improve || mode === "detailed" ? t.defaultRole ?? "" : "");
   if (role && mode !== "concise") s.push({ id: "role", title: "Role", lines: [`You are ${withArticle(role)}.`] });
 
-  if (v.context) s.push({ id: "context", title: "Context", lines: [v.context] });
+  if ((v.context ?? "")) s.push({ id: "context", title: "Context", lines: [(v.context ?? "")] });
 
-  const task: string[] = [v.goal];
+  const task: string[] = [(v.goal ?? "")];
   const extras: [string, string][] = [];
-  for (const f of t.fields) if (v[f.key]) extras.push([f.label, v[f.key]]);
+  for (const f of t.fields) if (v[f.key]) extras.push([f.label, v[f.key] ?? ""]);
   for (const [label, val] of extras) task.push(`${label}: ${val}`);
   s.push({ id: "task", title: "Task", lines: task.filter(Boolean) });
 
   if (v.audience) s.push({ id: "audience", title: "Audience", lines: [v.audience] });
 
-  let constraints = splitLines(v.constraints);
-  if (v.tone) constraints.unshift(`Tone: ${v.tone}`);
+  let constraints = splitLines((v.constraints ?? ""));
+  if ((v.tone ?? "")) constraints.unshift(`Tone: ${(v.tone ?? "")}`);
   if (mode !== "concise" || constraints.length === 0) constraints.push(...(t.baseConstraints ?? []));
   if (target.family === "search") constraints.push("Cite a source URL for each factual claim and note the publication date");
   if (improve) {
@@ -124,10 +124,10 @@ function imageText(target: Target, v: Record<string, string>, mode: Mode, improv
   const composition = v.composition || (improve ? "balanced composition, sharp focus on the subject" : "");
   const avoid = v.avoid || (improve ? "text, watermark, distorted hands, extra limbs" : "");
   const aspect = v.aspect || "1:1";
-  const parts = [v.subject, v.style, lighting, composition, v.mood].filter(Boolean);
+  const parts = [(v.subject ?? ""), v.style, lighting, composition, v.mood].filter(Boolean);
   if (mode === "detailed") parts.push("highly detailed, coherent anatomy, realistic textures");
   const sections: Section[] = [
-    { id: "subject", title: "Subject", lines: [v.subject] },
+    { id: "subject", title: "Subject", lines: [(v.subject ?? "")] },
     ...(v.style ? [{ id: "style", title: "Style", lines: [v.style] }] : []),
     ...(lighting ? [{ id: "lighting", title: "Lighting", lines: [lighting] }] : []),
     ...(composition ? [{ id: "composition", title: "Composition", lines: [composition] }] : []),
@@ -140,7 +140,7 @@ function imageText(target: Target, v: Record<string, string>, mode: Mode, improv
     if (avoid) flags.push(`--no ${avoid.replace(/\s*,\s*/g, ", ")}`);
     return { text: `${parts.join(", ")} ${flags.join(" ")}`.trim(), sections };
   }
-  const sentences = [`Create an image of ${lowerFirst(v.subject)}.`];
+  const sentences = [`Create an image of ${lowerFirst((v.subject ?? ""))}.`];
   if (v.style) sentences.push(`Style: ${v.style}.`);
   if (lighting) sentences.push(`Lighting: ${lighting}.`);
   if (composition) sentences.push(`Composition: ${composition}.`);
@@ -156,9 +156,9 @@ function videoText(v: Record<string, string>, mode: Mode, improve: boolean): { t
   const camera = v.camera || (improve ? "slow dolly in" : "");
   const duration = v.duration || (improve ? "8 seconds" : "");
   const rows: [string, string][] = [
-    ["Shot", shot], ["Subject & action", v.subject], ["Camera", camera], ["Setting", v.setting],
+    ["Shot", shot], ["Subject & action", (v.subject ?? "")], ["Camera", camera], ["Setting", (v.setting ?? "")],
     ["Style", v.style + (mode === "detailed" ? (v.style ? ", " : "") + "consistent lighting, natural motion, no flicker" : "")],
-    ["Duration", duration], ["Audio", v.audio], ["Aspect ratio", v.aspect || "16:9"],
+    ["Duration", duration], ["Audio", (v.audio ?? "")], ["Aspect ratio", v.aspect || "16:9"],
   ];
   const filled = rows.filter(([, val]) => val);
   const sections = filled.map(([title, val]) => ({ id: title.toLowerCase().replace(/[^a-z]+/g, "_"), title, lines: [val] }));
@@ -171,7 +171,7 @@ function withArticle(role: string): string {
   return `${/^[aeiou]/i.test(r) ? "an" : "a"} ${r}`;
 }
 
-function lowerFirst(s: string) { return s ? s[0].toLowerCase() + s.slice(1) : s; }
+function lowerFirst(s: string) { return s ? s.charAt(0).toLowerCase() + s.slice(1) : s; }
 
 // ---------------------------------------------------------------- scoring
 export function scoreInput(input: BuilderInput): CheckResult[] {
@@ -179,7 +179,7 @@ export function scoreInput(input: BuilderInput): CheckResult[] {
   const v = values(input);
   if (t.families.includes("image")) {
     return [
-      chk("subject", "Specific subject", v.subject.length >= 15, "Describe who/what, doing what, where.", 30),
+      chk("subject", "Specific subject", (v.subject ?? "").length >= 15, "Describe who/what, doing what, where.", 30),
       chk("style", "Style", !!v.style, "Name a medium or look (e.g. 35mm photo, watercolor).", 15),
       chk("lighting", "Lighting", !!v.lighting, "Lighting changes the result more than most words.", 15),
       chk("composition", "Composition / camera", !!v.composition, "Add framing such as close-up or wide shot.", 15),
@@ -189,20 +189,20 @@ export function scoreInput(input: BuilderInput): CheckResult[] {
   }
   if (t.families.includes("video")) {
     return [
-      chk("subject", "Subject & action", v.subject.length >= 15, "Say what moves and how.", 30),
+      chk("subject", "Subject & action", (v.subject ?? "").length >= 15, "Say what moves and how.", 30),
       chk("shot", "Shot type", !!v.shot, "Pick a shot type.", 15),
       chk("camera", "Camera movement", !!v.camera, "Video models respond to explicit camera moves.", 15),
-      chk("setting", "Setting", !!v.setting, "Where and when does it happen?", 15),
+      chk("setting", "Setting", !!(v.setting ?? ""), "Where and when does it happen?", 15),
       chk("style", "Visual style", !!v.style, "Add a visual style.", 10),
       chk("duration", "Duration", !!v.duration, "State the clip length.", 15),
     ];
   }
   const checks = [
-    chk("goal", "Clear goal", v.goal.length >= 20, "Say exactly what you want in at least one full sentence.", 25),
-    chk("context", "Context", v.context.length >= 30, "Add background the AI can't guess (who you are, situation, facts).", 25),
+    chk("goal", "Clear goal", (v.goal ?? "").length >= 20, "Say exactly what you want in at least one full sentence.", 25),
+    chk("context", "Context", (v.context ?? "").length >= 30, "Add background the AI can't guess (who you are, situation, facts).", 25),
     chk("audience", "Audience", !!v.audience, "Who is the output for?", 10),
     chk("format", "Output format", !!v.format, "Name the format and length.", 15),
-    chk("constraints", "Constraints", splitLines(v.constraints).length > 0 || !!v.tone, "Add at least one rule or a tone.", 15),
+    chk("constraints", "Constraints", splitLines((v.constraints ?? "")).length > 0 || !!(v.tone ?? ""), "Add at least one rule or a tone.", 15),
     chk("example", "Example", !!v.example, "One example of good output sharply improves consistency.", 10),
   ];
   for (const f of t.fields) if (f.required && !v[f.key]) checks.push(chk(`req-${f.key}`, f.label, false, `${f.label} is required for this template.`, 10));
@@ -234,20 +234,20 @@ export function buildPrompt(input: BuilderInput): BuildResult {
   let text: string;
   let sections: Section[];
   if (t.families.includes("image")) {
-    if (!v.subject) warnings.push("Subject is required.");
+    if (!(v.subject ?? "")) warnings.push("Subject is required.");
     ({ text, sections } = imageText(target.family === "image" ? target : getTarget("image-generic"), v, mode, improve));
   } else if (t.families.includes("video")) {
-    if (!v.subject) warnings.push("Subject & action is required.");
+    if (!(v.subject ?? "")) warnings.push("Subject & action is required.");
     ({ text, sections } = videoText(v, mode, improve));
   } else {
-    if (!v.goal) warnings.push("Describe what you want first.");
+    if (!(v.goal ?? "")) warnings.push("Describe what you want first.");
     for (const f of t.fields) if (f.required && !v[f.key]) warnings.push(`${f.label} is required.`);
     sections = textSections(t, target, v, mode, improve);
     text = target.style === "xml" ? formatXml(sections, mode) : formatMarkdown(sections, mode);
   }
 
   // Nothing meaningful to render until the primary field is filled.
-  const primary = t.families.includes("image") || t.families.includes("video") ? v.subject : v.goal;
+  const primary = t.families.includes("image") || t.families.includes("video") ? (v.subject ?? "") : (v.goal ?? "");
   if (!primary) text = "";
 
   const checks = scoreInput(input);

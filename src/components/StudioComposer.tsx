@@ -5,7 +5,7 @@ import { CopyButton } from "./CopyButton";
 import { SaveButton } from "./SaveButton";
 
 export function StudioComposer() {
-  const [styleId, setStyleId] = useState(STUDIO_STYLES[0].id);
+  const [styleId, setStyleId] = useState(STUDIO_STYLES[0]!.id);
   const [aspect, setAspect] = useState("4:5");
   const [locale, setLocale] = useState<"en" | "hi">("en");
   const [people, setPeople] = useState<"one" | "group">("one");

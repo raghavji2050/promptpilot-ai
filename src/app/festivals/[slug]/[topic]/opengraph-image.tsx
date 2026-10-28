@@ -12,7 +12,7 @@ export function generateStaticParams() {
 
 export default async function Image({ params }: { params: Promise<{ slug: string; topic: string }> }) {
   const { slug, topic } = await params;
-  const t = getTopic(slug, topic) ?? FESTIVAL_TOPICS[0];
-  const f = getFestival(t.festival) ?? FESTIVALS[0];
+  const t = getTopic(slug, topic) ?? FESTIVAL_TOPICS[0]!;
+  const f = getFestival(t.festival) ?? FESTIVALS[0]!;
   return festivalOg({ eyebrow: `${f.name} prompts`, title: t.h1, subtitle: "Expert prompts for ChatGPT, Claude, Gemini and image tools", accent: f.theme.accent, soft: f.theme.soft });
 }

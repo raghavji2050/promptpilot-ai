@@ -18,7 +18,7 @@ describe("Try in AI platforms: logic", () => {
     expect(r.status).toBe("launched");
     if (r.status !== "launched") return;
     expect(writeText).toHaveBeenCalledWith(PROMPT);
-    expect(writeText.mock.invocationCallOrder[0]).toBeLessThan(open.mock.invocationCallOrder[0]);
+    expect(writeText.mock.invocationCallOrder[0]!).toBeLessThan(open.mock.invocationCallOrder[0]!);
     expect(open).toHaveBeenCalledWith("", "_blank");
     expect(w.opener).toBeNull();
     expect(w.location.href).toBe("https://claude.ai/new");
@@ -28,15 +28,15 @@ describe("Try in AI platforms: logic", () => {
   });
 
   it("clipboard failure: still opens the site and reports copied=false", async () => {
-    const r = launchTry(PROMPT, TRY_PLATFORMS[0], { writeText: vi.fn().mockRejectedValue(new Error("denied")), open: () => fakeWin() });
+    const r = launchTry(PROMPT, TRY_PLATFORMS[0]!, { writeText: vi.fn().mockRejectedValue(new Error("denied")), open: () => fakeWin() });
     if (r.status !== "launched") throw new Error("expected launch");
     expect(r.opened).toBe(true);
     await expect(r.copied).resolves.toBe(false);
   });
 
   it("clipboard API missing or throwing synchronously: copied=false", async () => {
-    const a = launchTry(PROMPT, TRY_PLATFORMS[0], { open: () => fakeWin() });
-    const b = launchTry(PROMPT, TRY_PLATFORMS[0], { writeText: () => { throw new Error("sync"); }, open: () => fakeWin() });
+    const a = launchTry(PROMPT, TRY_PLATFORMS[0]!, { open: () => fakeWin() });
+    const b = launchTry(PROMPT, TRY_PLATFORMS[0]!, { writeText: () => { throw new Error("sync"); }, open: () => fakeWin() });
     if (a.status !== "launched" || b.status !== "launched") throw new Error("expected launch");
     await expect(a.copied).resolves.toBe(false);
     await expect(b.copied).resolves.toBe(false);
@@ -44,15 +44,15 @@ describe("Try in AI platforms: logic", () => {
 
   it("empty prompt: does nothing", () => {
     const writeText = vi.fn(); const open = vi.fn();
-    expect(launchTry("   \n", TRY_PLATFORMS[0], { writeText, open })).toEqual({ status: "empty" });
+    expect(launchTry("   \n", TRY_PLATFORMS[0]!, { writeText, open })).toEqual({ status: "empty" });
     expect(writeText).not.toHaveBeenCalled();
     expect(open).not.toHaveBeenCalled();
   });
 
   it("popup blocked (window.open returns null or throws): opened=false, copy still attempted", async () => {
     const writeText = vi.fn().mockResolvedValue(undefined);
-    const r1 = launchTry(PROMPT, TRY_PLATFORMS[3], { writeText, open: () => null });
-    const r2 = launchTry(PROMPT, TRY_PLATFORMS[3], { writeText, open: () => { throw new Error("blocked"); } });
+    const r1 = launchTry(PROMPT, TRY_PLATFORMS[3]!, { writeText, open: () => null });
+    const r2 = launchTry(PROMPT, TRY_PLATFORMS[3]!, { writeText, open: () => { throw new Error("blocked"); } });
     if (r1.status !== "launched" || r2.status !== "launched") throw new Error("expected launch");
     expect(r1.opened).toBe(false);
     expect(r2.opened).toBe(false);

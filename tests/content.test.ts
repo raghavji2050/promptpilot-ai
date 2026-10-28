@@ -86,7 +86,7 @@ describe("goal-based library", () => {
     expect(searchLibrary(ALL_PROMPTS, { tier: "premium" })).toHaveLength(0);
     const az = searchLibrary(ALL_PROMPTS, { sort: "az" }).map((p) => p.title);
     expect(az).toEqual([...az].sort((a, b) => a.localeCompare(b)));
-    expect(searchLibrary(ALL_PROMPTS, { sort: "newest" })[0].added).toBe("2026-10-17");
+    expect(searchLibrary(ALL_PROMPTS, { sort: "newest" })[0]!.added).toBe("2026-10-17");
   });
   it("use-case landing pages are unique and reference real prompts", () => {
     expect(USE_CASES.length).toBeGreaterThanOrEqual(7);

@@ -71,7 +71,7 @@ describe("festival data integrity", () => {
     expect(d("christmas")).toBe("2026-12-25");
     expect(d("republic-day")).toBe("2027-01-26");
     expect(d("holi")).toBe("2027-03-22");
-    expect(getFestival("govardhan-puja")!.occurrences[0].status).toBe("provisional");
+    expect(getFestival("govardhan-puja")!.occurrences[0]!.status).toBe("provisional");
   });
 });
 
@@ -79,8 +79,8 @@ describe("next festival, retirement and rollover", () => {
   it("on 18 Oct 2026 the ongoing Navratri/Durga Puja comes first, then Dussehra", () => {
     const up = upcomingInstances(FESTIVALS, "2026-10-18");
     expect(names(up).slice(0, 3)).toEqual(["durga-puja", "dussehra", "karwa-chauth"]);
-    expect(countdown(up[0], "2026-10-18").phase).toBe("ongoing");
-    expect(countdown(up[1], "2026-10-18")).toMatchObject({ phase: "upcoming", days: 2, label: "In 2 days" });
+    expect(countdown(up[0]!, "2026-10-18").phase).toBe("ongoing");
+    expect(countdown(up[1]!, "2026-10-18")).toMatchObject({ phase: "upcoming", days: 2, label: "In 2 days" });
   });
   it("festival day itself is 'Today' and still listed", () => {
     const up = upcomingInstances(FESTIVALS, "2026-11-08");
@@ -152,7 +152,7 @@ describe("admin overrides", () => {
     const g = nextInstance(getFestival("govardhan-puja", out)!, "2026-10-18")!;
     expect(g.occurrence).toMatchObject({ primary: "2026-11-10", status: "verified" });
     expect(g.campaignStart).toBe("2026-11-01");
-    expect(getFestival("govardhan-puja")!.occurrences[0].primary).toBe("2026-11-09"); // static data untouched
+    expect(getFestival("govardhan-puja")!.occurrences[0]!.primary).toBe("2026-11-09"); // static data untouched
   });
   it("adds a new year's occurrence and can hide one", () => {
     const out = applyOverrides(FESTIVALS, [
@@ -169,7 +169,7 @@ describe("admin overrides", () => {
       { slug: "diwali", year: 2026, primary_date: "2026-12-01" }, // outside start..end
       "garbage",
     ]);
-    expect(getFestival("diwali", out)!.occurrences[0].primary).toBe("2026-11-08");
+    expect(getFestival("diwali", out)!.occurrences[0]!.primary).toBe("2026-11-08");
     expect(out.length).toBe(FESTIVALS.length);
   });
 });

@@ -9,7 +9,7 @@ import { BeforeAfterCompare } from "./BeforeAfter";
 export function BeforeAfterShowcase({ initial = 0 }: { initial?: number }) {
   const [i, setI] = useState(initial);
   const tabs = useRef<(HTMLButtonElement | null)[]>([]);
-  const pair = BEFORE_AFTER[i];
+  const pair = BEFORE_AFTER[i] ?? BEFORE_AFTER[0]!;
   const result = useMemo(() => buildUniversal({ mode: "standard", ...pair.after.input }), [pair]);
   const chips = useMemo(() => whatWeAdded(result), [result]);
   const onKey = (e: React.KeyboardEvent) => {

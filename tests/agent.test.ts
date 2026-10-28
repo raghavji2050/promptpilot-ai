@@ -78,8 +78,8 @@ describe("ZIP packaging", () => {
     for (const f of files) zip.file(f.path, f.content);
     const buf = await zip.generateAsync({ type: "uint8array" });
     const back = await JSZip.loadAsync(buf);
-    const names = Object.keys(back.files).filter((n) => !back.files[n].dir).sort();
+    const names = Object.keys(back.files).filter((n) => !back.files[n]!.dir).sort();
     expect(names).toEqual(files.map((f) => f.path).sort());
-    expect(await back.file("AGENTS.md")!.async("string")).toBe(files[0].content);
+    expect(await back.file("AGENTS.md")!.async("string")).toBe(files[0]!.content);
   });
 });

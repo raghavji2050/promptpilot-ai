@@ -8,7 +8,7 @@ describe("analyzePrompt", () => {
     const ids = a.issues.map((i) => i.id);
     expect(ids).toContain("length");
     expect(ids).toContain("context");
-    expect(a.issues[0].severity).toBe("high");
+    expect(a.issues[0]!.severity).toBe("high");
   });
 
   it("rewards a strong prompt", () => {

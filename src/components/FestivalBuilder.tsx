@@ -26,7 +26,7 @@ function toInput(s: State, festivals: FestivalOption[]): UniversalInput {
   const extra: Record<string, string> = { festival: s.slug, fgoal: s.goal };
   if (s.slug === "custom") extra.occasion = name;
   if (s.platform) extra.platform = s.platform;
-  for (const f of FESTIVAL_FIELDS) if (f.goals.includes(s.goal) && s.extra[f.key]?.trim()) extra[f.key] = s.extra[f.key].trim();
+  for (const f of FESTIVAL_FIELDS) if (f.goals.includes(s.goal) && s.extra[f.key]?.trim()) extra[f.key] = (s.extra[f.key] ?? "").trim();
   const lang = language && language !== "English" ? language : "";
   const isImage = s.goal === "image";
   const targetId = isImage ? (IMAGE_TARGETS.some((t) => t.id === s.targetId) || TEXT_TARGETS.some((t) => t.id === s.targetId) ? s.targetId : "midjourney") : TEXT_TARGETS.some((t) => t.id === s.targetId) ? s.targetId : "chatgpt";

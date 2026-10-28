@@ -200,7 +200,7 @@ describe("variations, explanations and share links", () => {
     const v = variations(base());
     expect(v).toHaveLength(3);
     expect(new Set(v.map((x) => x.text)).size).toBe(3);
-    expect(v[1].text).toMatch(/3 distinct approaches/);
+    expect(v[1]!.text).toMatch(/3 distinct approaches/);
   });
   it("explains why the prompt works, including guardrails when relevant", () => {
     const e = explainPrompt(buildUniversal(base({ goal: "How should I start investing in mutual funds?" })));

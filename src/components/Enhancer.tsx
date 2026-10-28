@@ -42,7 +42,9 @@ export function Enhancer() {
       expand: () => expandText(input, targetId),
       adapt: () => adaptText(input, targetId),
     };
-    setOutput(map[action]());
+    const fn = map[action];
+    if (!fn) return;
+    setOutput(fn());
     setLastAction(action);
   }
 

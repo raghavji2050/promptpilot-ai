@@ -49,7 +49,7 @@ export function HeroBuilder({ platforms }: { platforms: { id: string; name: stri
         <textarea ref={goalRef} id="hero-goal" name="goal" rows={3} maxLength={1500} value={goal}
           onChange={(e) => { setGoal(e.target.value); if (error) setError(""); }}
           onKeyDown={(e) => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) { e.preventDefault(); run(goal); } }}
-          placeholder={`e.g. ${HERO_EXAMPLES[ph].goal}`} aria-invalid={!!error} aria-describedby={error ? "hero-error" : "hero-hint"}
+          placeholder={`e.g. ${HERO_EXAMPLES[ph]?.goal ?? ""}`} aria-invalid={!!error} aria-describedby={error ? "hero-error" : "hero-hint"}
           className="input !min-h-[96px] resize-y !border-transparent !bg-surface-2 !px-4 !py-3 text-base focus:!border-[var(--accent)] sm:text-lg" />
         <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center">
           <label htmlFor="hero-platform" className="sr-only">AI platform</label>

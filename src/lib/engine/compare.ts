@@ -13,17 +13,17 @@ export function whatWeAdded(result: UniversalResult): AddedChip[] {
   const add = (id: string, label: string, detail: string) => chips.push({ id, label, detail });
 
   if (result.kind !== "text") {
-    if (sec("style")) add("style", "Style", sec("style")!.lines[0]);
-    if (sec("lighting")) add("lighting", "Lighting", sec("lighting")!.lines[0]);
-    if (sec("camera")) add("camera", result.kind === "video" ? "Shot & camera" : "Camera & composition", sec("camera")!.lines[0]);
-    if (sec("keep")) add("keep", "Keep face unchanged", sec("keep")!.lines[0]);
-    if (sec("aspect")) add("aspect", "Aspect ratio", sec("aspect")!.lines[0]);
-    if (sec("avoid")) add("negative", "Negative prompt", sec("avoid")!.lines[0]);
+    if (sec("style")) add("style", "Style", (sec("style")!.lines[0] ?? ""));
+    if (sec("lighting")) add("lighting", "Lighting", (sec("lighting")!.lines[0] ?? ""));
+    if (sec("camera")) add("camera", result.kind === "video" ? "Shot & camera" : "Camera & composition", (sec("camera")!.lines[0] ?? ""));
+    if (sec("keep")) add("keep", "Keep face unchanged", (sec("keep")!.lines[0] ?? ""));
+    if (sec("aspect")) add("aspect", "Aspect ratio", (sec("aspect")!.lines[0] ?? ""));
+    if (sec("avoid")) add("negative", "Negative prompt", (sec("avoid")!.lines[0] ?? ""));
     if (result.target.id === "midjourney") add("flags", "Midjourney flags", "--ar and --no parameters");
     return chips;
   }
   const role = sec("role");
-  if (role) add("role", "Expert role", role.lines[0].replace(/^You are (an? )?/, "").split(/,? who |\. /)[0]);
+  if (role) add("role", "Expert role", (role.lines[0] ?? "").replace(/^You are (an? )?/, "").split(/,? who |\. /)[0] ?? "");
   const ctx = sec("context");
   if (ctx) add("context", "Your details", `${ctx.lines.length} detail${ctx.lines.length === 1 ? "" : "s"} passed in`);
   if (sec("task")?.lines.some((l) => l.startsWith("Success looks like"))) add("success", "Success criterion", "what a great answer must achieve");

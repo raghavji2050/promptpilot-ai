@@ -13,8 +13,8 @@ export function PromptBuilder({ initialTarget = "chatgpt", initialTemplate }: { 
     const own = templatesForFamily(target.family);
     return own.length ? own : templatesForFamily("chat");
   }, [target.family]);
-  const [templateId, setTemplateId] = useState(initialTemplate && templates.some((t) => t.id === initialTemplate) ? initialTemplate : templates[0].id);
-  const tpl = templates.find((t) => t.id === templateId) ?? templates[0];
+  const [templateId, setTemplateId] = useState(initialTemplate && templates.some((t) => t.id === initialTemplate) ? initialTemplate : templates[0]!.id);
+  const tpl = templates.find((t) => t.id === templateId) ?? templates[0]!;
   const [values, setValues] = useState<Record<string, string>>({});
   const [mode, setMode] = useState<Mode>("standard");
   const [improve, setImprove] = useState(false);
@@ -40,7 +40,7 @@ export function PromptBuilder({ initialTarget = "chatgpt", initialTemplate }: { 
     setTargetId(id);
     const avail = templatesForFamily(fam);
     const list = avail.length ? avail : templatesForFamily("chat");
-    if (!list.some((t) => t.id === templateId)) setTemplateId(list[0].id);
+    if (!list.some((t) => t.id === templateId)) setTemplateId(list[0]!.id);
   }
 
   const scoreColor = result.score >= 80 ? "bg-emerald-500" : result.score >= 50 ? "bg-amber-500" : "bg-rose-500";

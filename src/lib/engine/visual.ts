@@ -45,7 +45,7 @@ function defaultsFor(kind: "image" | "video", subId: string | null | undefined, 
   }
 }
 
-function lowerFirst(s: string) { return s ? s[0].toLowerCase() + s.slice(1) : s; }
+function lowerFirst(s: string) { return s ? s.charAt(0).toLowerCase() + s.slice(1) : s; }
 function stripLead(goal: string) {
   return goal.replace(/^(please\s+)?(create|generate|make|design|draw|give me|i want|i need)\s+(me\s+)?(an?\s+)?(image|picture|photo|illustration|video|clip|logo|poster|thumbnail)?\s*(of|for|showing)?\s*/i, "").replace(/[.\s]+$/, "") || goal;
 }

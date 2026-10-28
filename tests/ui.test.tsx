@@ -97,8 +97,8 @@ describe("HeroBuilder", () => {
     fireEvent.click(screen.getByRole("button", { name: /Generate prompt/ }));
     expect(screen.getByRole("alert").textContent).toMatch(/Tell us what you want/);
     expect(screen.queryByLabelText("Generated prompt text")).toBeNull();
-    fireEvent.click(screen.getByRole("button", { name: HERO_EXAMPLES[2].label }));
-    expect((screen.getByLabelText("What do you want AI to help you with?") as HTMLTextAreaElement).value).toBe(HERO_EXAMPLES[2].goal);
+    fireEvent.click(screen.getByRole("button", { name: HERO_EXAMPLES[2]!.label }));
+    expect((screen.getByLabelText("What do you want AI to help you with?") as HTMLTextAreaElement).value).toBe(HERO_EXAMPLES[2]!.goal);
     expect(screen.getByLabelText("Generated prompt text").textContent!.length).toBeGreaterThan(100);
     expect(screen.getByText(/For ChatGPT/)).toBeTruthy();
     fireEvent.change(screen.getByLabelText("AI platform"), { target: { value: "gemini" } });

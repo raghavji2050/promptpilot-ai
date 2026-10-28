@@ -15,7 +15,7 @@ export const STUDIO_STYLES: StudioStyle[] = [
 export interface StudioInput { styleId: string; aspect: string; locale: "en" | "hi"; details?: string; people?: "one" | "group" }
 
 export function buildStudioPrompt(input: StudioInput): string {
-  const style = STUDIO_STYLES.find((s) => s.id === input.styleId) ?? STUDIO_STYLES[0];
+  const style = STUDIO_STYLES.find((s) => s.id === input.styleId) ?? STUDIO_STYLES[0]!;
   const details = (input.details ?? "").replace(/\s+/g, " ").trim().slice(0, 300);
   const aspect = /^\d{1,2}:\d{1,2}$/.test(input.aspect) ? input.aspect : "4:5";
   if (input.locale === "hi") {

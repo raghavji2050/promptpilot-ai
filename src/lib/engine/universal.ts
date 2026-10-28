@@ -93,7 +93,7 @@ function uniq(items: string[]): string[] {
 function sentence(s: string): string {
   const t = s.trim();
   if (!t) return t;
-  const cap = t[0].toUpperCase() + t.slice(1);
+  const cap = t.charAt(0).toUpperCase() + t.slice(1);
   return /[.!?]$/.test(cap) ? cap : `${cap}.`;
 }
 
@@ -221,7 +221,7 @@ export function missingContext(input: UniversalInput, sub: Subcategory | null, c
   return out;
 }
 
-const shortRole = (role: string) => role.split(/,? who |\. |, known for /)[0];
+const shortRole = (role: string) => role.split(/,? who |\. |, known for /)[0] ?? role;
 
 function textSections(input: UniversalInput, target: Target, cat: Category | null, sub: Subcategory | null, fest: FestivalContext | null = null): Section[] {
   const mode: Mode = input.mode ?? "standard";
@@ -377,7 +377,7 @@ function checksFor(input: UniversalInput, sub: Subcategory | null, kind: Univers
     c("constraints", "Tone or constraints", !!cleanText(input.tone) || lines(cleanText(input.constraints)).length > 0, "Add a tone or at least one rule.", 10),
     c("example", "Example / reference", !!cleanText(input.example), "An example of good output improves consistency.", 10),
   ];
-  if (subFields.length) checks.push(c("details", "Task details", filled > 0, `Fill in the ${sub!.name} details (e.g. ${subFields[0].label}).`, 15));
+  if (subFields.length) checks.push(c("details", "Task details", filled > 0, `Fill in the ${sub!.name} details (e.g. ${subFields[0]!.label}).`, 15));
   return checks;
 }
 
@@ -399,7 +399,7 @@ export function withFestivalIntent(input: UniversalInput): UniversalInput | null
   if (!det) return null;
   const generic = detectIntent(input.goal);
   if (generic && (generic.categoryId === "coding" || generic.categoryId === "data") && generic.score >= 3) return null;
-  return { ...input, language: input.language || det.language, extra: { ...det.extra, ...(input.extra ?? {}), festival: det.extra.festival, fgoal: det.extra.fgoal, autoFestival: "1" } };
+  return { ...input, language: input.language || det.language, extra: { ...det.extra, ...(input.extra ?? {}), festival: det.extra.festival ?? "", fgoal: det.extra.fgoal ?? "", autoFestival: "1" } };
 }
 
 export function buildUniversal(rawInput: UniversalInput): UniversalResult {

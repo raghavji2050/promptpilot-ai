@@ -49,7 +49,7 @@ export function requiredInputs(body: string): string[] {
   const seen = new Set<string>();
   const out: string[] = [];
   for (const m of body.matchAll(/\[([^\[\]\n]{2,60})\]/g)) {
-    const k = m[1].trim();
+    const k = (m[1] ?? "").trim();
     if (/^(source needed|add metric|needed)$/i.test(k)) continue;
     if (!seen.has(k.toLowerCase())) { seen.add(k.toLowerCase()); out.push(k); }
   }

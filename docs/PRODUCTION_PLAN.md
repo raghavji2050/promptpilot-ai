@@ -10,7 +10,7 @@ Free-tier only (GitHub Actions free, Vercel Hobby, Supabase free). 🔑 = needs 
 | Day | Date | Tasks | Acceptance checks |
 |---|---|---|---|
 | ✅ 1 | 28 Oct | GitHub Actions CI (typecheck, lint, test, build); `/api/health` status endpoint (booleans only); npm scripts | CI green on main; `/api/health` 200 live, no secret values; live smoke test passes |
-| 2 | 29 Oct | Stricter TS (`noUncheckedIndexedAccess`), ESLint rules tightened; fix fallout | tsc+lint clean, CI green |
+| ✅ 2 | 28 Oct (planned 29 Oct) | Stricter TS (`noUncheckedIndexedAccess`), ESLint rules tightened; fix fallout | tsc+lint clean, CI green |
 | 3 | 30 Oct | Playwright e2e: home → build prompt → copy; /pricing; /festivals (run in CI) | e2e green locally + CI |
 | 4 | 31 Oct | Error handling: `error.tsx`/`global-error.tsx`, structured JSON logger for API routes (Vercel logs, free) | Forced error shows friendly page; logs have request id |
 | 5 | 1 Nov | Security headers + CSP in next.config (report-only first), zod validation on all API inputs | securityheaders grade A-; bad payload → 400 |
@@ -27,6 +27,7 @@ Free-tier only (GitHub Actions free, Vercel Hobby, Supabase free). 🔑 = needs 
 
 ## Progress log
 - Day 1 (28 Oct): done. CI run 40557779959 green on main; live /api/health 200 (booleans only, commit f9d6db0); /, /pricing, /festivals 200; 8-request intent smoke test routed correctly.
+- Day 2 (28 Oct, one day early): `noUncheckedIndexedAccess` + `noFallthroughCasesInSwitch` on; ESLint tightened (eqeqeq, no-explicit-any, consistent-type-imports, unused-vars, no-console, `--max-warnings 0`); ~113 type errors fixed; intent routing fixed (resume summary → career/resume, Laravel bug fix → coding/debugging) with regression tests. **Plan is now one day ahead of schedule.**
 
 ## Final production checklist (Day 15)
 - [ ] CI green, e2e green, Lighthouse ≥ 90, axe clean

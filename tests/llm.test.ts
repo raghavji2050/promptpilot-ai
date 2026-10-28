@@ -29,7 +29,7 @@ describe("enhance() adapters (fetch mocked)", () => {
     const spy = vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response(JSON.stringify({ choices: [{ message: { content: "Improved" } }], usage: { prompt_tokens: 5, completion_tokens: 2 } }), { status: 200 }));
     const r = await enhance({ provider: "xai", model: "m", input: "hi" }, "KEY");
     expect(r.text).toBe("Improved");
-    const [url, init] = spy.mock.calls[0];
+    const [url, init] = spy.mock.calls[0]!;
     expect(url).toBe("https://api.x.ai/v1/chat/completions");
     expect((init!.headers as Record<string, string>).authorization).toBe("Bearer KEY");
   });
@@ -38,8 +38,8 @@ describe("enhance() adapters (fetch mocked)", () => {
     const spy = vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response(JSON.stringify({ content: [{ type: "text", text: "Better" }] }), { status: 200 }));
     const r = await enhance({ provider: "anthropic", model: "m", input: "hi" }, "AK");
     expect(r.text).toBe("Better");
-    expect(spy.mock.calls[0][0]).toBe("https://api.anthropic.com/v1/messages");
-    expect((spy.mock.calls[0][1]!.headers as Record<string, string>)["x-api-key"]).toBe("AK");
+    expect(spy.mock.calls[0]![0]!).toBe("https://api.anthropic.com/v1/messages");
+    expect((spy.mock.calls[0]![1]!.headers as Record<string, string>)["x-api-key"]).toBe("AK");
   });
 
   it("maps 401 to UPSTREAM_AUTH", async () => {

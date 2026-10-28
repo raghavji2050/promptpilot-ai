@@ -33,7 +33,7 @@ const PRIVATE_V4 = [
 function ipv4ToInt(ip: string): number | null {
   const m = ip.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
   if (!m) return null;
-  const p = m.slice(1).map(Number);
+  const p = m.slice(1).map(Number) as [number, number, number, number];
   if (p.some((n) => n > 255)) return null;
   return ((p[0] << 24) >>> 0) + (p[1] << 16) + (p[2] << 8) + p[3];
 }

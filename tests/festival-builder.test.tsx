@@ -16,7 +16,7 @@ describe("FestivalBuilder", () => {
     window.matchMedia = window.matchMedia || ((() => ({ matches: false, addEventListener() {}, removeEventListener() {} })) as never);
     render(<FestivalBuilder festivals={opts} initial={{ slug: "diwali" }} />);
     const sel = screen.getByLabelText("1. Festival") as HTMLSelectElement;
-    expect(sel.options[0].textContent).toContain("Navratri");
+    expect(sel.options[0]!.textContent).toContain("Navratri");
     fireEvent.click(screen.getByLabelText("Greeting / wishes"));
     fireEvent.change(screen.getByLabelText("4. Language"), { target: { value: "Hindi" } });
     fireEvent.click(screen.getByRole("button", { name: /Create festival prompt/ }));

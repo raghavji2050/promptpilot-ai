@@ -42,8 +42,8 @@ export default async function Home() {
   const festivals = await loadFestivals();
   const recent = searchLibrary(ALL_PROMPTS.filter((p) => p.kind === "general"), { sort: "newest" }).slice(0, 6);
   const platforms = [
-    ...TARGETS.filter((t) => t.family === "chat" || t.family === "search").map((t) => ({ id: t.id, name: t.name.split(" (")[0] })),
-    ...TARGETS.filter((t) => t.family === "image" || t.family === "video").map((t) => ({ id: t.id, name: t.name.split(" (")[0] })),
+    ...TARGETS.filter((t) => t.family === "chat" || t.family === "search").map((t) => ({ id: t.id, name: t.name.split(" (")[0] ?? t.name })),
+    ...TARGETS.filter((t) => t.family === "image" || t.family === "video").map((t) => ({ id: t.id, name: t.name.split(" (")[0] ?? t.name })),
     { id: "cursor", name: "Cursor / coding agents" },
   ];
   const counts = Object.fromEntries(CATEGORIES.map((c) => [c.id, ALL_PROMPTS.filter((p) => p.cat === c.id).length]));
