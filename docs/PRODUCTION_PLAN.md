@@ -9,7 +9,7 @@ Free-tier only (GitHub Actions free, Vercel Hobby, Supabase free). 🔑 = needs 
 
 | Day | Date | Tasks | Acceptance checks |
 |---|---|---|---|
-| 1 | 28 Oct | GitHub Actions CI (typecheck, lint, test, build); `/api/health` status endpoint (booleans only); npm scripts | CI green on main; `/api/health` 200 live, no secret values; live smoke test passes |
+| ✅ 1 | 28 Oct | GitHub Actions CI (typecheck, lint, test, build); `/api/health` status endpoint (booleans only); npm scripts | CI green on main; `/api/health` 200 live, no secret values; live smoke test passes |
 | 2 | 29 Oct | Stricter TS (`noUncheckedIndexedAccess`), ESLint rules tightened; fix fallout | tsc+lint clean, CI green |
 | 3 | 30 Oct | Playwright e2e: home → build prompt → copy; /pricing; /festivals (run in CI) | e2e green locally + CI |
 | 4 | 31 Oct | Error handling: `error.tsx`/`global-error.tsx`, structured JSON logger for API routes (Vercel logs, free) | Forced error shows friendly page; logs have request id |
@@ -24,6 +24,9 @@ Free-tier only (GitHub Actions free, Vercel Hobby, Supabase free). 🔑 = needs 
 | 13 | 9 Nov | SEO: per-page metadata, OG images via /api/card, sitemap completeness, canonical; 🔑 enable Vercel Web Analytics toggle | All pages have title/desc/OG; sitemap lists all routes |
 | 14 | 10 Nov | Legal pages review (privacy/terms updated for Run + analytics), README + docs/RUNBOOK (deploy, rollback, keys) | Pages live; README setup works from scratch |
 | 15 | 11 Nov | Final production checklist + full live smoke test (10+ requests), backup export of Supabase schema/data (free) | Checklist all ticked; smoke test 100% |
+
+## Progress log
+- Day 1 (28 Oct): done. CI run 40557779959 green on main; live /api/health 200 (booleans only, commit f9d6db0); /, /pricing, /festivals 200; 8-request intent smoke test routed correctly.
 
 ## Final production checklist (Day 15)
 - [ ] CI green, e2e green, Lighthouse ≥ 90, axe clean
