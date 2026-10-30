@@ -27,7 +27,7 @@ export function Header() {
     <header className="sticky top-0 z-40 border-b border-line bg-[color-mix(in_srgb,var(--bg)_88%,transparent)] backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-4">
         <Link href="/" className="flex shrink-0 items-center gap-2 font-semibold text-fg">
-          <span className="grid h-8 w-8 place-items-center rounded-lg bg-accent text-xs font-bold text-white" aria-hidden>PP</span>
+          <svg className="h-8 w-8" viewBox="4 4 48 48" aria-hidden><rect x="4" y="4" width="48" height="48" rx="24" fill="#4f46e5"/><path d="M16 18 L27 28 L16 38" fill="none" stroke="#fff" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round"/><rect x="30" y="34" width="12" height="4.5" rx="2" fill="#fbbf24"/></svg>
           <span>PromptPilot <span className="text-accent-text">AI</span></span>
         </Link>
         <nav className="hidden items-center gap-0.5 lg:flex" aria-label="Main">

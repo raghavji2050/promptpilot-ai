@@ -5,7 +5,7 @@ export const SITE = {
     process.env.NEXT_PUBLIC_SITE_URL ||
     ((process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL || process.env.VERCEL_PROJECT_PRODUCTION_URL)
       ? `https://${process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL || process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-      : "http://localhost:3000")
+      : "https://promptpilot-ai-psi.vercel.app")
   ).replace(/\/+$/, ""),
   description:
     "Free AI prompt builder for everyone. Describe what you want in plain words and get a clear, structured prompt for ChatGPT, Claude, Gemini, Grok, Perplexity, image and video tools. No sign-up or API key needed.",
