@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse, type NextRequest } from "next/server";
+import { withLogging } from "@/lib/log";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -8,7 +9,7 @@ export const dynamic = "force-dynamic";
  * Lightweight Supabase keep-alive for the free-plan project (auto-pauses after ~7 idle days).
  * Vercel Cron calls this daily. If CRON_SECRET is set, requires Authorization: Bearer <secret>.
  */
-export async function GET(req: NextRequest) {
+export const GET = withLogging<NextRequest>("api/keep-alive", async (req, log) => {
   const cronSecret = process.env.CRON_SECRET;
   if (cronSecret) {
     const auth = req.headers.get("authorization");
@@ -37,6 +38,7 @@ export async function GET(req: NextRequest) {
   const latencyMs = Date.now() - started;
 
   if (error) {
+    log.error("keep_alive_failed", { latencyMs });
     return NextResponse.json(
       { ok: false, error: error.message, latencyMs },
       { status: 502, headers: { "Cache-Control": "no-store" } },
@@ -47,4 +49,4 @@ export async function GET(req: NextRequest) {
     { ok: true, pinged: "library_items", count: count ?? 0, latencyMs },
     { headers: { "Cache-Control": "no-store" } },
   );
-}
+});

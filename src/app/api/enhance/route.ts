@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { enhance, EnhanceSchema, ProviderError } from "@/lib/llm";
 import { rateLimit } from "@/lib/llm/ratelimit";
+import { withLogging } from "@/lib/log";
 
 const MAX_BODY = 64 * 1024;
 
@@ -8,7 +9,7 @@ function err(status: number, code: string, message: string, headers?: Record<str
   return NextResponse.json({ error: { code, message } }, { status, headers });
 }
 
-export async function POST(req: NextRequest) {
+export const POST = withLogging<NextRequest>("api/enhance", async (req, log) => {
   // CSRF-style origin check for browser requests
   const origin = req.headers.get("origin");
   if (origin && origin !== req.nextUrl.origin) return err(403, "FORBIDDEN", "Cross-origin requests are not allowed");
@@ -38,10 +39,14 @@ export async function POST(req: NextRequest) {
     const result = await enhance(parsed.data, key);
     return NextResponse.json({ text: result.text, latencyMs: result.latencyMs, usage: result.usage }, { headers: { "Cache-Control": "no-store" } });
   } catch (e) {
-    if (e instanceof ProviderError) return err(e.status, e.code, e.message);
+    if (e instanceof ProviderError) {
+      log.warn("provider_error", { code: e.code, status: e.status });
+      return err(e.status, e.code, e.message);
+    }
+    log.error("enhance_failed", { err: e instanceof Error ? e : String(e) });
     return err(500, "INTERNAL", "Unexpected error");
   }
-}
+});
 
 export function GET() {
   return err(405, "METHOD_NOT_ALLOWED", "Use POST");

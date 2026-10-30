@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { getRunConfig, handleRun, statusFor } from "@/lib/run";
 import { resolveCaller } from "@/lib/run/auth";
 import { rateLimit } from "@/lib/llm/ratelimit";
+import { withLogging } from "@/lib/log";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -14,12 +15,12 @@ function clientIp(req: NextRequest): string | null {
   return req.headers.get("x-real-ip") || req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || null;
 }
 
-export async function GET(req: NextRequest) {
+export const GET = withLogging<NextRequest>("api/run", async (req) => {
   const caller = await resolveCaller(req.headers.get("authorization"));
   return NextResponse.json(getRunConfig(caller.tier), { headers: NO_STORE });
-}
+});
 
-export async function POST(req: NextRequest) {
+export const POST = withLogging<NextRequest>("api/run", async (req) => {
   const origin = req.headers.get("origin");
   if (origin && origin !== req.nextUrl.origin) return NextResponse.json({ ok: false, code: "FORBIDDEN", message: "Cross-origin requests are not allowed" }, { status: 403 });
   const ip = clientIp(req);
@@ -35,4 +36,4 @@ export async function POST(req: NextRequest) {
   }
   const result = await handleRun(raw, { ip, country: req.headers.get("x-vercel-ip-country"), authHeader: req.headers.get("authorization") });
   return NextResponse.json(result, { status: statusFor(result), headers: NO_STORE });
-}
+});
