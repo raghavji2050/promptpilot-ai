@@ -6,7 +6,7 @@ import { getPrompt } from "@/content";
 import { getCategory } from "@/lib/categories";
 import { PromptCard } from "@/components/PromptCard";
 import { JsonLd } from "@/components/JsonLd";
-import { absoluteUrl, builderHref } from "@/lib/site";
+import { absoluteUrl, builderHref, DEFAULT_OG_IMAGE } from "@/lib/site";
 
 export const dynamicParams = false;
 export function generateStaticParams() { return USE_CASES.map((u) => ({ slug: u.slug })); }
@@ -14,7 +14,7 @@ export function generateStaticParams() { return USE_CASES.map((u) => ({ slug: u.
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const u = getUseCase((await params).slug);
   if (!u) return {};
-  return { title: u.metaTitle, description: u.description, alternates: { canonical: `/prompts-for/${u.slug}` }, openGraph: { title: u.metaTitle, description: u.description, url: absoluteUrl(`/prompts-for/${u.slug}`) } };
+  return { title: u.metaTitle, description: u.description, alternates: { canonical: `/prompts-for/${u.slug}` }, openGraph: { images: [DEFAULT_OG_IMAGE], title: u.metaTitle, description: u.description, url: absoluteUrl(`/prompts-for/${u.slug}`) } };
 }
 
 export default async function UseCasePage({ params }: { params: Promise<{ slug: string }> }) {

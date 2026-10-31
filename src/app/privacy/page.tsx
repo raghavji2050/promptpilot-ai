@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { SITE } from "@/lib/site";
 
 export const metadata: Metadata = { title: "Privacy Policy", description: "How PromptPilot handles your data.", alternates: { canonical: "/privacy" } };
@@ -25,7 +26,7 @@ export default function PrivacyPage() {
       <h2>Photos</h2>
       <p>We never receive your photos. Instagram Studio prompts are pasted into third-party tools (e.g. Gemini, ChatGPT) where you upload photos under their terms. Only edit images of people who consented.</p>
       <h2>Contact</h2>
-      <p>Questions: use the contact address published on this site.</p>
+      <p>Questions: see the <Link href="/contact">contact page</Link>. More about us on the <Link href="/about">About page</Link>.</p>
     </div>
   );
 }

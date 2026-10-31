@@ -11,7 +11,7 @@ import { CopyButton } from "@/components/CopyButton";
 import { TryInButtons } from "@/components/TryInButtons";
 import { JsonLd } from "@/components/JsonLd";
 import { FestivalCountdown } from "@/components/FestivalCountdown";
-import { absoluteUrl, SITE } from "@/lib/site";
+import { absoluteUrl, SITE, DEFAULT_OG_IMAGE } from "@/lib/site";
 
 export const revalidate = 3600;
 export const dynamicParams = false;
@@ -29,8 +29,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     title: { absolute: `${t.title} | ${SITE.name}` },
     description: t.description,
     alternates: { canonical: url },
-    openGraph: { type: "article", title: t.title, description: t.description, url },
-    twitter: { card: "summary_large_image", title: t.title, description: t.description },
+    openGraph: { images: [DEFAULT_OG_IMAGE], type: "article", title: t.title, description: t.description, url },
+    twitter: { card: "summary_large_image", title: t.title, description: t.description, images: [DEFAULT_OG_IMAGE.url] },
   };
 }
 

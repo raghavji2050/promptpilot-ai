@@ -41,3 +41,18 @@ export function builderHref(goal: string, opts: { sub?: string; cat?: string; pl
   if (opts.platform) p.set("platform", opts.platform);
   return `/builder?${p.toString()}`;
 }
+
+/** Default 1200x630 social preview rendered by /api/card (wide). Used by every page that doesn't set its own image. */
+export const DEFAULT_OG_IMAGE = {
+  url: "/api/card?size=wide&goal=Write%20an%20Instagram%20caption%20for%20my%20Diwali%20sale&platform=chatgpt",
+  width: 1200,
+  height: 630,
+  alt: "PromptPilot AI: a one-line idea turned into a structured AI prompt",
+};
+
+/** PLACEHOLDERS: Raghav must supply these. Rendered visibly as [BRACKETS] until filled. */
+export const OWNER = {
+  makerName: process.env.NEXT_PUBLIC_MAKER_NAME || "[MAKER_NAME]",
+  contactEmail: process.env.NEXT_PUBLIC_CONTACT_EMAIL || "[CONTACT_EMAIL]",
+};
+export const isPlaceholder = (v: string) => v.startsWith("[") && v.endsWith("]");

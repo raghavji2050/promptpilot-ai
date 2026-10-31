@@ -4,6 +4,7 @@ import { forwardRef, useMemo, useState } from "react";
 import { buildUniversal, variations, toShareParams, FESTIVAL_LANGUAGES, type UniversalInput } from "@/lib/engine";
 import { useSession } from "@/lib/saved";
 import { CopyButton } from "./CopyButton";
+import { shortLink } from "@/lib/share";
 import { SaveButton } from "./SaveButton";
 import { TryInButtons } from "./TryInButtons";
 import { RunButton } from "./RunButton";
@@ -29,8 +30,8 @@ export const ResultsPanel = forwardRef<HTMLHeadingElement, { input: UniversalInp
     const title = input.goal.trim().length > 80 ? `${input.goal.trim().slice(0, 78)}…` : input.goal.trim();
     const where = result.festival ? `${result.festival.name} › ${result.festival.goalLabel}` : result.category ? `${result.category.short}${result.sub ? ` › ${result.sub.name}` : ""}` : "General";
     async function share() {
-      const url = `${window.location.origin}/builder?${toShareParams(input).toString()}`;
-      try { await navigator.clipboard.writeText(url); setShareMsg("Link copied. Anyone with it can rebuild this prompt; nothing is stored on our servers."); }
+      const url = await shortLink(window.location.origin, input);
+      try { await navigator.clipboard.writeText(url); setShareMsg("Link copied. Anyone with it can rebuild this prompt; your text isn't put in the page address sent to our servers."); }
       catch { setShareMsg(url); }
       setTimeout(() => setShareMsg(""), 6000);
     }
@@ -82,7 +83,7 @@ export const ResultsPanel = forwardRef<HTMLHeadingElement, { input: UniversalInp
                 </label>
               )}
             </div>
-            <p className="mt-2 text-xs text-subtle">Regenerate shows an alternative structure for the same goal. Want audience, tone, language or format controls? <Link className="link" href={`/builder?${toShareParams(input).toString()}`}>Open in the full builder →</Link></p>
+            <p className="mt-2 text-xs text-subtle">Regenerate shows an alternative structure for the same goal. Want audience, tone, language or format controls? <Link className="link" href={`/builder#${toShareParams(input).toString()}`}>Open in the full builder →</Link></p>
           </div>
         </div>
       </section>

@@ -5,13 +5,13 @@ import { loadFestivals } from "@/lib/festivals/server";
 import { festiveStyle, festivalOptions } from "@/lib/festivals/ui";
 import { ComingUpInIndia } from "@/components/ComingUpInIndia";
 import { FestivalBuilderWithParams } from "@/components/FestivalBuilder";
-import { absoluteUrl } from "@/lib/site";
+import { absoluteUrl, DEFAULT_OG_IMAGE } from "@/lib/site";
 
 export const revalidate = 3600;
 
 const title = "Indian Festival AI Prompt Builder: Diwali, Holi, Eid, Christmas & More";
 const description = "Free festival prompts for India: greetings in Hindi, Hinglish and regional languages, Instagram posts, Reel scripts, poster image prompts and honest small-business campaigns. Dates in IST, checked against official holiday lists.";
-export const metadata: Metadata = { title, description, alternates: { canonical: absoluteUrl("/festivals") }, openGraph: { title, description, url: absoluteUrl("/festivals") } };
+export const metadata: Metadata = { title, description, alternates: { canonical: absoluteUrl("/festivals") }, openGraph: { images: [DEFAULT_OG_IMAGE], title, description, url: absoluteUrl("/festivals") } };
 
 const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 

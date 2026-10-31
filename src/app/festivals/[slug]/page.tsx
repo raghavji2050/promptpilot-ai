@@ -9,7 +9,7 @@ import { festivalBlock } from "@/lib/engine";
 import { festiveStyle, festivalOptions } from "@/lib/festivals/ui";
 import { FestivalCountdown } from "@/components/FestivalCountdown";
 import { FestivalBuilderWithParams } from "@/components/FestivalBuilder";
-import { absoluteUrl } from "@/lib/site";
+import { absoluteUrl, DEFAULT_OG_IMAGE } from "@/lib/site";
 import { topicsFor } from "@/content/festival-topics";
 import { JsonLd } from "@/components/JsonLd";
 
@@ -26,7 +26,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (!f) return {};
   const title = `${f.name} AI Prompts: Greetings, Reels, Posts & Business Campaigns`;
   const description = `Free ${f.name} prompt builder for ChatGPT, Claude, Gemini and image tools: greetings in Hindi, Hinglish and regional languages, Instagram posts, Reel scripts, posters and honest small-business campaigns.`;
-  return { title, description, alternates: { canonical: absoluteUrl(`/festivals/${f.slug}`) }, openGraph: { title, description, url: absoluteUrl(`/festivals/${f.slug}`) }, twitter: { card: "summary_large_image", title, description } };
+  return { title, description, alternates: { canonical: absoluteUrl(`/festivals/${f.slug}`) }, openGraph: { images: [DEFAULT_OG_IMAGE], title, description, url: absoluteUrl(`/festivals/${f.slug}`) }, twitter: { card: "summary_large_image", title, description } };
 }
 
 export default async function FestivalStudioPage({ params }: { params: Promise<{ slug: string }> }) {
