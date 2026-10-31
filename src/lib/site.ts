@@ -50,9 +50,9 @@ export const DEFAULT_OG_IMAGE = {
   alt: "PromptPilot AI: a one-line idea turned into a structured AI prompt",
 };
 
-/** PLACEHOLDERS: Raghav must supply these. Rendered visibly as [BRACKETS] until filled. */
+/** Owner details approved by Raghav (env vars override). */
 export const OWNER = {
-  makerName: process.env.NEXT_PUBLIC_MAKER_NAME || "[MAKER_NAME]",
-  contactEmail: process.env.NEXT_PUBLIC_CONTACT_EMAIL || "[CONTACT_EMAIL]",
+  makerName: process.env.NEXT_PUBLIC_MAKER_NAME || "Raghav",
+  contactEmail: process.env.NEXT_PUBLIC_CONTACT_EMAIL || "raghavji2050@gmail.com",
 };
 export const isPlaceholder = (v: string) => v.startsWith("[") && v.endsWith("]");

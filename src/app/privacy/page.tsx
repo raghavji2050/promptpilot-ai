@@ -36,13 +36,13 @@ export default function PrivacyPage() {
         <li><strong>Not stored by us:</strong> text in the builder while you are signed out, prompts saved in your browser (localStorage), photos, and API keys.</li>
       </ul>
       <h3>Where it is stored</h3>
-      <p>Our database runs on Supabase in the <strong>[SUPABASE_REGION]</strong> region. The website is hosted on Vercel.</p>
+      <p>Our database runs on Supabase in the <strong>South Asia (Mumbai)</strong> region. The website is hosted on Vercel.</p>
       <h3>Delete or correct your data</h3>
       <ul>
         <li>You can delete saved prompts yourself from <Link href="/dashboard">My saved prompts</Link>. To clear browser-saved prompts, clear this site&apos;s data in your browser.</li>
-        <li>To delete your account, remove yourself from the waitlist, or get a copy of your data, email <strong>{OWNER.contactEmail}</strong> from the address involved. See the <Link href="/contact">contact page</Link>. We aim to reply within [RESPONSE_DAYS] days.</li>
+        <li>To delete your account, remove yourself from the waitlist, or get a copy of your data, email <strong>{OWNER.contactEmail}</strong> from the address involved. See the <Link href="/contact">contact page</Link>. We aim to reply within 30 days.</li>
         <li>You can withdraw consent for the waitlist at any time. It is as easy as giving it.</li>
-        <li>Grievance officer: <strong>[GRIEVANCE_OFFICER_NAME]</strong>, {OWNER.contactEmail}.</li>
+        <li>Grievance officer: <strong>Raghav</strong>, {OWNER.contactEmail}.</li>
       </ul>
       <h2>Contact</h2>
       <p>Questions: see the <Link href="/contact">contact page</Link>. More about us on the <Link href="/about">About page</Link>.</p>
