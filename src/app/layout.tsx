@@ -5,7 +5,7 @@ import { Analytics } from "@vercel/analytics/next";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { JsonLd } from "@/components/JsonLd";
-import { SITE } from "@/lib/site";
+import { SITE, DEFAULT_OG_IMAGE } from "@/lib/site";
 import { ToastProvider } from "@/components/ui/Toast";
 import { THEME_INIT_SCRIPT } from "@/components/ui/ThemeToggle";
 
@@ -17,8 +17,8 @@ export const metadata: Metadata = {
   title: { default: `${SITE.name}: Turn Any Idea Into the Perfect AI Prompt`, template: `%s | ${SITE.name}` },
   description: SITE.description,
   applicationName: SITE.name,
-  openGraph: { type: "website", siteName: SITE.name, title: SITE.name, description: SITE.description, url: SITE.url },
-  twitter: { card: "summary", title: SITE.name, description: SITE.description },
+  openGraph: { type: "website", siteName: SITE.name, title: SITE.name, description: SITE.description, url: SITE.url, images: [DEFAULT_OG_IMAGE] },
+  twitter: { card: "summary_large_image", title: SITE.name, description: SITE.description, images: [DEFAULT_OG_IMAGE.url] },
   alternates: { canonical: "/" },
   robots: { index: true, follow: true },
 };

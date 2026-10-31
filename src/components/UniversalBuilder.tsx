@@ -1,12 +1,13 @@
 "use client";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import {
-  buildUniversal, explainPrompt, variations, toShareParams, TARGETS, TONES, LANGUAGES, OUTPUT_FORMATS,
+  buildUniversal, fromShareParams, explainPrompt, variations, TARGETS, TONES, LANGUAGES, OUTPUT_FORMATS,
   COMMON_IMAGE_FIELDS, COMMON_VIDEO_FIELDS, type Mode, type UniversalInput, type FieldDef, type TargetFamily,
 } from "@/lib/engine";
 import { CATEGORIES, getCategory } from "@/lib/categories";
 import { CopyButton } from "./CopyButton";
+import { shortLink } from "@/lib/share";
 import { SaveButton } from "./SaveButton";
 import { TryInButtons } from "./TryInButtons";
 import { RunButton } from "./RunButton";
@@ -40,6 +41,17 @@ export function UniversalBuilder({ initial = {}, autoGenerate = false }: { initi
   const goalRef = useRef<HTMLTextAreaElement>(null);
   const resultRef = useRef<HTMLDivElement>(null);
 
+  // Share links carry the builder state in the #fragment (never sent to the server). Load it once on mount.
+  useEffect(() => {
+    const h = window.location.hash.slice(1);
+    if (!h.includes("goal=")) return;
+    const sp = new URLSearchParams(h);
+    const from = fromShareParams((k) => sp.get(k), sp.keys());
+    if (!from.goal?.trim()) return;
+    setInput({ goal: "", targetId: "chatgpt", mode: "standard", ...from, extra: { ...(from.extra ?? {}) } }); // eslint-disable-line react-hooks/set-state-in-effect
+    setGenerated(true);
+  }, []);
+
   const set = (patch: Partial<UniversalInput>) => { setAlt(0); setInput((p) => ({ ...p, ...patch })); };
   const setExtra = (k: string, v: string) => { setAlt(0); setInput((p) => ({ ...p, extra: { ...(p.extra ?? {}), [k]: v } })); };
 
@@ -60,8 +72,8 @@ export function UniversalBuilder({ initial = {}, autoGenerate = false }: { initi
   }
 
   async function share() {
-    const url = `${window.location.origin}/builder?${toShareParams(input).toString()}`;
-    try { await navigator.clipboard.writeText(url); setShareMsg("Link copied. Anyone with it can reproduce this prompt; nothing is stored on our servers."); }
+    const url = await shortLink(window.location.origin, input);
+    try { await navigator.clipboard.writeText(url); setShareMsg("Link copied. Anyone with it can reproduce this prompt; your text isn't put in the page address sent to our servers."); }
     catch { setShareMsg(url); }
     setTimeout(() => setShareMsg(""), 6000);
   }

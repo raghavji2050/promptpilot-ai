@@ -34,7 +34,7 @@ export function Footer() {
           <p className="font-semibold text-slate-900">Prompts for…</p>
           <ul className="mt-2 space-y-1 text-slate-600">
             {USE_CASES.map((u) => <li key={u.slug}><Link href={`/prompts-for/${u.slug}`}>{u.short}</Link></li>)}
-            <li className="pt-2"><Link href="/pricing">Pricing</Link> · <Link href="/privacy">Privacy</Link> · <Link href="/terms">Terms</Link></li>
+            <li className="pt-2"><Link href="/about">About</Link> · <Link href="/contact">Contact</Link> · <Link href="/pricing">Pricing</Link> · <Link href="/privacy">Privacy</Link> · <Link href="/terms">Terms</Link></li>
           </ul>
         </div>
       </div>

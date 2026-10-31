@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { WaitlistForm } from "@/components/WaitlistForm";
 
 export const metadata: Metadata = {
   title: "Pricing: Free now, Pro coming soon",
@@ -41,6 +42,7 @@ export default function PricingPage() {
           <p className="mt-2 text-sm text-slate-600">What we plan to include. Not available yet, no price set, and the list may change based on what users need.</p>
           <ul className="mt-5 space-y-2 text-sm text-slate-700">{PLANNED.map((f) => <li key={f}>○ {f}</li>)}</ul>
           <p className="mt-6 rounded-lg bg-slate-50 p-3 text-sm text-slate-600">There is no way to pay today, and nothing on the site charges you.</p>
+          <WaitlistForm />
         </div>
       </div>
       <section className="prose-simple mt-12 max-w-3xl">
