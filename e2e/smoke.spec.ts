@@ -4,7 +4,7 @@ test.describe("home → build prompt → copy", () => {
   test("generates a prompt and copies it", async ({ page, context, browserName }) => {
     if (browserName === "chromium") await context.grantPermissions(["clipboard-read", "clipboard-write"]);
     await page.goto("/");
-    await expect(page.getByRole("heading", { level: 1 })).toContainText("Perfect AI Prompt");
+    await expect(page.getByRole("heading", { level: 1 })).toContainText("Get a prompt that actually works");
 
     await page.getByLabel("What do you want AI to help you with?").fill("Write a cover letter for a senior Laravel developer job");
     await page.getByRole("button", { name: /Generate prompt/ }).click();
