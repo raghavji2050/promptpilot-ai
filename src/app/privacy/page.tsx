@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { SITE } from "@/lib/site";
+import { SITE, OWNER } from "@/lib/site";
 
 export const metadata: Metadata = { title: "Privacy Policy", description: "How PromptPilot handles your data.", alternates: { canonical: "/privacy" } };
 
@@ -11,7 +11,7 @@ export default function PrivacyPage() {
       <p className="mt-2 text-sm text-slate-500">Draft, last updated {SITE.lastReviewed}. This draft needs legal review before commercial launch.</p>
       <h2>What runs in your browser</h2>
       <p>The Prompt Builder, coding agent kit generator, Instagram Studio composer and Enhancer analysis run in your browser. Text you type into those forms is not sent to our servers.</p>
-      <p>Exception: when you start from the homepage box, a category starter link or a builder share link, your goal and options are part of the page URL, so they reach our hosting provider like any web request and may appear in its standard request logs. Don&apos;t put sensitive personal information in prompts or share links.</p>
+      <p>Share links made by the builder keep your goal after the # in the link, which browsers do not send to our servers, logs or other sites. Short links (/s/…) store only the builder settings you chose to share, so anyone with the link can open them. Exception: older links and category starter links that put the goal in the page URL (?goal=…) reach our hosting provider like any web request and may appear in its standard request logs. Don&apos;t put sensitive personal information in prompts or share links.</p>
       <h2>Saved prompts</h2>
       <ul>
         <li>If you are not signed in, saved prompts are stored in your browser&apos;s localStorage on your device.</li>
@@ -25,6 +25,25 @@ export default function PrivacyPage() {
       <p>This version does not include third-party analytics or advertising. Sign-in (if enabled) uses storage needed to keep you logged in.</p>
       <h2>Photos</h2>
       <p>We never receive your photos. Instagram Studio prompts are pasted into third-party tools (e.g. Gemini, ChatGPT) where you upload photos under their terms. Only edit images of people who consented.</p>
+      <h2 id="dpdp">Your rights in India (DPDP Act, 2023)</h2>
+      <p>This section describes how we handle personal data under India&apos;s Digital Personal Data Protection Act, 2023. It is a draft pending legal review.</p>
+      <h3>What we store</h3>
+      <ul>
+        <li><strong>Account (only if you sign in):</strong> your email address and sign-in records, kept by Supabase Auth.</li>
+        <li><strong>Saved prompts (signed in):</strong> the title, prompt text, builder settings and share settings you save.</li>
+        <li><strong>Short share links:</strong> the builder settings you chose to share. They aren&apos;t linked to your account.</li>
+        <li><strong>Pro waitlist:</strong> your email, your consent, and the date you joined. We use it only to tell you when Pro launches.</li>
+        <li><strong>Not stored by us:</strong> text in the builder while you are signed out, prompts saved in your browser (localStorage), photos, and API keys.</li>
+      </ul>
+      <h3>Where it is stored</h3>
+      <p>Our database runs on Supabase in the <strong>[SUPABASE_REGION]</strong> region. The website is hosted on Vercel.</p>
+      <h3>Delete or correct your data</h3>
+      <ul>
+        <li>You can delete saved prompts yourself from <Link href="/dashboard">My saved prompts</Link>. To clear browser-saved prompts, clear this site&apos;s data in your browser.</li>
+        <li>To delete your account, remove yourself from the waitlist, or get a copy of your data, email <strong>{OWNER.contactEmail}</strong> from the address involved. See the <Link href="/contact">contact page</Link>. We aim to reply within [RESPONSE_DAYS] days.</li>
+        <li>You can withdraw consent for the waitlist at any time. It is as easy as giving it.</li>
+        <li>Grievance officer: <strong>[GRIEVANCE_OFFICER_NAME]</strong>, {OWNER.contactEmail}.</li>
+      </ul>
       <h2>Contact</h2>
       <p>Questions: see the <Link href="/contact">contact page</Link>. More about us on the <Link href="/about">About page</Link>.</p>
     </div>

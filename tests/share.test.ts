@@ -22,7 +22,9 @@ describe("social sharing helpers", () => {
     const u = new URL(sharedLink("https://example.com/", fest, "linkedin"));
     expect(u.pathname).toBe("/builder");
     expect(u.searchParams.get("utm_source")).toBe("linkedin");
-    const back = fromShareParams((k) => u.searchParams.get(k), u.searchParams.keys());
+    expect(u.searchParams.get("goal")).toBeNull(); // goal never in the query (logs/referrers)
+    const h = new URLSearchParams(u.hash.slice(1));
+    const back = fromShareParams((k) => h.get(k), h.keys());
     expect(back.goal).toBe(fest.goal); expect(back.language).toBe("Hindi");
     expect(back.extra).toEqual(fest.extra); // utm_* never leak into the prompt
   });

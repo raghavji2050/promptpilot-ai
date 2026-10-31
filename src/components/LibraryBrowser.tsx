@@ -7,6 +7,9 @@ import { PromptCard } from "./PromptCard";
 import { EmptyState } from "./ui/EmptyState";
 import type { ReactNode } from "react";
 
+/** Cards rendered per step; the rest load on "Show more". Every prompt stays crawlable via /p/[slug] links in the sitemap and the server-rendered index on /library. */
+const PAGE_SIZE = 24;
+
 export function LibraryBrowser({ items, showStack = false, showTrend = false, showLocale = true, showCategory = true, initial = {}, sections }: {
   items: LibraryItem[]; showStack?: boolean; showTrend?: boolean; showLocale?: boolean; showCategory?: boolean; initial?: LibraryQuery;
   /** Extra sections (e.g. Recently added, Instagram Studio) shown only while no filter is active. */ sections?: ReactNode;
@@ -22,6 +25,7 @@ export function LibraryBrowser({ items, showStack = false, showTrend = false, sh
   const [outputType, setOutputType] = useState("");
   const [tier, setTier] = useState<LibraryQuery["tier"]>("");
   const [sort, setSort] = useState<LibraryQuery["sort"]>("");
+  const [shown, setShown] = useState(PAGE_SIZE);
 
   const usedCats = useMemo(() => CATEGORIES.filter((c) => items.some((i) => i.cat === c.id)), [items]);
   const usedSubs = useMemo(() => {
@@ -104,12 +108,17 @@ export function LibraryBrowser({ items, showStack = false, showTrend = false, sh
 
       {!filtered && sections && <h2 className="h2 mt-12 text-xl">All prompts</h2>}
       <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {results.map((p) => <PromptCard key={p.slug} item={p} />)}
+        {results.slice(0, shown).map((p) => <PromptCard key={p.slug} item={p} />)}
       </div>
+      {results.length > shown && (
+        <div className="mt-6 text-center">
+          <button type="button" className="btn-secondary" onClick={() => setShown((n) => n + PAGE_SIZE)}>Show more prompts ({results.length - shown} left)</button>
+        </div>
+      )}
       {results.length === 0 && (
         <div className="mt-4">
           <EmptyState icon="⌕" title={tier === "premium" ? "No premium prompts yet" : "No prompts match"}
-            action={<><button type="button" className="btn-secondary" onClick={reset}>Reset filters</button><a className="btn-primary" href={q ? `/builder?goal=${encodeURIComponent(q)}` : "/builder"}>Build a custom prompt</a></>}>
+            action={<><button type="button" className="btn-secondary" onClick={reset}>Reset filters</button><a className="btn-primary" href={q ? `/builder#goal=${encodeURIComponent(q)}` : "/builder"}>Build a custom prompt</a></>}>
             {tier === "premium" ? "Premium packs are coming soon; every prompt here is free." : "Try fewer words or a different category, or build a prompt for exactly what you need."}
           </EmptyState>
         </div>

@@ -43,6 +43,12 @@ export default async function LibraryPage({ searchParams }: { searchParams: Prom
       <h1 className="h1 mt-2">Prompt Library</h1>
       <p className="lead">{ALL_PROMPTS.length} free prompts written for real tasks. Replace the [bracketed] parts with your details, or open one in the <Link className="link" href="/builder">Prompt Builder</Link> to customise it.</p>
       <div className="mt-8"><LibraryBrowser items={ALL_PROMPTS} initial={{ q: one("q").slice(0, 100), cat, sub }} sections={sections} /></div>
+      <nav aria-labelledby="index-h" className="mt-14 border-t border-line pt-8">
+        <h2 id="index-h" className="h2 text-xl">All {ALL_PROMPTS.length} prompts (A–Z)</h2>
+        <ul className="mt-4 grid gap-x-6 gap-y-1 text-sm sm:grid-cols-2 lg:grid-cols-3">
+          {[...ALL_PROMPTS].sort((a, b) => a.title.localeCompare(b.title)).map((p) => <li key={p.slug}><Link className="text-muted hover:text-accent-text" href={`/p/${p.slug}`}>{p.title}</Link></li>)}
+        </ul>
+      </nav>
     </div>
   );
 }

@@ -56,11 +56,13 @@ export default async function Home() {
       <section className="border-b border-line" aria-labelledby="hero-title">
         <div className="mx-auto max-w-5xl px-4 pb-14 pt-12 text-center sm:pb-20 sm:pt-20">
           <p className="badge badge-accent">Free · No sign-up · No API key needed</p>
-          <h1 id="hero-title" className="mx-auto mt-5 max-w-3xl text-4xl font-semibold tracking-tight text-fg sm:text-5xl lg:text-6xl">Turn Any Idea Into the Perfect AI Prompt.</h1>
-          <p className="mx-auto mt-5 max-w-2xl text-lg text-muted sm:text-xl">Create better prompts for ChatGPT, Claude, Gemini, Grok, and more. Get clearer results with less effort.</p>
+          <h1 id="hero-title" className="mx-auto mt-5 max-w-3xl text-4xl font-semibold tracking-tight text-fg sm:text-5xl lg:text-6xl">Type your idea in plain words. Get a prompt that actually works.</h1>
+          <p className="mx-auto mt-5 max-w-2xl text-lg text-muted sm:text-xl">Free prompt builder for ChatGPT, Claude, Gemini, Grok, Midjourney and more. Write in English, Hindi or Hinglish. No sign-up, no API key.</p>
+          <p className="mx-auto mt-3 max-w-2xl text-base text-fg" lang="hi-Latn">Apna idea Hinglish mein likho, perfect prompt hum bana denge. Bilkul free.</p>
           <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
-            <ButtonLink href="/builder" size="lg">Build My Prompt</ButtonLink>
-            <ButtonLink href="/library" variant="secondary" size="lg">Explore Prompt Library</ButtonLink>
+            <ButtonLink href="/builder" size="lg">Build my prompt, free</ButtonLink>
+            <ButtonLink href="/festivals" variant="secondary" size="lg">Festival prompts</ButtonLink>
+            <ButtonLink href="/library" variant="secondary" size="lg">Browse ready prompts</ButtonLink>
           </div>
           <HeroBuilder platforms={platforms} />
           <p className="mt-6 text-xs text-subtle">Works with ChatGPT · Claude · Gemini · Grok · Perplexity · Copilot · Midjourney · video tools · Cursor. Not affiliated with any of them.</p>
@@ -183,8 +185,9 @@ export default async function Home() {
           <h2 className="h2">Ready to write a better prompt?</h2>
           <p className="mx-auto mt-2 max-w-xl text-muted">It takes one sentence. No account, no API key.</p>
           <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
-            <ButtonLink href="/builder" size="lg">Build My Prompt</ButtonLink>
-            <ButtonLink href="/library" variant="secondary" size="lg">Explore Prompt Library</ButtonLink>
+            <ButtonLink href="/builder" size="lg">Build my prompt, free</ButtonLink>
+            <ButtonLink href="/festivals" variant="secondary" size="lg">Festival prompts</ButtonLink>
+            <ButtonLink href="/library" variant="secondary" size="lg">Browse ready prompts</ButtonLink>
           </div>
         </div>
       </section>
