@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { enhance, EnhanceSchema, ProviderError } from "@/lib/llm";
 import { checkLimit, clientIp, limitHeaders, tooManyMessage } from "@/lib/ratelimit";
-import { withLogging } from "@/lib/log";
+import { withLogging, type Logger } from "@/lib/log";
 
 const MAX_BODY = 64 * 1024;
 
@@ -20,6 +20,12 @@ export const POST = withLogging<NextRequest>("api/enhance", async (req, log) => 
     return err(429, "RATE_LIMITED", tooManyMessage(rl), { ...limitHeaders(rl), "Cache-Control": "no-store" });
   }
 
+  const res = await handle(req, log);
+  for (const [k, v] of Object.entries(limitHeaders(rl))) res.headers.set(k, v);
+  return res;
+});
+
+async function handle(req: NextRequest, log: Logger): Promise<Response> {
   const len = Number(req.headers.get("content-length") || 0);
   if (len > MAX_BODY) return err(413, "TOO_LARGE", "Request body too large");
 
@@ -48,7 +54,7 @@ export const POST = withLogging<NextRequest>("api/enhance", async (req, log) => 
     log.error("enhance_failed", { err: e instanceof Error ? e : String(e) });
     return err(500, "INTERNAL", "Unexpected error");
   }
-});
+}
 
 export function GET() {
   return err(405, "METHOD_NOT_ALLOWED", "Use POST");

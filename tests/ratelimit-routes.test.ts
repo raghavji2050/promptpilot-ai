@@ -28,3 +28,13 @@ describe("route-level rate limiting", () => {
     }
   });
 });
+
+describe("rate-limit headers on allowed responses", () => {
+  it("/api/enhance exposes X-RateLimit-Remaining counting down", async () => {
+    const mk = () => new NextRequest("http://localhost/api/enhance", { method: "POST", headers: { "x-real-ip": "203.0.113.9" }, body: "{}" });
+    const a = await enhancePOST(mk());
+    const b = await enhancePOST(mk());
+    expect(a.headers.get("x-ratelimit-limit")).toBe("10");
+    expect(Number(a.headers.get("x-ratelimit-remaining"))).toBe(Number(b.headers.get("x-ratelimit-remaining")) + 1);
+  });
+});
