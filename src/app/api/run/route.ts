@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { getRunConfig, handleRun, statusFor } from "@/lib/run";
 import { resolveCaller } from "@/lib/run/auth";
-import { rateLimit } from "@/lib/llm/ratelimit";
+import { checkLimit, clientIp as limiterIp, limitHeaders, tooManyMessage } from "@/lib/ratelimit";
 import { withLogging } from "@/lib/log";
 
 export const runtime = "nodejs";
@@ -24,8 +24,8 @@ export const POST = withLogging<NextRequest>("api/run", async (req) => {
   const origin = req.headers.get("origin");
   if (origin && origin !== req.nextUrl.origin) return NextResponse.json({ ok: false, code: "FORBIDDEN", message: "Cross-origin requests are not allowed" }, { status: 403 });
   const ip = clientIp(req);
-  const rl = rateLimit(`run:${ip}`, 6, 60_000);
-  if (!rl.ok) return NextResponse.json({ ok: false, code: "RATE_LIMITED", message: "Too many requests. Try again in a minute." }, { status: 429, headers: { "Retry-After": String(rl.retryAfter) } });
+  const rl = await checkLimit("run", limiterIp(req.headers));
+  if (!rl.ok) return NextResponse.json({ ok: false, code: "RATE_LIMITED", message: tooManyMessage(rl) }, { status: 429, headers: { ...limitHeaders(rl), ...NO_STORE } });
   let raw: unknown;
   try {
     const text = await req.text();

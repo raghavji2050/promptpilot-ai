@@ -3,6 +3,7 @@ import { buildUniversal, fromShareParams, whatWeAdded } from "@/lib/engine";
 import { getFestival, FESTIVALS } from "@/lib/festivals";
 import { CARD_SIZES, clip, isCardSize, type CardSize } from "@/lib/share";
 import { SITE } from "@/lib/site";
+import { checkLimit, clientIp, limitHeaders, tooManyMessage } from "@/lib/ratelimit";
 
 const LAYOUT: Record<CardSize, { pad: number; title: number; body: number; mono: number; lines: number; chips: number; goalMax: number; stacked: boolean; lineChars: number }> = {
   square: { pad: 64, title: 64, body: 34, mono: 22, lines: 8, chips: 6, goalMax: 180, stacked: true, lineChars: 78 },
@@ -12,6 +13,10 @@ const LAYOUT: Record<CardSize, { pad: number; title: number; body: number; mono:
 const words = (s: string) => s.trim().split(/\s+/).filter(Boolean).length;
 
 export async function GET(req: Request) {
+  const rl = await checkLimit("card", clientIp(req.headers));
+  if (!rl.ok) {
+    return Response.json({ error: { code: "RATE_LIMITED", message: tooManyMessage(rl) } }, { status: 429, headers: { ...limitHeaders(rl), "Cache-Control": "no-store" } });
+  }
   const url = new URL(req.url);
   const sp = url.searchParams;
   const size: CardSize = isCardSize(sp.get("size")) ? (sp.get("size") as CardSize) : "wide";

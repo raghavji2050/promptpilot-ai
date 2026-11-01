@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { enhance, EnhanceSchema, ProviderError } from "@/lib/llm";
-import { rateLimit } from "@/lib/llm/ratelimit";
+import { checkLimit, clientIp, limitHeaders, tooManyMessage } from "@/lib/ratelimit";
 import { withLogging } from "@/lib/log";
 
 const MAX_BODY = 64 * 1024;
@@ -14,9 +14,11 @@ export const POST = withLogging<NextRequest>("api/enhance", async (req, log) => 
   const origin = req.headers.get("origin");
   if (origin && origin !== req.nextUrl.origin) return err(403, "FORBIDDEN", "Cross-origin requests are not allowed");
 
-  const ip = req.headers.get("cf-connecting-ip") || req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
-  const rl = rateLimit(`enhance:${ip}`, 10, 60_000);
-  if (!rl.ok) return err(429, "RATE_LIMITED", "Too many requests. Try again shortly.", { "Retry-After": String(rl.retryAfter) });
+  const rl = await checkLimit("enhance", clientIp(req.headers));
+  if (!rl.ok) {
+    log.warn("rate_limited", { reason: rl.reason, store: rl.store });
+    return err(429, "RATE_LIMITED", tooManyMessage(rl), { ...limitHeaders(rl), "Cache-Control": "no-store" });
+  }
 
   const len = Number(req.headers.get("content-length") || 0);
   if (len > MAX_BODY) return err(413, "TOO_LARGE", "Request body too large");

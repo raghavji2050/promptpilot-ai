@@ -4,10 +4,12 @@
 create table if not exists public.run_quota (
   day      date not null,
   subject  text not null check (char_length(subject) <= 80),  -- 'ip:<sha256(daily salt + ip)>' | 'u:<user uuid>' | '__site__'
-  kind     text not null check (kind in ('text','image')),
+  kind     text not null,  -- 'text' | 'image' (Run) | 'enhance' | 'card' (API rate-limit daily caps)
   count    int  not null default 0 check (count >= 0),
   primary key (day, subject, kind)
 );
+alter table public.run_quota drop constraint if exists run_quota_kind_check;
+alter table public.run_quota add constraint run_quota_kind_check check (kind in ('text','image','enhance','card'));
 alter table public.run_quota enable row level security;   -- no policies: not readable by anon/authenticated
 revoke all on public.run_quota from anon, authenticated;
 
@@ -17,7 +19,7 @@ returns table (allowed boolean, reason text, remaining int)
 language plpgsql security definer set search_path = public as $$
 declare v_used int; v_site int;
 begin
-  if p_kind not in ('text','image') or p_subject = '__site__' then raise exception 'BAD_INPUT'; end if;
+  if p_kind not in ('text','image','enhance','card') or p_subject = '__site__' then raise exception 'BAD_INPUT'; end if;
   insert into run_quota(day, subject, kind) values (p_day, '__site__', p_kind), (p_day, p_subject, p_kind)
     on conflict do nothing;
   -- lock site row first, then subject row (consistent order avoids deadlocks)
