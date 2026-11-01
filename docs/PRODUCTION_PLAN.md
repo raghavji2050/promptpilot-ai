@@ -16,6 +16,7 @@ Free-tier only (GitHub Actions free, Vercel Hobby, Supabase free). 🔑 = needs 
 | ✅ 5 | 31 Oct (planned 1 Nov) | Security headers + CSP in next.config (report-only first), zod validation on all API inputs | securityheaders grade A-; bad payload → 400 |
 | 🟡 6 | 1 Nov (planned 2 Nov) | Rate limiting on /api/enhance + /api/card (in-memory + Supabase fallback); 🔑 apply run-quota.sql | 429 after limit; quota table exists |
 | 7 | 3 Nov | DB migrations into `supabase/migrations/` with ordered files; 🔑 Raghav runs seed-library, fix-function-grants, festivals in SQL editor | Library shows items; keep-alive count > 0 |
+| 7b | 3 Nov (extra, Raghav OK 1 Nov) | Agensi-inspired: "Export as SKILL.md" button on builder result; "Use in ChatGPT / Claude / Cursor" tabs with copy snippet per prompt | Download gives valid SKILL.md (name+description frontmatter); tabs copy correct text; e2e covers both |
 | 8 | 4 Nov | RLS review + `schema_rls_test.sql` run; secrets hygiene (gitleaks in CI, `.env.example`) | RLS tests pass; gitleaks clean |
 | 9 | 5 Nov | Auth + saved prompts hardening (session expiry, ownership checks, empty/error states) + tests | Other user can't read saved prompt; tests green |
 | 10 | 6 Nov | Run executor robustness: timeouts, provider fallback, clear "coming soon" UX; 🔑 Groq, Cloudflare ID+token, Turnstile site+secret, Supabase service role in Vercel env | Without keys: graceful msg; with keys: text run works live |
