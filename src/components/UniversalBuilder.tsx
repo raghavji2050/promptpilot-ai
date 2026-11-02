@@ -11,6 +11,7 @@ import { shortLink } from "@/lib/share";
 import { SaveButton } from "./SaveButton";
 import { TryInButtons } from "./TryInButtons";
 import { RunButton } from "./RunButton";
+import { ExportTabs } from "./ExportTabs";
 import { LiveBeforeAfter } from "./LiveBeforeAfter";
 import { ShareCard } from "./ShareCard";
 
@@ -222,6 +223,7 @@ export function UniversalBuilder({ initial = {}, autoGenerate = false }: { initi
           {shareMsg && <p className="mt-2 break-all text-xs text-slate-600" role="status">{shareMsg}</p>}
           <TryInButtons text={text} />
           <RunButton text={text} kind={result.kind} />
+          {generated && text && <ExportTabs text={text} title={(input.goal || "Untitled prompt").trim().slice(0, 80)} goal={input.goal} />}
           <LiveBeforeAfter goal={input.goal} result={result} text={text} />
           {generated && text && <ShareCard input={input} festivalName={result.festival?.name} />}
           <div className="mt-4 rounded-lg border border-dashed border-slate-300 p-3 text-xs text-slate-600">

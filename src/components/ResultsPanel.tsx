@@ -8,6 +8,7 @@ import { shortLink } from "@/lib/share";
 import { SaveButton } from "./SaveButton";
 import { TryInButtons } from "./TryInButtons";
 import { RunButton } from "./RunButton";
+import { ExportTabs } from "./ExportTabs";
 import { LiveBeforeAfter } from "./LiveBeforeAfter";
 import { ShareCard } from "./ShareCard";
 
@@ -62,6 +63,7 @@ export const ResultsPanel = forwardRef<HTMLHeadingElement, { input: UniversalInp
           {shareMsg && <p className="mt-2 break-all text-xs text-subtle" role="status">{shareMsg}</p>}
           <TryInButtons text={text} />
           <RunButton text={text} kind={result.kind} />
+          <ExportTabs text={text} title={input.goal.trim().slice(0, 80) || "Untitled prompt"} goal={input.goal} />
           <LiveBeforeAfter goal={input.goal} result={result} text={text} />
           <ShareCard input={input} festivalName={result.festival?.name} />
 
