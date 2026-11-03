@@ -11,4 +11,12 @@ describe("intent routing regressions (Day 2)", () => {
   it("still routes plain summaries to writing", () => {
     expect(detectIntent("Summarize this article in 5 bullets")?.categoryId).toBe("writing");
   });
+  it("routes bug symptoms (runs twice / job fails) to coding/debugging, not the app-build prompt", () => {
+    for (const g of ["Laravel queue job runs twice", "My cron job runs twice", "Why does my Laravel queue job fail", "React useEffect runs twice"]) {
+      expect(detectIntent(g), g).toMatchObject({ categoryId: "coding", subcategoryId: "debugging" });
+    }
+  });
+  it("still routes app builds to build-app", () => {
+    expect(detectIntent("Build a Laravel SaaS web app")).toMatchObject({ categoryId: "coding", subcategoryId: "build-app" });
+  });
 });

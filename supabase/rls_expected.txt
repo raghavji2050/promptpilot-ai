@@ -1,0 +1,30 @@
+--- ANON
+anon items | 2
+anon bodies | FREE BODY
+anon files | AGENTS.md
+anon manifest | 2
+ERROR:  permission denied for table profiles
+--- FREE USER
+free bodies | FREE BODY
+free files | AGENTS.md
+ERROR:  permission denied for table profiles
+profiles visible | 1
+own saved | 1
+ERROR:  permission denied for table saved_prompts
+ERROR:  permission denied for table saved_prompts
+share slug len | 18
+ERROR:  permission denied for table purchases
+quota | 2 | 1 | 0 | -1
+UPDATE 0
+copy fn | 
+--- OTHER USER (pro) sees unlisted only via slug fn
+pro sees others saved | 0
+pro via slug | 1
+UPDATE 0
+DELETE 0
+pro bodies | FREE BODY,PRO BODY
+pro files | .claude/agents/reviewer.md,AGENTS.md
+--- ADMIN
+admin items | 3
+admin edit | Edited
+copy_count | 1

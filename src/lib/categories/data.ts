@@ -354,7 +354,7 @@ export const CATEGORIES: Category[] = [
     id: "coding", letter: "F", name: "Coding & Technology", short: "Coding", icon: "💻",
     description: "Coding assistants, apps, debugging, reviews, APIs, databases, system design, testing and agent instructions.",
     audience: "Developers, technical founders and people building with AI coding tools",
-    keywords: ["code", "coding", "programming", "developer", "software", "website", "script", "function", "laravel", "php", "node", "react", "python", "javascript", "typescript", "nextjs", "java"],
+    keywords: ["code", "coding", "programming", "developer", "software", "website", "script", "function", "laravel", "php", "node", "react", "python", "javascript", "typescript", "nextjs", "java", "cron", "cron job", "queue job", "queue worker", "useeffect"],
     subcategories: [
       { id: "coding-assistant", name: "Coding assistant", blurb: "Write or explain code in any language.",
         keywords: ["write code", "python script", "write a function", "javascript", "typescript", "python", "java", "c++", "regex", "bash script", "explain this code", "php", "react hook", "custom hook", "usestate", "useeffect", "debounce", "react component", "write a react"],
@@ -368,7 +368,7 @@ export const CATEGORIES: Category[] = [
         output: "Requirements · architecture · milestones · first milestone code", fields: [t("stack", "Preferred stack", "e.g. Laravel 12 + MySQL, or no preference")],
         example: "Help me build a website for my restaurant with online booking" },
       { id: "debugging", name: "Debugging", blurb: "Find the root cause, not just the symptom.",
-        keywords: ["debug", "debugging", "bug", "fix a bug", "fix the bug", "bug in my", "error", "exception", "stack trace", "not working", "crash", "fix my code", "traceback", "bug fix", "bugfix", "fix bug"],
+        keywords: ["debug", "debugging", "bug", "fix a bug", "fix the bug", "bug in my", "error", "exception", "stack trace", "not working", "crash", "fix my code", "traceback", "bug fix", "bugfix", "fix bug", "runs twice", "running twice", "run twice", "fires twice", "executes twice", "called twice", "job fail", "job fails", "job failing", "keeps failing", "not firing", "times out", "timing out", "500 error", "memory leak", "doesn't work", "does not work", "stopped working"],
         role: "debugging specialist", objective: "Find the root cause, then propose the smallest safe fix.",
         workflow: ["Restate the expected vs actual behaviour", "List likely causes ranked by probability", "Explain how to confirm the cause", "Propose the minimal fix and a test that would have caught it"],
         output: "Diagnosis · confirmation steps · fix · regression test", fields: [ta("errorText", "Error message / stack trace"), ta("code", "Relevant code")],
