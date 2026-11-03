@@ -17,6 +17,8 @@ export default function AboutPage() {
       <p>{SITE.name} is built and run by <strong>{OWNER.makerName}</strong>{isPlaceholder(OWNER.makerName) && <span className="text-subtle"> (placeholder: name to be added)</span>}.</p>
       <h2>Why it exists</h2>
       <p>Most people type one line into ChatGPT or Gemini and get a generic answer. {SITE.name} turns a goal written in plain English, Hindi or Hinglish into a structured prompt (role, context, task, steps, constraints, output format and a self-check) so the AI has what it needs. It is made with Indian creators, students, small businesses and beginners in mind.</p>
+      <h2>Work-safe, tested templates</h2>
+      <p>Prompts are built from fixed, work-focused templates, not from random AI output. The templates and the intent routing are covered by automated unit tests that run on every change, so the same input always gives the same prompt. Templates tell the AI never to invent experience, numbers or facts and to use [placeholders] instead.</p>
       <h2>What is free</h2>
       <ul>
         <li>The <Link href="/builder">Prompt Builder</Link> for every supported AI, with no sign-up and no API key.</li>

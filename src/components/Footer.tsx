@@ -16,6 +16,7 @@ export function Footer() {
           <ul className="mt-2 space-y-1 text-slate-600">
             <li><Link href="/builder">Prompt Builder</Link></li>
             <li><Link href="/library">Prompt Library</Link></li>
+            <li><Link href="/packs/job-hunting">Job Hunting pack</Link></li>
             <li><Link href="/enhancer">Prompt Enhancer</Link></li>
             <li><Link href="/instagram-studio">Instagram Studio</Link></li>
             <li><Link href="/agent-templates">Coding agent kit</Link></li>

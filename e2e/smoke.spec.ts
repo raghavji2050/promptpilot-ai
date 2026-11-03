@@ -81,3 +81,11 @@ test("health endpoint returns booleans only", async ({ request }) => {
   expect(body.ok).toBe(true);
   expect(JSON.stringify(body)).not.toMatch(/sk-|eyJ|gsk_/);
 });
+
+test("job hunting pack renders six templates with export tabs", async ({ page }) => {
+  await page.goto("/packs/job-hunting");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Job Hunting pack for India");
+  await expect(page.getByTestId("pack-template")).toHaveCount(6);
+  await page.getByRole("button", { name: "Preview & export" }).first().click();
+  await expect(page.getByRole("tab", { name: /Claude/ }).first()).toBeVisible();
+});

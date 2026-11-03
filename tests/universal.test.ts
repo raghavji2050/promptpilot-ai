@@ -60,7 +60,7 @@ describe("detectIntent", () => {
     ["Help me prepare for an interview", "career", "interview-prep"],
     ["Prepare me for a software developer job interview", "career", "interview-prep"],
     ["Make my resume ATS friendly", "career", "resume"],
-    ["How do I negotiate salary for my new offer?", "career", "workplace-comms"],
+    ["How do I negotiate salary for my new offer?", "career", "salary-negotiation"],
     ["Help me plan my week, I have exams and a part-time job", "productivity", "daily-planning"],
     ["Create a 3-day itinerary for Jaipur", "productivity", "travel"],
     ["Give me healthy recipes for a busy week", "productivity", "meal-planning"],
