@@ -51,8 +51,8 @@ select 'pro sees others saved', count(*) from public.saved_prompts;             
 select 'pro via slug', count(*) from public.get_shared_prompt(:'slug');          -- 1
 update public.saved_prompts set title='hacked';                                 -- UPDATE 0 (not owner)
 delete from public.saved_prompts;                                               -- DELETE 0 (not owner)
-select 'pro bodies', string_agg(body,',' order by body) from public.library_item_bodies; -- FREE,PRO
-select 'pro files', string_agg(path,',' order by path) from public.agent_template_files; -- both
+select 'pro bodies', string_agg(body,',' order by body collate "C") from public.library_item_bodies; -- FREE,PRO
+select 'pro files', string_agg(path,',' order by path collate "C") from public.agent_template_files; -- both
 reset role;
 
 \echo '--- ADMIN'
