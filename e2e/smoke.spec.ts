@@ -93,7 +93,9 @@ test("job hunting pack renders six templates with export tabs", async ({ page })
 test("packs hub and promptperfect alternative render", async ({ page }) => {
   await page.goto("/packs");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Prompt packs");
-  await expect(page.getByTestId("pack-card")).toHaveCount(1);
+  await expect(page.getByTestId("pack-card")).toHaveCount(4);
+  await page.goto("/packs/small-business");
+  await expect(page.getByTestId("pack-template")).toHaveCount(5);
   await page.goto("/promptperfect-alternative");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("A free PromptPerfect alternative");
   await expect(page.getByTestId("compare-table")).toBeVisible();
