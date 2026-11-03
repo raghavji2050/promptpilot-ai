@@ -131,9 +131,28 @@ function normalise(goal: string): string {
  * Keyword intent matcher. Scores every subcategory (its keywords + a small bonus for its category's
  * generic keywords) and returns the best. Ties resolve to registry order. Returns null if nothing matches.
  */
+/** Exact phrase routes for pack prompts (English + Hinglish). Checked before keyword scoring. */
+export const PHRASE_ROUTES: [RegExp, string][] = [
+  [/\bwhatsapp\b.*\b(message|broadcast|offer)|\b(offer|sale)\b.*\bwhatsapp\b/, "sales-scripts"],
+  [/\bproposal\b.*\b(client|project|freelanc\w*)\b|\b(client|freelanc\w*)\b.*\bproposal\b/, "freelancing"],
+  [/\bcold (email|pitch)\b/, "email"],
+  [/\b(rate|rates)\b.*\b(kam|lower|negotiat\w*)\b/, "freelancing"],
+  [/\bpayment reminder\b|\bpayment nahi\b/, "workplace-comms"],
+  [/\b(upwork|fiverr)\b.*\bbio\b|\bportfolio bio\b/, "personal-brand"],
+  [/\bstudy plan\b/, "study-plan"],
+  [/\btutor\b|\bdoubt\b/, "tutor"],
+  [/\bchapter\b.*\b(summary|notes)\b|\b(summary|notes)\b.*\bchapter\b/, "summarization"],
+  [/\bsimple (mein|me|words)\b.*\bsamjha\w*|\bsamjha\w*\b.*\bsimple\b/, "explain-simply"],
+];
+
 export function detectIntent(goal: string): Detection | null {
   const text = normalise(cleanText(goal, 1500));
   if (!text) return null;
+  for (const [re, subId] of PHRASE_ROUTES) {
+    if (!re.test(text)) continue;
+    const cat = CATEGORIES.find((c) => c.subcategories.some((x) => x.id === subId));
+    if (cat) return { categoryId: cat.id, subcategoryId: subId, score: 100, matched: [subId] };
+  }
   let best: Detection | null = null;
   for (const cat of CATEGORIES) {
     const catMatched = cat.keywords.filter((k) => kwRegex(k.replace(/^~/, "")).test(text));

@@ -48,6 +48,18 @@ export function Enhancer() {
     setLastAction(action);
   }
 
+  async function runSmart() {
+    setErr(""); setLoading(true);
+    try {
+      const res = await fetch("/api/smart", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ input, target: targetId }) });
+      const j = await res.json();
+      if (!res.ok) throw new Error(j?.error?.message ?? "Smart mode failed");
+      setOutput(j.text); setLastAction(j.source === "ai" ? "smart" : "smart-fallback");
+      if (j.source !== "ai") setErr(j.note ?? "Smart mode is busy, so you got the free built-in improvement instead.");
+    } catch (e) { setOutput(improveText(input, targetId)); setLastAction("smart-fallback"); setErr(e instanceof Error ? e.message : "Smart mode failed"); }
+    finally { setLoading(false); }
+  }
+
   async function runLlm() {
     setErr(""); setLoading(true);
     if (remember) localStorage.setItem(KEY_STORE, JSON.stringify({ provider, model, apiKey, baseUrl }));
@@ -93,6 +105,7 @@ export function Enhancer() {
           </div>
           <div className="mt-3 flex flex-wrap gap-2">
             <button className="btn-primary" disabled={!input.trim()} onClick={() => run("improve")}>Improve</button>
+            <button className="btn-primary" data-testid="smart-btn" disabled={!input.trim() || loading} onClick={runSmart}>✨ Smart improve (free AI)</button>
             <button className="btn-secondary" disabled={!input.trim()} onClick={() => run("shorten")}>Shorten</button>
             <button className="btn-secondary" disabled={!input.trim()} onClick={() => run("expand")}>Expand</button>
             <button className="btn-secondary" disabled={!input.trim()} onClick={() => run("adapt")}>Adapt format</button>

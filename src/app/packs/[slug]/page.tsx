@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { MORE_PACKS } from "@/content/more-packs";
 import { buildUniversal, toShareParams } from "@/lib/engine/universal";
 import { PackTemplateCard } from "@/components/PackTemplateCard";
-import { absoluteUrl, DEFAULT_OG_IMAGE } from "@/lib/site";
+import { absoluteUrl } from "@/lib/site";
 
 export const dynamicParams = false;
 export function generateStaticParams() { return MORE_PACKS.map((p) => ({ slug: p.slug })); }
@@ -13,7 +13,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const p = MORE_PACKS.find((x) => x.slug === slug);
   if (!p) return {};
-  return { title: p.title, description: p.lead, alternates: { canonical: `/packs/${p.slug}` }, openGraph: { images: [DEFAULT_OG_IMAGE], title: p.title, description: p.lead, url: absoluteUrl(`/packs/${p.slug}`) } };
+  return { title: p.title, description: p.lead, alternates: { canonical: `/packs/${p.slug}` }, openGraph: { title: p.title, description: p.lead, url: absoluteUrl(`/packs/${p.slug}`) } };
 }
 
 export default async function PackPage({ params }: { params: Promise<{ slug: string }> }) {

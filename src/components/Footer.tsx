@@ -19,6 +19,7 @@ export function Footer() {
             <li><Link href="/packs">Prompt packs</Link></li>
             <li><Link href="/packs/job-hunting">Job Hunting pack</Link></li>
             <li><Link href="/promptperfect-alternative">PromptPerfect alternative</Link></li>
+            <li><Link href="/extension">Chrome extension</Link></li>
             <li><Link href="/enhancer">Prompt Enhancer</Link></li>
             <li><Link href="/instagram-studio">Instagram Studio</Link></li>
             <li><Link href="/agent-templates">Coding agent kit</Link></li>

@@ -157,6 +157,15 @@ export function UniversalBuilder({ initial = {}, autoGenerate = false }: { initi
             </div>
           )}
 
+          <fieldset className="mt-4" data-testid="lang-toggle">
+            <legend className="label">Output language</legend>
+            <div className="flex flex-wrap gap-2" role="radiogroup">
+              {([["", "Same as prompt"], ["English", "English"], ["Hindi", "हिंदी Hindi"], ["Hinglish (Hindi in Latin script)", "Hinglish"]] as const).map(([v, l]) => (
+                <button key={l} type="button" role="radio" aria-checked={(input.language ?? "") === v} className={(input.language ?? "") === v ? "btn-primary" : "btn-secondary"} onClick={() => set({ language: v })}>{l}</button>
+              ))}
+            </div>
+          </fieldset>
+
           <details className="mt-4 rounded-lg border border-slate-200 p-4" open={!!(initial.audience || initial.context || initial.tone)}>
             <summary className="cursor-pointer text-sm font-medium text-slate-800">More options: audience, tone, language, format, context</summary>
             <div className="mt-3 grid gap-3 sm:grid-cols-2">

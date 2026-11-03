@@ -17,7 +17,7 @@ export function festivalOg({ eyebrow, title, subtitle, accent, soft }: { eyebrow
           <div style={{ fontSize: 30, color: "#4b5262", marginTop: 20 }}>{subtitle}</div>
         </div>
         <div style={{ display: "flex", justifyContent: "space-between", fontSize: 24, color: "#4b5262" }}>
-          <span>Free festival prompt builder · No sign-up</span>
+          <span>Free AI prompt builder · No sign-up</span>
           <span>promptpilot-ai-psi.vercel.app</span>
         </div>
       </div>

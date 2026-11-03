@@ -14,8 +14,19 @@ describe.each(MORE_PACKS)("$slug pack", (p) => {
       expect(r.text, t.id).toMatch(/Hinglish/);
     }
   });
-  it("routes Hinglish examples to a subcategory", () => {
-    for (const t of p.items) expect(detectIntent(t.hinglish)?.subcategoryId, t.hinglish).toBeTruthy();
+  it("routes Hinglish examples to the exact pack subcategory", () => {
+    for (const t of p.items) expect(detectIntent(t.hinglish)?.subcategoryId, t.hinglish).toBe(t.input.subcategoryId);
   });
 });
 it("hub lists four packs", () => expect(PACKS.map((p) => p.href)).toEqual(["/packs/job-hunting", "/packs/students", "/packs/small-business", "/packs/freelancers"]));
+
+it("routes English pack phrases exactly", () => {
+  expect(detectIntent("Write a WhatsApp message for my shop offer")?.subcategoryId).toBe("sales-scripts");
+  expect(detectIntent("Write a proposal for a client project")?.subcategoryId).toBe("freelancing");
+  expect(detectIntent("Photosynthesis simple mein samjhao")?.subcategoryId).toBe("explain-simply");
+});
+import { buildUniversal as bu } from "@/lib/engine/universal";
+it("Hindi and Hinglish output toggle adds deterministic language instructions", () => {
+  expect(bu({ goal: "Write a shop offer", targetId: "chatgpt", language: "Hindi" }).text).toMatch(/Respond in Hindi[\s\S]*Devanagari/);
+  expect(bu({ goal: "Write a shop offer", targetId: "chatgpt", language: "Hinglish (Hindi in Latin script)" }).text).toMatch(/Hinglish/);
+});

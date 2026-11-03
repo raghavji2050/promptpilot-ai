@@ -100,3 +100,21 @@ test("packs hub and promptperfect alternative render", async ({ page }) => {
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("A free PromptPerfect alternative");
   await expect(page.getByTestId("compare-table")).toBeVisible();
 });
+
+test("free items: exact pack routing, language toggle, smart mode, extension, pack OG", async ({ page, request }) => {
+  await page.goto("/builder");
+  await expect(page.getByTestId("lang-toggle")).toBeVisible();
+  const smart = await request.post("/api/smart", { data: { input: "write blog about chai" } });
+  expect(smart.status()).toBe(200);
+  const j = await smart.json();
+  expect(["ai", "fallback"]).toContain(j.source);
+  expect(j.text.length).toBeGreaterThan(20);
+  await page.goto("/extension");
+  await expect(page.getByTestId("ext-download")).toBeVisible();
+  const zip = await request.get("/promptpilot-extension.zip");
+  expect(zip.status()).toBe(200);
+  const og = await request.get("/packs/students/opengraph-image");
+  expect(og.headers()["content-type"]).toContain("image/png");
+  await page.goto("/enhancer");
+  await expect(page.getByTestId("smart-btn")).toBeVisible();
+});

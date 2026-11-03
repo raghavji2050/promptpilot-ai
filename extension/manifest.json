@@ -1,0 +1,10 @@
+{
+  "manifest_version": 3,
+  "name": "PromptPilot AI: Improve my prompt",
+  "version": "0.1.0",
+  "description": "Paste or select a prompt and improve it with PromptPilot AI. Free, no signup.",
+  "action": { "default_popup": "popup.html", "default_title": "Improve my prompt" },
+  "permissions": ["activeTab", "scripting"],
+  "host_permissions": ["https://promptpilot-ai-psi.vercel.app/*"],
+  "icons": { "128": "icon128.png" }
+}

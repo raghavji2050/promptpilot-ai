@@ -4,7 +4,7 @@ import { JOB_HUNTING_PACK } from "@/content/job-hunting-pack";
 import { buildUniversal, toShareParams } from "@/lib/engine/universal";
 import { PackTemplateCard } from "@/components/PackTemplateCard";
 import { JsonLd } from "@/components/JsonLd";
-import { absoluteUrl, DEFAULT_OG_IMAGE } from "@/lib/site";
+import { absoluteUrl } from "@/lib/site";
 
 const title = "Job Hunting Prompt Pack for India: Resume, Interview, Salary | PromptPilot AI";
 const description = "Free, work-safe AI prompts for job hunting in India: resume bullets, cover letter, HR and technical interview prep, salary negotiation in LPA and LinkedIn summary. Type in Hinglish too.";
@@ -12,7 +12,7 @@ const description = "Free, work-safe AI prompts for job hunting in India: resume
 export const metadata: Metadata = {
   title, description,
   alternates: { canonical: "/packs/job-hunting" },
-  openGraph: { images: [DEFAULT_OG_IMAGE], title, description, url: absoluteUrl("/packs/job-hunting") },
+  openGraph: { title, description, url: absoluteUrl("/packs/job-hunting") },
 };
 
 export default function JobHuntingPackPage() {
