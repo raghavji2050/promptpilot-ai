@@ -18,6 +18,8 @@ export const NAV = [
   { href: "/builder", label: "Prompt Builder" },
   { href: "/library", label: "Explore Prompts" },
   { href: "/festivals", label: "Festivals" },
+  { href: "/image-reel-builder", label: "Image & Reel" },
+  { href: "/showcase", label: "Showcase" },
   { href: "/categories", label: "Categories" },
   { href: "/tools", label: "AI Tools" },
   // Pricing is honest: everything is free today; Premium is labelled "coming soon" with no price or pay button.

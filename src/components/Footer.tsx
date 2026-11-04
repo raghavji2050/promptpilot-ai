@@ -22,6 +22,7 @@ export function Footer() {
             <li><Link href="/extension">Chrome extension</Link></li>
             <li><Link href="/enhancer">Prompt Enhancer</Link></li>
             <li><Link href="/instagram-studio">Instagram Studio</Link></li>
+            <li><Link href="/image-reel-builder">Image &amp; Reel builder</Link></li>
             <li><Link href="/agent-templates">Coding agent kit</Link></li>
             <li><Link href="/trending">Trending photo prompts</Link></li>
             <li><Link href="/tools">All AI tools</Link></li>

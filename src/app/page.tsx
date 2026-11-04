@@ -62,6 +62,7 @@ export default async function Home() {
           <p className="mx-auto mt-3 max-w-2xl text-base text-fg" lang="hi-Latn">Apna idea Hinglish mein likho, perfect prompt hum bana denge. Bilkul free.</p>
           <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
             <ButtonLink href="/builder" size="lg">Build my prompt, free</ButtonLink>
+            <ButtonLink href="/showcase" variant="secondary" size="lg">See what a prompt can do</ButtonLink>
             <ButtonLink href="/packs/job-hunting" variant="secondary" size="lg">Job Hunting pack</ButtonLink>
             <ButtonLink href="/festivals" variant="secondary" size="lg">Festival prompts</ButtonLink>
             <ButtonLink href="/library" variant="secondary" size="lg">Browse ready prompts</ButtonLink>
