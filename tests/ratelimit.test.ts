@@ -36,7 +36,7 @@ describe("checkLimit (in-memory, no service role)", () => {
     for (let i = 0; i < 3; i++) expect((await checkLimit("enhance", a, { env, now: t0 })).ok).toBe(true);
     const blocked = await checkLimit("enhance", a, { env, now: new Date(t0.getTime() + 20_000) });
     expect(blocked).toMatchObject({ ok: false, reason: "BURST", store: "memory", retryAfter: 40 });
-    expect(limitHeaders(blocked)).toMatchObject({ "Retry-After": "40", "X-RateLimit-Remaining": "0" });
+    expect(limitHeaders(blocked)).toMatchObject({ "Retry-After": "40", "X-RateLimit-Remaining": "0", "X-RateLimit-Store": "memory" });
     expect(tooManyMessage(blocked)).toMatch(/40s/);
     expect((await checkLimit("enhance", a, { env, now: new Date(t0.getTime() + 60_001) })).ok).toBe(true);
   });

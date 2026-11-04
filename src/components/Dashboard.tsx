@@ -42,7 +42,8 @@ function ShareControl({ item, share }: { item: SavedPrompt; share: (id: string, 
 }
 
 export function Dashboard() {
-  const { items, remove, share, remote, session, ready, error } = useSavedPrompts();
+  const { items, remove, share, remote, session, ready, expired, error, refresh } = useSavedPrompts();
+  const [retrying, setRetrying] = useState(false);
   const fav = useFavorites();
   const usage = useUsage();
   const toast = useToast();
@@ -57,6 +58,11 @@ export function Dashboard() {
             <p className="text-slate-600">Signed in as <strong>{session.user.email}</strong>. Saved prompts and favorites sync to your account.</p>
             <button className="btn-secondary" onClick={() => getSupabase()?.auth.signOut()}>Sign out</button>
           </>
+        ) : expired ? (
+          <>
+            <p className="text-slate-600" role="status" data-testid="session-expired"><strong>Your session expired.</strong> Sign in again to see your account&apos;s saved prompts. Prompts saved in this browser are shown below.</p>
+            <Link className="btn-primary" href="/login">Sign in again</Link>
+          </>
         ) : (
           <>
             <p className="text-slate-600">You&apos;re not signed in. Prompts you save are kept in this browser.</p>
@@ -66,8 +72,13 @@ export function Dashboard() {
       </div>
       <section>
         <h2 className="text-xl font-semibold text-slate-900">Saved prompts {ready && <span className="text-sm font-normal text-slate-400">({items.length}{remote ? ", account" : ", this browser"})</span>}</h2>
-        {error && <p className="mt-2 rounded bg-rose-50 p-3 text-sm text-rose-800">{error}</p>}
-        {!ready ? <div className="mt-4"><CardSkeleton count={3} /></div> : items.length === 0 ? (
+        {error && (
+          <div className="mt-2 flex flex-wrap items-center justify-between gap-2 rounded bg-rose-50 p-3 text-sm text-rose-800" role="alert" data-testid="saved-error">
+            <span>Couldn&apos;t load your saved prompts: {error}</span>
+            <button className="btn-secondary" disabled={retrying} onClick={async () => { setRetrying(true); try { await refresh(); } finally { setRetrying(false); } }}>{retrying ? "Retrying…" : "Try again"}</button>
+          </div>
+        )}
+        {!ready ? <div className="mt-4"><CardSkeleton count={3} /></div> : error && items.length === 0 ? null : items.length === 0 ? (
           <div className="mt-4"><EmptyState icon="☆" title="Nothing saved yet" action={<Link className="btn-primary" href="/builder">Build a prompt</Link>}>Use <strong>Save</strong> in the Builder, the Enhancer or on any prompt page and it will show up here.</EmptyState></div>
         ) : (
           <ul className="mt-4 space-y-3">

@@ -13,11 +13,11 @@ export function SharedPrompt({ slug }: { slug: string }) {
   useEffect(() => {
     if (!sb || !valid) return;
     let cancelled = false;
-    sb.rpc("get_shared_prompt", { p_slug: slug }).then(({ data, error }) => {
+    Promise.resolve(sb.rpc("get_shared_prompt", { p_slug: slug })).then(({ data, error }) => {
       if (cancelled) return;
       const rows = (data ?? []) as Row[];
       setState({ row: rows[0] ?? null, done: true, error: error?.message ?? null });
-    });
+    }, (e: unknown) => { if (!cancelled) setState({ row: null, done: true, error: e instanceof Error ? e.message : "error" }); });
     return () => { cancelled = true; };
   }, [sb, slug, valid]);
 
@@ -25,9 +25,8 @@ export function SharedPrompt({ slug }: { slug: string }) {
   if (!state.done) return <p className="text-slate-500">Loading…</p>;
   if (!state.row) return (
     <div>
-      <h1 className="h1">Link not found</h1>
-      <p className="lead">This share link doesn&apos;t exist or the owner stopped sharing it.</p>
-      {state.error && <p className="mt-2 text-xs text-slate-400">{state.error}</p>}
+      <h1 className="h1">{state.error ? "Couldn’t load this link" : "Link not found"}</h1>
+      <p className="lead" data-testid="shared-state">{state.error ? "Something went wrong while loading this shared prompt. Please refresh the page or try again in a minute." : "This share link doesn’t exist or the owner stopped sharing it."}</p>
       <Link className="btn-primary mt-6 inline-block" href="/builder">Build your own prompt</Link>
     </div>
   );

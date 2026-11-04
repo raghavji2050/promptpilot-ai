@@ -79,15 +79,17 @@ export async function checkLimit(scope: LimitScope, ip: string, opts: { env?: En
     if (!row || typeof row.allowed !== "boolean") throw new Error("bad rpc shape");
     if (row.allowed) return { ...memOk, store: "supabase", remaining: Math.min(burst.remaining, Math.max(0, Number(row.remaining) || 0)) };
     return { ok: false, limit: rule.daily, remaining: 0, retryAfter: secondsToIstMidnight(now), store: "supabase", reason: row.reason === "SITE_CAP" ? "SITE_CAP" : "DAILY" };
-  } catch {
+  } catch (e) {
     dbSkipUntil = now.getTime() + DB_BACKOFF_MS;
+    // No secrets here: only the failure reason (e.g. "rpc 404", timeout) so Vercel logs show why the shared cap was skipped.
+    console.warn(JSON.stringify({ level: "warn", msg: "ratelimit_db_fallback", scope, reason: e instanceof Error ? e.message.slice(0, 120) : "unknown" }));
     return memOk;
   }
 }
 
 /** Standard headers for limited responses (and informational ones for allowed responses). */
 export function limitHeaders(r: LimitResult): Record<string, string> {
-  const h: Record<string, string> = { "X-RateLimit-Limit": String(r.limit), "X-RateLimit-Remaining": String(r.remaining) };
+  const h: Record<string, string> = { "X-RateLimit-Limit": String(r.limit), "X-RateLimit-Remaining": String(r.remaining), "X-RateLimit-Store": r.store };
   if (!r.ok) h["Retry-After"] = String(r.retryAfter);
   return h;
 }
