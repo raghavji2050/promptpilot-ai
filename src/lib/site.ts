@@ -26,6 +26,11 @@ export const NAV = [
   { href: "/pricing", label: "Pricing" },
 ];
 
+/** Header split: 5 primary links, the rest under "More" (mobile menu shows all). */
+export const NAV_PRIMARY_HREFS = ["/", "/builder", "/image-reel-builder", "/library", "/showcase"];
+export const NAV_PRIMARY = NAV_PRIMARY_HREFS.map((h) => NAV.find((n) => n.href === h)!);
+export const NAV_MORE = NAV.filter((n) => !NAV_PRIMARY_HREFS.includes(n.href));
+
 export function isActive(path: string | null | undefined, href: string) {
   if (!path) return false;
   return href === "/" ? path === "/" : path === href || path.startsWith(`${href}/`);
