@@ -83,6 +83,7 @@ export async function handleRun(raw: unknown, ctx: RunContext): Promise<RunRespo
     await releaseQuota(subject, kind, q.degraded, { env, fetch: f });
     const status = e instanceof RunProviderError ? e.status : 502;
     await logCall(env, f, { user_id: caller.userId, mode: "free", provider: chain[0]?.id ?? "none", model: chain[0]?.model ?? "none", ok: false, error_code: String(status) });
+    if (status === 504) return fail("PROVIDER", "The free AI provider took too long. Your run wasn't counted. Try a shorter prompt, try again, or use Try in ChatGPT/Gemini/Grok.");
     if (status === 429) return fail("SITE_CAP", "Free AI providers are busy right now. Use Try in ChatGPT/Gemini/Grok.");
     return fail("PROVIDER", "The free AI provider couldn't answer right now. Your run wasn't counted. Try again or use Try in ChatGPT/Gemini/Grok.");
   }

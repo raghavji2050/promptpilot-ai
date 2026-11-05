@@ -3,8 +3,8 @@ import { maxTokens } from "./config";
 type Env = Record<string, string | undefined>;
 export type Fetch = typeof fetch;
 
-export interface TextProvider { id: "groq" | "workers_ai" | "gemini"; name: string; model: string; run(prompt: string, f: Fetch): Promise<string> }
-export interface ImageProvider { id: "workers_ai"; name: string; model: string; run(prompt: string, f: Fetch): Promise<string> }
+export interface TextProvider { id: "groq" | "workers_ai" | "gemini"; name: string; model: string; run(prompt: string, f: Fetch, timeoutMs?: number): Promise<string> }
+export interface ImageProvider { id: "workers_ai"; name: string; model: string; run(prompt: string, f: Fetch, timeoutMs?: number): Promise<string> }
 
 /** Thrown by providers. `retryable` = try the next provider (429, 5xx, timeout, network). */
 export class RunProviderError extends Error {
@@ -24,7 +24,8 @@ async function call(f: Fetch, url: string, init: RequestInit, timeout: number): 
     throw new RunProviderError(timedOut ? 504 : 502, true, timedOut ? "Provider timed out" : "Provider unreachable");
   }
   if (!res.ok) {
-    const retryable = res.status === 429 || res.status === 408 || res.status >= 500;
+    // 401/403 = bad or revoked key on this provider: still try the next one.
+    const retryable = res.status === 429 || res.status === 408 || res.status === 401 || res.status === 403 || res.status >= 500;
     throw new RunProviderError(res.status, retryable, `Provider returned ${res.status}`);
   }
   return res;
@@ -41,12 +42,12 @@ export function groq(env: Env = process.env): TextProvider | null {
   const model = env.GROQ_MODEL?.trim() || "openai/gpt-oss-20b";
   return {
     id: "groq", name: "Groq", model,
-    async run(prompt, f) {
+    async run(prompt, f, timeoutMs) {
       const res = await call(f, "https://api.groq.com/openai/v1/chat/completions", {
         method: "POST",
         headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
         body: JSON.stringify({ model, max_tokens: maxTokens(env), temperature: 0.7, messages: [{ role: "system", content: SYSTEM }, { role: "user", content: prompt }] }),
-      }, TEXT_TIMEOUT);
+      }, Math.min(TEXT_TIMEOUT, timeoutMs ?? TEXT_TIMEOUT));
       const j = await res.json().catch(() => null);
       return nonEmpty(j?.choices?.[0]?.message?.content);
     },
@@ -65,12 +66,12 @@ export function workersText(env: Env = process.env): TextProvider | null {
   const model = env.CLOUDFLARE_TEXT_MODEL?.trim() || "@cf/meta/llama-3.1-8b-instruct-fp8-fast";
   return {
     id: "workers_ai", name: "Cloudflare Workers AI", model,
-    async run(prompt, f) {
+    async run(prompt, f, timeoutMs) {
       const res = await call(f, `https://api.cloudflare.com/client/v4/accounts/${c.account}/ai/run/${model}`, {
         method: "POST",
         headers: { Authorization: `Bearer ${c.token}`, "Content-Type": "application/json" },
         body: JSON.stringify({ max_tokens: maxTokens(env), messages: [{ role: "system", content: SYSTEM }, { role: "user", content: prompt }] }),
-      }, TEXT_TIMEOUT);
+      }, Math.min(TEXT_TIMEOUT, timeoutMs ?? TEXT_TIMEOUT));
       const j = await res.json().catch(() => null);
       return nonEmpty(j?.result?.response ?? j?.result?.choices?.[0]?.message?.content);
     },
@@ -86,12 +87,12 @@ export function gemini(env: Env = process.env, country?: string | null): TextPro
   const model = env.GEMINI_MODEL?.trim() || "gemini-2.5-flash-lite";
   return {
     id: "gemini", name: "Google Gemini", model,
-    async run(prompt, f) {
+    async run(prompt, f, timeoutMs) {
       const res = await call(f, `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
         method: "POST",
         headers: { "x-goog-api-key": key, "Content-Type": "application/json" },
         body: JSON.stringify({ systemInstruction: { parts: [{ text: SYSTEM }] }, contents: [{ role: "user", parts: [{ text: prompt }] }], generationConfig: { maxOutputTokens: maxTokens(env) } }),
-      }, TEXT_TIMEOUT);
+      }, Math.min(TEXT_TIMEOUT, timeoutMs ?? TEXT_TIMEOUT));
       const j = await res.json().catch(() => null);
       return nonEmpty(j?.candidates?.[0]?.content?.parts?.map((p: { text?: string }) => p.text ?? "").join(""));
     },
@@ -104,12 +105,12 @@ export function workersImage(env: Env = process.env): ImageProvider | null {
   const model = "@cf/black-forest-labs/flux-1-schnell";
   return {
     id: "workers_ai", name: "Cloudflare Workers AI", model,
-    async run(prompt, f) {
+    async run(prompt, f, timeoutMs) {
       const res = await call(f, `https://api.cloudflare.com/client/v4/accounts/${c.account}/ai/run/${model}`, {
         method: "POST",
         headers: { Authorization: `Bearer ${c.token}`, "Content-Type": "application/json" },
         body: JSON.stringify({ prompt: prompt.slice(0, 2048), steps: 4 }),
-      }, IMAGE_TIMEOUT);
+      }, Math.min(IMAGE_TIMEOUT, timeoutMs ?? IMAGE_TIMEOUT));
       const j = await res.json().catch(() => null);
       const b64 = nonEmpty(j?.result?.image);
       return `data:image/jpeg;base64,${b64}`;
@@ -127,14 +128,24 @@ export function imageChain(env: Env = process.env): ImageProvider[] {
 
 export interface ChainResult { output: string; provider: string; providerId: string; model: string; latencyMs: number }
 
-/** Try providers in order; fall back only on retryable errors (429/5xx/timeout/network). */
-export async function runChain(chain: (TextProvider | ImageProvider)[], prompt: string, f: Fetch = fetch): Promise<ChainResult> {
+/** Whole-chain budget so fallbacks never run past the function's maxDuration (60s). */
+export const CHAIN_DEADLINE_MS = 50_000;
+const MIN_ATTEMPT_MS = 3_000;
+
+export interface ChainOptions { deadlineMs?: number; now?: () => number }
+
+/** Try providers in order; fall back on retryable errors (429/5xx/401/403/timeout/network) within one overall deadline. */
+export async function runChain(chain: (TextProvider | ImageProvider)[], prompt: string, f: Fetch = fetch, opts: ChainOptions = {}): Promise<ChainResult> {
+  const now = opts.now ?? Date.now;
+  const end = now() + (opts.deadlineMs ?? CHAIN_DEADLINE_MS);
   let last: RunProviderError | null = null;
   for (const p of chain) {
-    const t0 = Date.now();
+    const left = end - now();
+    if (left < MIN_ATTEMPT_MS) { last = new RunProviderError(504, false, "Run deadline reached"); break; }
+    const t0 = now();
     try {
-      const output = await p.run(prompt, f);
-      return { output, provider: p.name, providerId: p.id, model: p.model, latencyMs: Date.now() - t0 };
+      const output = await p.run(prompt, f, left);
+      return { output, provider: p.name, providerId: p.id, model: p.model, latencyMs: now() - t0 };
     } catch (e) {
       const err = e instanceof RunProviderError ? e : new RunProviderError(502, true, "Provider error");
       last = err;
