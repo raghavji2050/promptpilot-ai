@@ -18,7 +18,7 @@ describe.each(MORE_PACKS)("$slug pack", (p) => {
     for (const t of p.items) expect(detectIntent(t.hinglish)?.subcategoryId, t.hinglish).toBe(t.input.subcategoryId);
   });
 });
-it("hub lists four packs", () => expect(PACKS.map((p) => p.href)).toEqual(["/packs/job-hunting", "/packs/students", "/packs/small-business", "/packs/freelancers"]));
+it("hub lists five packs", () => expect(PACKS.map((p) => p.href)).toEqual(["/packs/job-hunting", "/packs/students", "/packs/small-business", "/packs/app-builder", "/packs/freelancers"]));
 
 it("routes English pack phrases exactly", () => {
   expect(detectIntent("Write a WhatsApp message for my shop offer")?.subcategoryId).toBe("sales-scripts");
