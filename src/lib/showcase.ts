@@ -1,3 +1,4 @@
+import { APP_BUILDER_PACK } from "@/content/more-packs";
 import { buildUniversal, toShareParams } from "@/lib/engine";
 import { buildImageReelPrompt, type ImageReelInput } from "@/lib/engine/image-reel";
 
@@ -16,6 +17,26 @@ const IMAGE: (ImageReelInput & { id: string; title: string; weak: string; output
     output: "Example of what to expect: a 10-second 9:16 clip in three shots, a wide view of the cafe, a push-in on a cup of chai, then a close-up with the caption." },
 ];
 
+/** Weak one-liner vs structured Claude Code / Cursor brief from the App Builder pack. */
+const APP = [
+  {
+    id: "browser-game",
+    title: "Browser game brief (Claude Code / Cursor)",
+    weak: "make a browser game",
+    packId: "browser-game",
+    output:
+      "Example of what to expect: an agent opens index.html, ships a canvas loop with keyboard + touch, score/game-over/restart, and localStorage best score — then reports what it verified after each step.",
+  },
+  {
+    id: "crud-app",
+    title: "CRUD app brief (Claude Code / Cursor)",
+    weak: "banao ek CRUD app",
+    packId: "crud-app",
+    output:
+      "Example of what to expect: create/list/edit/delete for the resource, Zod/server validation, empty state + delete confirm, and unit tests for validation and API routes — no invented fields or paid services.",
+  },
+] as const;
+
 export function getShowcase(): ShowcaseCard[] {
   const t = TEXT.map((c) => {
     const built = buildUniversal({ goal: c.goal, targetId: c.targetId }).text;
@@ -23,5 +44,18 @@ export function getShowcase(): ShowcaseCard[] {
   });
   const i = IMAGE.map((c) => ({ id: c.id, title: c.title, weak: c.weak, built: buildImageReelPrompt(c), output: c.output, outputLabel: "Example output" as const,
     tryHref: `/image-reel-builder?${new URLSearchParams({ uc: c.useCase, model: c.model, subject: c.subject }).toString()}` }));
-  return [...t, ...i];
+  const a = APP.map((c) => {
+    const tpl = APP_BUILDER_PACK.find((p) => p.id === c.packId)!;
+    const built = buildUniversal(tpl.input).text;
+    return {
+      id: c.id,
+      title: c.title,
+      weak: c.weak,
+      built,
+      output: c.output,
+      outputLabel: "Example output" as const,
+      tryHref: `/builder?${toShareParams(tpl.input).toString()}`,
+    };
+  });
+  return [...t, ...i, ...a];
 }

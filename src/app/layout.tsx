@@ -9,8 +9,8 @@ import { SITE, DEFAULT_OG_IMAGE } from "@/lib/site";
 import { ToastProvider } from "@/components/ui/Toast";
 import { THEME_INIT_SCRIPT } from "@/components/ui/ThemeToggle";
 
-const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
-const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
+const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"], display: "swap" });
+const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"], display: "swap" });
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),

@@ -23,10 +23,19 @@ test("gallery vs builder landing links to builder", async ({ page }) => {
 
 test("showcase cards open prefilled builders", async ({ page }) => {
   await page.goto("/showcase");
-  await expect(page.getByTestId("showcase-card")).toHaveCount(4);
+  await expect(page.getByTestId("showcase-card")).toHaveCount(6);
   await expect(page.getByText("Example output").first()).toBeVisible();
   await page.getByTestId("showcase-card").nth(3).getByRole("link", { name: "Try this prompt" }).click();
   await expect(page).toHaveURL(/image-reel-builder\?/);
   await expect(page.getByTestId("ir-output")).toContainText("Shot 1 (0-3s)");
   await expect(page.getByTestId("ir-output")).toContainText("chai cafe");
+});
+
+test("App Builder showcase cards link to pack or builder", async ({ page }) => {
+  await page.goto("/showcase");
+  const game = page.getByTestId("showcase-card").filter({ hasText: "Browser game" });
+  await expect(game.getByText("make a browser game")).toBeVisible();
+  await expect(game.getByTestId("showcase-built")).toContainText("Stack:");
+  await game.getByRole("link", { name: "Try this prompt" }).click();
+  await expect(page).toHaveURL(/\/(packs\/app-builder|builder\?)/);
 });
