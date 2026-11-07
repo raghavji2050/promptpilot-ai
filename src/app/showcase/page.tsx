@@ -20,7 +20,7 @@ export default function ShowcasePage() {
             <h2 className="text-xl font-semibold">{c.title}</h2>
             <div className="mt-4 grid gap-4 md:grid-cols-2">
               <div><p className="text-sm font-medium text-muted">Weak prompt</p><pre className="mt-1 whitespace-pre-wrap rounded-lg bg-surface-2 p-3 text-sm">{c.weak}</pre></div>
-              <div><p className="text-sm font-medium text-accent-text">PromptPilot prompt</p><pre data-testid="showcase-built" className="mt-1 max-h-72 overflow-auto whitespace-pre-wrap rounded-lg bg-surface-2 p-3 text-sm">{c.built}</pre></div>
+              <div><p className="text-sm font-medium text-accent-text">PromptPilot prompt</p><pre data-testid="showcase-built" className="mt-1 max-h-72 overflow-auto whitespace-pre-wrap rounded-lg bg-surface-2 p-3 text-sm" tabIndex={0} aria-label={`${c.title} PromptPilot prompt`}>{c.built}</pre></div>
             </div>
             <p className="mt-4 text-sm font-medium"><span className="badge">{c.outputLabel}</span></p>
             <pre className="mt-1 whitespace-pre-wrap rounded-lg border border-dashed border-line p-3 text-sm">{c.output}</pre>

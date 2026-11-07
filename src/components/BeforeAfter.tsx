@@ -19,7 +19,7 @@ export function SampleResponse({ text }: { text: string }) {
   return (
     <figure className="m-0">
       <figcaption className="text-xs font-medium text-subtle">Example output <span className="font-normal">({ILLUSTRATION_NOTE.replace(/^Example output, /, "").replace(/\.$/, "")})</span></figcaption>
-      <pre className="mt-1 max-h-64 overflow-auto rounded-xl border border-line bg-surface p-3 font-sans text-xs leading-relaxed whitespace-pre-wrap text-muted">{text}</pre>
+      <pre className="mt-1 max-h-64 overflow-auto rounded-xl border border-line bg-surface p-3 font-sans text-xs leading-relaxed whitespace-pre-wrap text-muted" tabIndex={0} aria-label="Example output">{text}</pre>
     </figure>
   );
 }

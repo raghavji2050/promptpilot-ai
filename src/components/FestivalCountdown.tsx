@@ -13,7 +13,7 @@ export function FestivalCountdown({ festival, serverToday }: { festival: Festiva
       {cd.phase === "upcoming"
         ? <><span className="block text-3xl font-semibold tabular-nums">{cd.days}</span><span className="text-xs">{cd.days === 1 ? "day to go" : "days to go"}</span></>
         : <span className="block text-sm font-semibold">{cd.label}</span>}
-      <span className="mt-0.5 block text-[11px] opacity-80">IST</span>
+      <span className="mt-0.5 block text-[11px] font-medium">IST</span>
     </p>
   );
 }

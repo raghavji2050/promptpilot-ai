@@ -15,7 +15,7 @@
   /* text */
   --fg: #111318;
   --fg-muted: #4b5262;
-  --fg-subtle: #6b7180;
+  --fg-subtle: #555b68;  /* WCAG AA ≥4.5:1 on --surface-2 (#f1f2f4) */
   /* single accent: indigo */
   --accent: #4f46e5;
   --accent-hover: #4338ca;
@@ -37,7 +37,7 @@
   --shadow-lg: 0 12px 24px -6px rgb(16 24 40 / 0.12), 0 4px 8px -4px rgb(16 24 40 / 0.06);
   --ease: cubic-bezier(0.2, 0, 0, 1);
   /* text-slate-400 is only used for small helper text; darken it to meet WCAG AA (4.5:1). */
-  --color-slate-400: #6b7180;
+  --color-slate-400: #555b68;
 }
 
 .dark {
@@ -177,7 +177,7 @@ p { text-wrap: pretty; }
   .badge-accent { background: var(--accent-soft); color: var(--accent-text); }
   .badge-free { background: var(--color-emerald-50); color: var(--color-emerald-700); }
   .eyebrow { @apply text-xs font-semibold tracking-wide uppercase; color: var(--accent-text); }
-  .link { color: var(--accent-text); @apply underline-offset-2 hover:underline; }
+  .link { color: var(--accent-text); text-decoration: underline; text-underline-offset: 2px; }
 
   .h1 { @apply text-3xl font-semibold tracking-tight sm:text-4xl; color: var(--fg); }
   .h2 { @apply text-2xl font-semibold tracking-tight; color: var(--fg); }

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildSkillMd, buildSnippet, chatgptSnippet, claudeSnippet, cursorRulePath, cursorSnippet, skillDescription, toSkillName, yamlString, SKILL_NAME_MAX } from "@/lib/export-formats";
+import { buildSkillMd, buildSnippet, chatgptSnippet, claudeSnippet, chatgptCustomInstructions, claudeProjectInstructions, cursorRulePath, cursorSnippet, skillDescription, toSkillName, yamlString, SKILL_NAME_MAX } from "@/lib/export-formats";
 
 /** Minimal frontmatter parser for one-line `key: value` pairs; double-quoted values parsed as JSON (valid YAML subset). */
 function frontmatter(md: string): { fm: Record<string, string>; body: string } {
@@ -75,5 +75,19 @@ describe("snippets", () => {
     expect(b.trim()).toBe("Act as a Laravel expert.\nFix the bug.");
     expect(cursorRulePath("Fix Laravel bug")).toBe(".cursor/rules/fix-laravel-bug.mdc");
     expect(buildSnippet("cursor", body, "Fix Laravel bug", "Fix Laravel bug")).toBe(s);
+  });
+  it("ChatGPT Custom Instructions is standing personalization text", () => {
+    const s = chatgptCustomInstructions(body, "Fix Laravel bug", "Fix Laravel bug");
+    expect(s).toContain('When helping with tasks related to "Fix Laravel bug"');
+    expect(s).toContain("Act as a Laravel expert.\nFix the bug.");
+    expect(s).toContain("standing instructions");
+    expect(buildSnippet("chatgpt-custom", body, "Fix Laravel bug", "Fix Laravel bug")).toBe(s);
+  });
+  it("Claude Project Instructions is standing project text", () => {
+    const s = claudeProjectInstructions(body, "Fix Laravel bug", "Fix Laravel bug");
+    expect(s.startsWith("Project focus: Fix Laravel bug")).toBe(true);
+    expect(s).toContain("Standing instructions for this project:");
+    expect(s).toContain("Act as a Laravel expert.\nFix the bug.");
+    expect(buildSnippet("claude-project", body, "Fix Laravel bug", "Fix Laravel bug")).toBe(s);
   });
 });

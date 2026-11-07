@@ -4,7 +4,7 @@ import { CopyButton } from "./CopyButton";
 import { useToast } from "./ui/Toast";
 import { SNIPPET_TARGETS, buildSkillMd, buildSnippet, cursorRulePath, type SnippetTarget } from "@/lib/export-formats";
 
-/** "Export as SKILL.md" download + "Use in ChatGPT / Claude / Cursor" tabs with a copy-ready snippet each. */
+/** "Export as SKILL.md" download + ChatGPT/Claude/Cursor tabs + Custom/Project Instructions with a copy-ready snippet each. */
 export function ExportTabs({ text, title, goal }: { text: string; title: string; goal?: string }) {
   const [active, setActive] = useState<SnippetTarget>("chatgpt");
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
@@ -36,13 +36,13 @@ export function ExportTabs({ text, title, goal }: { text: string; title: string;
   return (
     <div className="mt-4 rounded-lg border border-line p-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h3 className="text-sm font-semibold text-fg">Use in ChatGPT / Claude / Cursor</h3>
+        <h3 className="text-sm font-semibold text-fg">Export and standing instructions</h3>
         <button type="button" className="btn-secondary" disabled={empty} onClick={downloadSkill} aria-describedby={`${base}-skill-help`}>
           <span aria-hidden>⤓</span> Export as SKILL.md
         </button>
       </div>
       <p id={`${base}-skill-help`} className="mt-1 text-xs text-subtle">SKILL.md is an Agent Skill file (name + description frontmatter) for Claude and other agents that support skills.</p>
-      <div className="mt-3 flex flex-wrap gap-2" role="tablist" aria-label="Use this prompt in">
+      <div className="mt-3 flex flex-wrap gap-2" role="tablist" aria-label="Export formats">
         {SNIPPET_TARGETS.map((t, i) => (
           <button
             key={t.id}

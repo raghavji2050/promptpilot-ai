@@ -50,7 +50,7 @@ export function ComingUpInIndia({ festivals, serverToday }: { festivals: Festiva
                 ) : (
                   <span className="block text-sm font-semibold">{cd.label}</span>
                 )}
-                <span className="mt-0.5 block text-[11px] opacity-80">IST</span>
+                <span className="mt-0.5 block text-[11px] font-medium">IST</span>
               </p>
             </div>
             <p className="mt-4 text-sm text-muted">{f.summary}</p>

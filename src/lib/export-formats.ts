@@ -1,6 +1,8 @@
 /**
  * Day 7b: export a built prompt as an Agent Skill (SKILL.md) and as copy-ready snippets
- * for ChatGPT, Claude and Cursor. Pure functions, no network.
+ * for ChatGPT, Claude and Cursor. Day 12 suggestion: also standing Custom Instructions /
+ * Claude Project Instructions (portable personalization text, not a one-shot task paste).
+ * Pure functions, no network.
  */
 
 export const SKILL_NAME_MAX = 64;
@@ -50,12 +52,14 @@ export function buildSkillMd({ title, goal, body }: SkillInput): string {
   ].join("\n");
 }
 
-export type SnippetTarget = "chatgpt" | "claude" | "cursor";
+export type SnippetTarget = "chatgpt" | "claude" | "cursor" | "chatgpt-custom" | "claude-project";
 
 export const SNIPPET_TARGETS: { id: SnippetTarget; name: string; help: string }[] = [
   { id: "chatgpt", name: "ChatGPT", help: "Paste into a new ChatGPT chat, or into a custom GPT's instructions." },
   { id: "claude", name: "Claude", help: "Paste into a Claude chat or a Project's instructions. The XML tags help Claude separate instructions from your follow-ups." },
   { id: "cursor", name: "Cursor", help: "Save as a project rule file (path below), or paste the part after the second --- into Cursor chat." },
+  { id: "chatgpt-custom", name: "ChatGPT Custom Instructions", help: "Standing instructions for ChatGPT Settings → Custom instructions (\"How would you like ChatGPT to respond?\"). Applies to all chats; Free/Go ≤1,500 chars, Plus+ ≤5,000." },
+  { id: "claude-project", name: "Claude Project Instructions", help: "Standing project instructions for Claude Projects (apply only inside that project). Free users can have up to 5 projects." },
 ];
 
 export function chatgptSnippet(body: string): string {
@@ -83,8 +87,42 @@ export function cursorSnippet(body: string, title: string, goal?: string): strin
   ].join("\n");
 }
 
+/**
+ * Standing ChatGPT Custom Instructions text (not a one-shot task paste).
+ * Tuned for the "How would you like ChatGPT to respond?" field.
+ */
+export function chatgptCustomInstructions(body: string, title: string, goal?: string): string {
+  const focus = (goal ?? title).replace(/\s+/g, " ").trim() || "my work";
+  return [
+    `When helping with tasks related to "${focus}", follow these standing instructions:`,
+    "",
+    body.trim(),
+    "",
+    "Always ask clarifying questions when key details are missing. Do not invent facts, numbers, citations, or experience. Leave [placeholders] for anything I must fill in.",
+  ].join("\n");
+}
+
+/**
+ * Standing Claude Project Instructions (apply only within a Claude Project).
+ */
+export function claudeProjectInstructions(body: string, title: string, goal?: string): string {
+  const focus = title.replace(/\s+/g, " ").trim() || "Project";
+  const g = (goal ?? "").replace(/\s+/g, " ").trim();
+  return [
+    `Project focus: ${focus}${g && g !== focus ? ` (${g})` : ""}`,
+    "",
+    "Standing instructions for this project:",
+    "",
+    body.trim(),
+    "",
+    "If key details are missing, ask before answering. Never invent facts, numbers, or citations. Use [placeholders] for anything the user must supply.",
+  ].join("\n");
+}
+
 export function buildSnippet(target: SnippetTarget, body: string, title: string, goal?: string): string {
   if (target === "claude") return claudeSnippet(body);
   if (target === "cursor") return cursorSnippet(body, title, goal);
+  if (target === "chatgpt-custom") return chatgptCustomInstructions(body, title, goal);
+  if (target === "claude-project") return claudeProjectInstructions(body, title, goal);
   return chatgptSnippet(body);
 }
