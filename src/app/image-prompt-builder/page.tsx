@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { documentTitle } from "@/lib/seo";
 import { absoluteUrl, DEFAULT_OG_IMAGE } from "@/lib/site";
 
 const title = "Image Prompt Builder vs Prompt Galleries | PromptPilot AI";
 const description = "Prompt galleries let you copy other people's prompts. PromptPilot builds an image or reel prompt from your own goal, for Indian festivals, shops, weddings and reels.";
-export const metadata: Metadata = { title, description, alternates: { canonical: "/image-prompt-builder" }, openGraph: { images: [DEFAULT_OG_IMAGE], title, description, url: absoluteUrl("/image-prompt-builder") } };
+export const metadata: Metadata = { title: documentTitle(title), description, alternates: { canonical: "/image-prompt-builder" }, openGraph: { images: [DEFAULT_OG_IMAGE], title, description, url: absoluteUrl("/image-prompt-builder") } };
 
 export default function Page() {
   return (

@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ImageReelBuilder } from "@/components/ImageReelBuilder";
+import { documentTitle } from "@/lib/seo";
 import { absoluteUrl, DEFAULT_OG_IMAGE } from "@/lib/site";
 
 const title = "Image & Reel Prompt Builder for India (Free) | PromptPilot AI";
 const description = "Free prompt builder for festival posters, shop ads, WhatsApp status, shaadi invites and Instagram reels. Output for Midjourney, Gemini / Nano Banana, DALL·E and Sora / Veo / Runway. Hinglish input works.";
-export const metadata: Metadata = { title, description, alternates: { canonical: "/image-reel-builder" }, openGraph: { images: [DEFAULT_OG_IMAGE], title, description, url: absoluteUrl("/image-reel-builder") } };
+export const metadata: Metadata = { title: documentTitle(title), description, alternates: { canonical: "/image-reel-builder" }, openGraph: { images: [DEFAULT_OG_IMAGE], title, description, url: absoluteUrl("/image-reel-builder") } };
 
 type SP = Record<string, string | string[] | undefined>;
 export default async function Page({ searchParams }: { searchParams: Promise<SP> }) {

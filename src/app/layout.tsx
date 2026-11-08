@@ -5,6 +5,7 @@ import { Analytics } from "@vercel/analytics/next";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { JsonLd } from "@/components/JsonLd";
+import { TITLE_TEMPLATE } from "@/lib/seo";
 import { SITE, DEFAULT_OG_IMAGE } from "@/lib/site";
 import { ToastProvider } from "@/components/ui/Toast";
 import { THEME_INIT_SCRIPT } from "@/components/ui/ThemeToggle";
@@ -14,7 +15,7 @@ const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"]
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),
-  title: { default: `${SITE.name}: Turn Any Idea Into the Perfect AI Prompt`, template: `%s | ${SITE.name}` },
+  title: { default: `${SITE.name}: Turn Any Idea Into the Perfect AI Prompt`, template: TITLE_TEMPLATE },
   description: SITE.description,
   applicationName: SITE.name,
   openGraph: { type: "website", siteName: SITE.name, title: SITE.name, description: SITE.description, url: SITE.url, images: [DEFAULT_OG_IMAGE] },
