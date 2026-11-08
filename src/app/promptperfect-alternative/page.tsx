@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { documentTitle } from "@/lib/seo";
 import { absoluteUrl, DEFAULT_OG_IMAGE } from "@/lib/site";
 
 const title = "PromptPerfect Alternative (Free, No Signup) | PromptPilot AI";
 const description = "PromptPerfect is no longer available. PromptPilot AI is a free prompt builder for ChatGPT, Claude, Gemini and Cursor: no signup, no API key, Hinglish input.";
 
 export const metadata: Metadata = {
-  title, description,
+  title: documentTitle(title), description,
   alternates: { canonical: "/promptperfect-alternative" },
   openGraph: { images: [DEFAULT_OG_IMAGE], title, description, url: absoluteUrl("/promptperfect-alternative") },
 };
