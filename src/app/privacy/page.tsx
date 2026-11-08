@@ -1,8 +1,8 @@
-import type { Metadata } from "next";
 import Link from "next/link";
+import { pageMeta } from "@/lib/seo";
 import { SITE, OWNER } from "@/lib/site";
 
-export const metadata: Metadata = { title: "Privacy Policy", description: "How PromptPilot handles your data.", alternates: { canonical: "/privacy" } };
+export const metadata = pageMeta({ title: "Privacy Policy", description: "How PromptPilot handles your data.", path: "/privacy" });
 
 export default function PrivacyPage() {
   return (

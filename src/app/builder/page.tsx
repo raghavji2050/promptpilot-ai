@@ -4,6 +4,7 @@ import { UniversalBuilder } from "@/components/UniversalBuilder";
 import { fromShareParams, TARGETS } from "@/lib/engine";
 import { getCategory } from "@/lib/categories";
 import { cardUrl } from "@/lib/share";
+import { pageMeta } from "@/lib/seo";
 
 const TITLE = "Free AI Prompt Builder for ChatGPT, Claude, Gemini, Grok & More";
 const DESCRIPTION = "Describe your goal in plain language and get a clear, structured prompt for ChatGPT, Claude, Gemini, Grok, Perplexity, image and video tools. Free, no sign-up, no API key.";
@@ -13,7 +14,7 @@ type SP = Record<string, string | string[] | undefined>;
 /** Shared prompt links (?goal=…) get a Before vs After card as their social preview image. */
 export async function generateMetadata({ searchParams }: { searchParams: Promise<SP> }): Promise<Metadata> {
   const sp = await searchParams;
-  const base: Metadata = { title: TITLE, description: DESCRIPTION, alternates: { canonical: "/builder" } };
+  const base: Metadata = pageMeta({ title: TITLE, description: DESCRIPTION, path: "/builder" });
   const get = (k: string) => { const v = sp[k]; return Array.isArray(v) ? v[0] : v; };
   const initial = fromShareParams(get, Object.keys(sp));
   if (!initial.goal) return base;

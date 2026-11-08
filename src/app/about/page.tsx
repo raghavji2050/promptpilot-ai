@@ -1,13 +1,13 @@
-import type { Metadata } from "next";
 import Link from "next/link";
+import { pageMeta } from "@/lib/seo";
 import { OWNER, SITE, isPlaceholder } from "@/lib/site";
 import { ALL_PROMPTS } from "@/content";
 
-export const metadata: Metadata = {
+export const metadata = pageMeta({
   title: "About PromptPilot AI",
   description: "Who makes PromptPilot AI, why it exists, what is free, and our privacy promise.",
-  alternates: { canonical: "/about" },
-};
+  path: "/about",
+});
 
 export default function AboutPage() {
   return (

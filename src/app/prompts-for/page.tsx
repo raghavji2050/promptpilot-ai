@@ -1,12 +1,12 @@
-import type { Metadata } from "next";
 import Link from "next/link";
 import { USE_CASES } from "@/content/use-cases";
+import { pageMeta } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata = pageMeta({
   title: "AI Prompts by Use Case: Creators, Businesses, Students & More",
   description: "Practical AI prompt guides for content creators, small businesses, students, job interviews, image generation, marketing, productivity and research.",
-  alternates: { canonical: "/prompts-for" },
-};
+  path: "/prompts-for",
+});
 
 export default function UseCasesIndex() {
   return (

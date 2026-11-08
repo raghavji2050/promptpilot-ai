@@ -6,6 +6,7 @@ import { JsonLd } from "@/components/JsonLd";
 import { PromptCard } from "@/components/PromptCard";
 import { DEVELOPER_PROMPTS } from "@/content";
 import { STACKS, type StackId } from "@/lib/engine";
+import { pageMeta } from "@/lib/seo";
 import { absoluteUrl } from "@/lib/site";
 
 export const dynamicParams = false;
@@ -18,11 +19,11 @@ export async function generateMetadata({ params }: { params: Promise<{ stack: st
   const { stack } = await params;
   const s = STACKS.find((x) => x.id === stack);
   if (!s) return {};
-  return {
+  return pageMeta({
     title: `${s.name} AGENTS.md, CLAUDE.md & Cursor Rules Generator`,
     description: `Answer a few questions about your ${s.name} project and download AGENTS.md, CLAUDE.md and .cursor/rules files tailored to it. Free, runs in your browser.`,
-    alternates: { canonical: `/agent-templates/${s.id}` },
-  };
+    path: `/agent-templates/${s.id}`,
+  });
 }
 
 export default async function StackPage({ params }: { params: Promise<{ stack: string }> }) {

@@ -1,14 +1,14 @@
-import type { Metadata } from "next";
 import { StudioComposer } from "@/components/StudioComposer";
 import { LibraryBrowser } from "@/components/LibraryBrowser";
 import { ALL_PROMPTS } from "@/content";
 import Link from "next/link";
+import { pageMeta } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata = pageMeta({
   title: "Instagram Studio: Gemini & ChatGPT Photo Editing Prompts (English & Hindi)",
   description: "Compose photo-edit prompts for Gemini and ChatGPT with identity preservation built in: retro, poster, headshot, festive styles, 4:5 and 9:16 formats. English and Hindi.",
-  alternates: { canonical: "/instagram-studio" },
-};
+  path: "/instagram-studio",
+});
 
 export default function InstagramStudioPage() {
   return (

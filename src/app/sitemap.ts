@@ -7,11 +7,12 @@ import { absoluteUrl, SITE } from "@/lib/site";
 import { FESTIVALS } from "@/lib/festivals";
 import { FESTIVAL_TOPICS } from "@/content/festival-topics";
 
+export const SITEMAP_STATIC_PATHS = ["/", "/builder", "/library", "/categories", "/prompts-for", "/enhancer", "/instagram-studio", "/trending", "/agent-templates", "/developer-prompts", "/builder/classic", "/pricing", "/privacy", "/terms", "/tools", "/festivals", "/packs", "/packs/job-hunting", "/packs/students", "/packs/small-business", "/packs/freelancers", "/packs/app-builder", "/promptperfect-alternative", "/image-reel-builder", "/image-prompt-builder", "/showcase", "/extension", "/about", "/contact"] as const;
+
 export default function sitemap(): MetadataRoute.Sitemap {
   const lastModified = SITE.lastReviewed;
-  const staticPaths = ["/", "/builder", "/library", "/categories", "/prompts-for", "/enhancer", "/instagram-studio", "/trending", "/agent-templates", "/developer-prompts", "/builder/classic", "/pricing", "/privacy", "/terms", "/tools", "/festivals", "/packs", "/packs/job-hunting", "/packs/students", "/packs/small-business", "/packs/freelancers", "/packs/app-builder", "/promptperfect-alternative", "/image-reel-builder", "/image-prompt-builder", "/showcase", "/extension", "/about", "/contact"];
   return [
-    ...staticPaths.map((p) => ({ url: absoluteUrl(p), lastModified, changeFrequency: (p === "/trending" ? "weekly" : "monthly") as "weekly" | "monthly", priority: p === "/" ? 1 : 0.8 })),
+    ...SITEMAP_STATIC_PATHS.map((p) => ({ url: absoluteUrl(p), lastModified, changeFrequency: (p === "/trending" ? "weekly" : "monthly") as "weekly" | "monthly", priority: p === "/" ? 1 : 0.8 })),
     ...FESTIVALS.map((f) => ({ url: absoluteUrl(`/festivals/${f.slug}`), lastModified: "2026-10-18", changeFrequency: "weekly" as const, priority: 0.8 })),
     ...FESTIVAL_TOPICS.map((t) => ({ url: absoluteUrl(`/festivals/${t.festival}/${t.topic}`), lastModified: "2026-10-18", changeFrequency: "weekly" as const, priority: 0.8 })),
     ...USE_CASES.map((u) => ({ url: absoluteUrl(`/prompts-for/${u.slug}`), lastModified, changeFrequency: "monthly" as const, priority: 0.9 })),

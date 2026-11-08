@@ -1,12 +1,12 @@
-import type { Metadata } from "next";
 import Link from "next/link";
 import { PromptBuilder } from "@/components/PromptBuilder";
+import { pageMeta } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata = pageMeta({
   title: "Classic Template Prompt Builder",
   description: "Fixed templates for cold emails, blog outlines, summaries, research briefs, study plans, coding tasks, image and video prompts.",
-  alternates: { canonical: "/builder/classic" },
-};
+  path: "/builder/classic",
+});
 
 export default function ClassicBuilderPage() {
   return (

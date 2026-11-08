@@ -14,6 +14,7 @@ import { FavoriteButton } from "@/components/FavoriteButton";
 import { TrendBadge } from "@/components/TrendBadge";
 import { PromptCard } from "@/components/PromptCard";
 import { JsonLd } from "@/components/JsonLd";
+import { pageMeta } from "@/lib/seo";
 import { absoluteUrl } from "@/lib/site";
 
 export const dynamicParams = false;
@@ -26,7 +27,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const p = getPrompt(slug);
   if (!p) return {};
-  return { title: `${p.title} Prompt`, description: p.summary, alternates: { canonical: `/p/${p.slug}` } };
+  return pageMeta({ title: `${p.title} Prompt`, description: p.summary, path: `/p/${p.slug}` });
 }
 
 

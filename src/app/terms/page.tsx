@@ -1,7 +1,7 @@
-import type { Metadata } from "next";
+import { pageMeta } from "@/lib/seo";
 import { SITE } from "@/lib/site";
 
-export const metadata: Metadata = { title: "Terms of Use", description: "Terms for using PromptPilot.", alternates: { canonical: "/terms" } };
+export const metadata = pageMeta({ title: "Terms of Use", description: "Terms for using PromptPilot.", path: "/terms" });
 
 export default function TermsPage() {
   return (

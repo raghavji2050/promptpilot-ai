@@ -5,6 +5,7 @@ import { CATEGORIES, getCategory } from "@/lib/categories";
 import { promptsForCategory } from "@/content";
 import { PromptCard } from "@/components/PromptCard";
 import { JsonLd } from "@/components/JsonLd";
+import { pageMeta } from "@/lib/seo";
 import { absoluteUrl, builderHref } from "@/lib/site";
 
 export const dynamicParams = false;
@@ -13,7 +14,7 @@ export function generateStaticParams() { return CATEGORIES.map((c) => ({ id: c.i
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const c = getCategory((await params).id);
   if (!c) return {};
-  return { title: `${c.name} AI Prompts`, description: `${c.description} Free prompt builder and ready-made prompts for ChatGPT, Claude, Gemini and Grok.`, alternates: { canonical: `/categories/${c.id}` } };
+  return pageMeta({ title: `${c.name} AI Prompts`, description: `${c.description} Free prompt builder and ready-made prompts for ChatGPT, Claude, Gemini and Grok.`, path: `/categories/${c.id}` });
 }
 
 const EXTRA: Partial<Record<string, { href: string; title: string; body: string }[]>> = {

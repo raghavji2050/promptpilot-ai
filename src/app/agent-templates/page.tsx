@@ -1,12 +1,12 @@
-import type { Metadata } from "next";
 import Link from "next/link";
 import { STACKS } from "@/lib/engine";
+import { pageMeta } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata = pageMeta({
   title: "AGENTS.md, CLAUDE.md & Cursor Rules Generator for Laravel, Node.js, Next.js",
   description: "Generate coding-agent context files for your stack: AGENTS.md, CLAUDE.md, .cursor/rules/*.mdc, a code-reviewer subagent and slash commands. Free ZIP download.",
-  alternates: { canonical: "/agent-templates" },
-};
+  path: "/agent-templates",
+});
 
 export default function AgentTemplatesPage() {
   return (

@@ -1,11 +1,11 @@
-import type { Metadata } from "next";
 import Link from "next/link";
+import { pageMeta } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata = pageMeta({
   title: "Improve my prompt: free Chrome extension | PromptPilot AI",
   description: "A small, free Chrome extension that improves any selected prompt with PromptPilot AI. Install it unpacked; not on the Chrome Web Store.",
-  alternates: { canonical: "/extension" },
-};
+  path: "/extension",
+});
 
 export default function ExtensionPage() {
   return (

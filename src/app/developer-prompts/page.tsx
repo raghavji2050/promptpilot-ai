@@ -1,13 +1,13 @@
-import type { Metadata } from "next";
 import Link from "next/link";
 import { LibraryBrowser } from "@/components/LibraryBrowser";
 import { ALL_PROMPTS } from "@/content";
+import { pageMeta } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata = pageMeta({
   title: "Developer Prompts for Cursor, Claude Code & ChatGPT (Laravel, Node, Next.js)",
   description: "Copy-ready coding prompts for bug fixes, refactors, tests, migrations, code review and security audits. Each prompt names the failure mode it prevents.",
-  alternates: { canonical: "/developer-prompts" },
-};
+  path: "/developer-prompts",
+});
 
 export default function DeveloperPromptsPage() {
   return (

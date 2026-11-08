@@ -1,11 +1,11 @@
-import type { Metadata } from "next";
 import { EnhancerClient } from "@/components/EnhancerClient";
+import { pageMeta } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata = pageMeta({
   title: "Prompt Enhancer: Analyse & Improve Any AI Prompt",
   description: "Paste a prompt to get a rule-based analysis (missing context, format, constraints) and instant improve, shorten, expand and adapt actions. Optional LLM polish with your own API key.",
-  alternates: { canonical: "/enhancer" },
-};
+  path: "/enhancer",
+});
 
 export default function EnhancerPage() {
   return (

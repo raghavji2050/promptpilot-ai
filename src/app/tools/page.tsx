@@ -1,12 +1,12 @@
-import type { Metadata } from "next";
 import Link from "next/link";
 import { ALL_PROMPTS } from "@/content";
+import { pageMeta } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata = pageMeta({
   title: "AI Tools: Prompt Builder, Library, Enhancer, Instagram Studio & More",
   description: "Free PromptPilot tools: build prompts for any AI, browse a prompt library, check and enhance prompts, Instagram photo-edit prompts, and coding-agent kits.",
-  alternates: { canonical: "/tools" },
-};
+  path: "/tools",
+});
 
 const TOOLS = [
   { href: "/builder", icon: "✦", title: "Prompt Builder", body: "Describe a goal, pick an AI and get a structured prompt. Refine tone, length, language and format, then copy or try it.", api: "No external API" },

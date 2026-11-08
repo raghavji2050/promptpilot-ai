@@ -1,15 +1,15 @@
-import type { Metadata } from "next";
 import Link from "next/link";
 import { LibraryBrowser } from "@/components/LibraryBrowser";
 import { ALL_PROMPTS, searchLibrary } from "@/content";
 import { PromptCard } from "@/components/PromptCard";
 import { getCategory, findSubcategory } from "@/lib/categories";
+import { pageMeta } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata = pageMeta({
   title: "AI Prompt Library: Free Prompts for Work, Study, Content & More",
   description: "Search free, ready-to-use AI prompts for social media, business, writing, learning, images, coding, careers, productivity, data and personal finance. Filter by category, platform, language and output type.",
-  alternates: { canonical: "/library" },
-};
+  path: "/library",
+});
 
 type SP = Record<string, string | string[] | undefined>;
 

@@ -1,12 +1,12 @@
-import type { Metadata } from "next";
 import Link from "next/link";
 import { WaitlistForm } from "@/components/WaitlistForm";
+import { pageMeta } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata = pageMeta({
   title: "Pricing: Free now, Pro coming soon",
   description: "PromptPilot is free to use today. A Pro plan is coming soon; there is no price and no payment option yet.",
-  alternates: { canonical: "/pricing" },
-};
+  path: "/pricing",
+});
 
 const FREE = [
   "Prompt Builder for every category and AI: ChatGPT, Claude, Gemini, Grok, Midjourney, video tools, Cursor",

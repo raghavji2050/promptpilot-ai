@@ -1,12 +1,12 @@
-import type { Metadata } from "next";
 import Link from "next/link";
 import { CATEGORIES } from "@/lib/categories";
+import { pageMeta } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata = pageMeta({
   title: "Prompt Categories: Find Prompts for Any Goal",
   description: "Browse AI prompt categories: social media, business, writing, learning, image and video, coding, career, productivity, data and research, finance and general knowledge.",
-  alternates: { canonical: "/categories" },
-};
+  path: "/categories",
+});
 
 export default function CategoriesPage() {
   return (

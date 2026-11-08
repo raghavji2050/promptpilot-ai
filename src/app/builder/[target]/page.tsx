@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { UniversalBuilder } from "@/components/UniversalBuilder";
 import { JsonLd } from "@/components/JsonLd";
 import { TARGETS } from "@/lib/engine";
+import { pageMeta } from "@/lib/seo";
 import { absoluteUrl, SITE } from "@/lib/site";
 
 const GUIDE: Record<string, string[]> = {
@@ -30,11 +31,11 @@ export async function generateMetadata({ params }: { params: Promise<{ target: s
   const t = TARGETS.find((x) => x.id === target);
   if (!t) return {};
   const name = t.name.split(" (")[0];
-  return {
+  return pageMeta({
     title: `${name} Prompt Generator: Free Template Builder`,
     description: `Build structured prompts for ${name}. ${t.note} Free, deterministic and no sign-up.`,
-    alternates: { canonical: `/builder/${t.id}` },
-  };
+    path: `/builder/${t.id}`,
+  });
 }
 
 export default async function TargetBuilderPage({ params }: { params: Promise<{ target: string }> }) {

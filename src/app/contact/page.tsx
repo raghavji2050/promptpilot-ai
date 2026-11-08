@@ -1,12 +1,12 @@
-import type { Metadata } from "next";
 import Link from "next/link";
+import { pageMeta } from "@/lib/seo";
 import { OWNER, SITE, isPlaceholder } from "@/lib/site";
 
-export const metadata: Metadata = {
+export const metadata = pageMeta({
   title: "Contact",
   description: `Contact the ${SITE.name} team for feedback, bug reports, data deletion or partnerships.`,
-  alternates: { canonical: "/contact" },
-};
+  path: "/contact",
+});
 
 export default function ContactPage() {
   const ph = isPlaceholder(OWNER.contactEmail);

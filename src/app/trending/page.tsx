@@ -1,15 +1,15 @@
-import type { Metadata } from "next";
 import Link from "next/link";
 import { ALL_PROMPTS, type TrendStatus } from "@/content";
 const SOCIAL_PROMPTS = ALL_PROMPTS.filter((p) => p.kind === "social");
 import { PromptCard } from "@/components/PromptCard";
+import { pageMeta } from "@/lib/seo";
 import { SITE } from "@/lib/site";
 
-export const metadata: Metadata = {
+export const metadata = pageMeta({
   title: "Trending AI Photo Prompts (Dated & Sourced)",
   description: "AI photo and video prompt formats labelled honestly: dated reported trends with sources, seasonal themes, and evergreen formats. No invented view counts.",
-  alternates: { canonical: "/trending" },
-};
+  path: "/trending",
+});
 
 const GROUPS: { status: TrendStatus; title: string; blurb: string }[] = [
   { status: "current", title: "Reported recently", blurb: "A third-party publication reported these as trending around the date shown. We link the source; we have not measured views or reach ourselves." },

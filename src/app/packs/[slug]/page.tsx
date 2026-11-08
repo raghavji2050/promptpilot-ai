@@ -1,19 +1,20 @@
-import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { MORE_PACKS } from "@/content/more-packs";
 import { buildUniversal, toShareParams } from "@/lib/engine/universal";
 import { PackTemplateCard } from "@/components/PackTemplateCard";
-import { absoluteUrl } from "@/lib/site";
+import { JsonLd } from "@/components/JsonLd";
+import { pageMeta } from "@/lib/seo";
+import { morePackJsonLd } from "@/lib/seo-jsonld";
 
 export const dynamicParams = false;
 export function generateStaticParams() { return MORE_PACKS.map((p) => ({ slug: p.slug })); }
 
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const p = MORE_PACKS.find((x) => x.slug === slug);
   if (!p) return {};
-  return { title: p.title, description: p.lead, alternates: { canonical: `/packs/${p.slug}` }, openGraph: { title: p.title, description: p.lead, url: absoluteUrl(`/packs/${p.slug}`) } };
+  return pageMeta({ title: p.title, description: p.lead, path: `/packs/${p.slug}`, images: "file" });
 }
 
 export default async function PackPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -21,8 +22,10 @@ export default async function PackPage({ params }: { params: Promise<{ slug: str
   const p = MORE_PACKS.find((x) => x.slug === slug);
   if (!p) notFound();
   const items = p.items.map((t) => ({ ...t, text: buildUniversal(t.input).text, href: `/builder#${toShareParams(t.input).toString()}` }));
+  const jsonLd = morePackJsonLd(p.slug);
   return (
     <div className="mx-auto max-w-5xl px-4 py-10">
+      {jsonLd ? <JsonLd data={jsonLd} /> : null}
       <p className="badge">✔ Work-safe, tested templates</p>
       <h1 className="h1 mt-3">{p.heading}</h1>
       <p className="lead">{p.lead}</p>
