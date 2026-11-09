@@ -51,6 +51,12 @@ Copy `.env.example` to `.env.local`. Every variable is optional. The template bu
 
 The publishable key is meant for the browser. The service-role key stays on the server. `/api/health` reports whether Supabase and the service role are configured, and does not return secret values.
 
+## Operations
+
+Deploy, rollback, health checks, keys and incident fixes are in [`docs/RUNBOOK.md`](docs/RUNBOOK.md). Performance notes: [`docs/PERFORMANCE.md`](docs/PERFORMANCE.md). Production plan: [`docs/PRODUCTION_PLAN.md`](docs/PRODUCTION_PLAN.md).
+
+Requires Node.js 22 (same as CI). From a fresh clone with no `.env.local`, `npm ci && npm run check && npm run build && npm start` works; every feature that needs a key shows a clear "not configured" state instead of failing.
+
 ## Layout
 
 - `src/lib/engine/` — template engine (targets, render, analyzer, agent kit, universal builder, image/reel)
@@ -67,5 +73,5 @@ The publishable key is meant for the browser. The service-role key stays on the 
 - Payments are not implemented.
 - Turnstile is implemented and off unless its env vars are set.
 - There is no Cloudflare Workers adapter (OpenNext or vinext).
-- Privacy and Terms are drafts and need legal review.
+- Privacy and Terms are drafts and need legal review. They were updated on 9 Nov 2026 for the Run button, hashed fair-use counters, server logs and Vercel Web Analytics.
 - The logger redacts field names that look like keys, tokens, secrets or passwords. It does not scan free-text error messages.

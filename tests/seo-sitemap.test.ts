@@ -47,9 +47,9 @@ describe("sitemap", () => {
   });
 
   it("uses the current lastReviewed date as lastmod for static paths", () => {
-    expect(SITE.lastReviewed).toBe("2026-11-08");
+    expect(SITE.lastReviewed).toBe("2026-11-09");
     const home = entries.find((e) => e.url === absoluteUrl("/"));
-    expect(home?.lastModified).toBe("2026-11-08");
+    expect(home?.lastModified).toBe("2026-11-09");
   });
 });
 

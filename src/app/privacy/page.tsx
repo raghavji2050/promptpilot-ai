@@ -21,8 +21,13 @@ export default function PrivacyPage() {
       <p>When you use &ldquo;Enhance with LLM&rdquo;, your prompt and API key are sent to our server for that single request and forwarded to the provider you chose (OpenAI, Anthropic, xAI or the URL you entered). We do not store or log the key or the prompt. The provider&apos;s own privacy policy applies to what they receive. If you tick &ldquo;Remember in this browser&rdquo;, the key is stored in your browser&apos;s localStorage on your device.</p>
       <h2>Accounts</h2>
       <p>If you sign in, we store your email address and the data you save. You can delete saved prompts at any time from the dashboard. Contact us to delete your account.</p>
+      <h2 id="run">Run button (free AI run)</h2>
+      <p>When the Run button is switched on and you press it, the prompt text you run is sent to our server and forwarded to one free AI provider for that single request: Groq first, then Cloudflare Workers AI if Groq is unavailable (and Google Gemini only if we turn it on; it is off by default and never used in regions where its free tier is not offered). The provider&apos;s own privacy policy applies to what they receive. We do not save the prompt or the reply on our servers. If a bot check is shown, it is Cloudflare Turnstile, which receives the check token and your IP address from Cloudflare&apos;s widget.</p>
+      <p>To enforce fair-use limits we store a daily counter per visitor. The key is a one-way hash of your IP address mixed with a salt that changes every day (or your account id if you are signed in), so we do not store raw IP addresses and the hashes cannot be linked across days. The same hashed counters limit &ldquo;Enhance with LLM&rdquo; and share-card requests.</p>
+      <h2>Server logs</h2>
+      <p>Our API routes write one line per request to our hosting provider&apos;s logs (Vercel): method, path, status, duration and a random request id. Fields that look like keys, tokens or passwords are redacted. Prompt text is not written to these logs. Like any website, our host also keeps standard request logs (which include IP addresses) under its own policy.</p>
       <h2>Analytics and cookies</h2>
-      <p>This version does not include third-party analytics or advertising. Sign-in (if enabled) uses storage needed to keep you logged in.</p>
+      <p>We use Vercel Web Analytics to count page views. According to <a className="link" href="https://vercel.com/docs/analytics/privacy-policy" rel="noopener noreferrer">Vercel&apos;s analytics privacy notes</a>, it does not use third-party cookies, identifies visitors by a hash created from the incoming request, and discards visitor sessions after 24 hours. Each page view records the page path, referrer, approximate location (country/region/city), browser, OS and device type. There is no advertising or third-party tracking. Sign-in (if enabled) uses browser storage needed to keep you logged in. Your theme choice, prompts you save while signed out, and an API key only if you tick &ldquo;Remember in this browser&rdquo;, stay in your browser&apos;s localStorage.</p>
       <h2>Photos</h2>
       <p>We never receive your photos. Instagram Studio prompts are pasted into third-party tools (e.g. Gemini, ChatGPT) where you upload photos under their terms. Only edit images of people who consented.</p>
       <h2 id="dpdp">Your rights in India (DPDP Act, 2023)</h2>
@@ -33,7 +38,8 @@ export default function PrivacyPage() {
         <li><strong>Saved prompts (signed in):</strong> the title, prompt text, builder settings and share settings you save.</li>
         <li><strong>Short share links:</strong> the builder settings you chose to share. They aren&apos;t linked to your account.</li>
         <li><strong>Pro waitlist:</strong> your email, your consent, and the date you joined. We use it only to tell you when Pro launches.</li>
-        <li><strong>Not stored by us:</strong> text in the builder while you are signed out, prompts saved in your browser (localStorage), photos, and API keys.</li>
+        <li><strong>Fair-use counters:</strong> a daily, salted hash of your IP address (or your account id) with a count per feature. Old days are not needed for limits.</li>
+        <li><strong>Not stored by us:</strong> text in the builder while you are signed out, prompts you Run or Enhance, prompts saved in your browser (localStorage), photos, and API keys.</li>
       </ul>
       <h3>Where it is stored</h3>
       <p>Our database runs on Supabase in the <strong>South Asia (Mumbai)</strong> region. The website is hosted on Vercel.</p>
