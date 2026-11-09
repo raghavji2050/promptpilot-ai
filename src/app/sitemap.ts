@@ -7,7 +7,7 @@ import { absoluteUrl, SITE } from "@/lib/site";
 import { FESTIVALS } from "@/lib/festivals";
 import { FESTIVAL_TOPICS } from "@/content/festival-topics";
 
-export const SITEMAP_STATIC_PATHS = ["/", "/builder", "/library", "/categories", "/prompts-for", "/enhancer", "/instagram-studio", "/trending", "/agent-templates", "/developer-prompts", "/builder/classic", "/pricing", "/privacy", "/terms", "/tools", "/festivals", "/packs", "/packs/job-hunting", "/packs/students", "/packs/small-business", "/packs/freelancers", "/packs/app-builder", "/promptperfect-alternative", "/image-reel-builder", "/image-prompt-builder", "/showcase", "/extension", "/about", "/contact"] as const;
+export const SITEMAP_STATIC_PATHS = ["/", "/builder", "/library", "/categories", "/prompts-for", "/enhancer", "/instagram-studio", "/trending", "/agent-templates", "/agent-builder", "/developer-prompts", "/builder/classic", "/pricing", "/privacy", "/terms", "/tools", "/festivals", "/packs", "/packs/job-hunting", "/packs/students", "/packs/small-business", "/packs/freelancers", "/packs/app-builder", "/promptperfect-alternative", "/image-reel-builder", "/image-prompt-builder", "/showcase", "/extension", "/about", "/contact"] as const;
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const lastModified = SITE.lastReviewed;

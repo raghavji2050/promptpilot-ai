@@ -76,7 +76,7 @@ export default async function Home() {
       <ComingUpInIndia festivals={festivals} serverToday={istToday()} />
 
       {/* ---------------------------------------------------------------- how it works */}
-      <section className="section" aria-labelledby="how">
+      <section className="cv-auto section" aria-labelledby="how">
         <p className="eyebrow">How it works</p>
         <h2 id="how" className="h2 mt-2">From rough idea to a clear prompt in seconds</h2>
         <ol className="mt-8 grid gap-4 md:grid-cols-3">
@@ -91,7 +91,7 @@ export default async function Home() {
       </section>
 
       {/* ---------------------------------------------------------------- before vs after */}
-      <section className="border-y border-line bg-surface" aria-labelledby="examples">
+      <section className="cv-auto border-y border-line bg-surface" aria-labelledby="examples">
         <div className="section">
           <p className="eyebrow">Before vs after</p>
           <h2 id="examples" className="h2 mt-2">Same request, two prompts. See the difference.</h2>
@@ -101,7 +101,7 @@ export default async function Home() {
       </section>
 
       {/* ---------------------------------------------------------------- categories */}
-      <section className="section" aria-labelledby="cats">
+      <section className="cv-auto section" aria-labelledby="cats">
         <div className="flex flex-wrap items-end justify-between gap-2">
           <div><p className="eyebrow">Categories</p><h2 id="cats" className="h2 mt-2">Prompts for every part of life and work</h2></div>
           <Link href="/categories" className="link text-sm font-medium">All categories →</Link>
@@ -112,7 +112,7 @@ export default async function Home() {
       </section>
 
       {/* ---------------------------------------------------------------- tools */}
-      <section className="section !pt-0" aria-labelledby="tools">
+      <section className="cv-auto section !pt-0" aria-labelledby="tools">
         <p className="eyebrow">AI tools</p>
         <h2 id="tools" className="h2 mt-2">Free tools</h2>
         <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -127,7 +127,7 @@ export default async function Home() {
       </section>
 
       {/* ---------------------------------------------------------------- recent */}
-      <section className="section !pt-0" aria-labelledby="recent">
+      <section className="cv-auto section !pt-0" aria-labelledby="recent">
         <div className="flex flex-wrap items-end justify-between gap-2">
           <div><p className="eyebrow">Library</p><h2 id="recent" className="h2 mt-2">Recently added prompts</h2></div>
           <Link href="/library" className="link text-sm font-medium">Browse all {ALL_PROMPTS.length} →</Link>
@@ -136,7 +136,7 @@ export default async function Home() {
       </section>
 
       {/* ---------------------------------------------------------------- privacy + external APIs */}
-      <section className="border-y border-line bg-surface" aria-labelledby="privacy">
+      <section className="cv-auto border-y border-line bg-surface" aria-labelledby="privacy">
         <div className="section grid gap-10 lg:grid-cols-2">
           <div>
             <p className="eyebrow">Privacy & data</p>
@@ -167,7 +167,7 @@ export default async function Home() {
       </section>
 
       {/* ---------------------------------------------------------------- FAQ */}
-      <section className="section max-w-3xl" aria-labelledby="faq">
+      <section className="cv-auto section max-w-3xl" aria-labelledby="faq">
         <p className="eyebrow text-center">FAQ</p>
         <h2 id="faq" className="h2 mt-2 text-center">Questions, answered honestly</h2>
         <div className="mt-8 divide-y divide-[var(--border)] rounded-2xl border border-line bg-surface">
@@ -183,7 +183,7 @@ export default async function Home() {
       </section>
 
       {/* ---------------------------------------------------------------- CTA */}
-      <section className="section !pt-0 text-center">
+      <section className="cv-auto section !pt-0 text-center">
         <div className="card px-6 py-12">
           <h2 className="h2">Ready to write a better prompt?</h2>
           <p className="mx-auto mt-2 max-w-xl text-muted">It takes one sentence. No account, no API key.</p>

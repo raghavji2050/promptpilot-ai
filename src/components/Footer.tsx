@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { SITE } from "@/lib/site";
+import { AGENT_TAGLINE } from "@/lib/agent-builder";
 import { CATEGORIES } from "@/lib/categories";
 import { USE_CASES } from "@/content/use-cases";
 
@@ -9,7 +10,7 @@ export function Footer() {
       <div className="mx-auto grid max-w-6xl gap-8 px-4 py-10 text-sm sm:grid-cols-2 lg:grid-cols-5">
         <div>
           <p className="font-semibold text-slate-900">{SITE.name}</p>
-          <p className="mt-2 text-slate-600">Create better AI prompts for anything. Free, works in your browser, no API key needed.</p>
+          <p className="mt-2 text-slate-600">{AGENT_TAGLINE} Free, works in your browser, no API key needed.</p>
         </div>
         <div>
           <p className="font-semibold text-slate-900">Tools</p>
@@ -23,6 +24,7 @@ export function Footer() {
             <li><Link href="/enhancer">Prompt Enhancer</Link></li>
             <li><Link href="/instagram-studio">Instagram Studio</Link></li>
             <li><Link href="/image-reel-builder">Image &amp; Reel builder</Link></li>
+            <li><Link href="/agent-builder">AI agent builder</Link></li>
             <li><Link href="/agent-templates">Coding agent kit</Link></li>
             <li><Link href="/trending">Trending photo prompts</Link></li>
             <li><Link href="/tools">All AI tools</Link></li>

@@ -38,6 +38,10 @@ test.describe("accessibility (axe) — 0 serious/critical", () => {
     await assertNoSeriousAxe(page, "/packs/job-hunting");
   });
 
+  test("agent builder", async ({ page }) => {
+    await assertNoSeriousAxe(page, "/agent-builder");
+  });
+
   test("builder flow after generate", async ({ page }) => {
     await page.goto("/");
     await page.getByLabel("What do you want AI to help you with?").fill("Write a cover letter for a senior Laravel developer job");

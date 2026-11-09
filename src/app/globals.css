@@ -213,3 +213,7 @@ p { text-wrap: pretty; }
 .festive-btn:hover { filter: brightness(0.92); }
 /* Radio chips (visually hidden input inside a label): show keyboard focus on the chip. */
 .chip:has(input:focus-visible) { outline: 2px solid var(--ring); outline-offset: 2px; }
+
+/* Perf (9 Nov): skip style/layout for below-the-fold home sections until they near the viewport.
+   Lighthouse mobile showed ~1s Style & Layout on `/`. */
+.cv-auto { content-visibility: auto; contain-intrinsic-size: auto 600px; }
