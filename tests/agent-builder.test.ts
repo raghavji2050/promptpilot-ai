@@ -33,3 +33,21 @@ describe("agent prompt builder (PromptPilot AI 2.0 slice)", () => {
     expect(AGENT_TAGLINE).toBe("Create better prompts, build intelligent AI agents, automate workflows and boost productivity.");
   });
 });
+
+import { buildAgentsSdkSnippet } from "@/lib/agent-builder";
+describe("Agents SDK snippet", () => {
+  it("embeds name and instructions safely in TS and Python", () => {
+    const ins = buildAgentPrompt(AGENT_EXAMPLE);
+    const ts = buildAgentsSdkSnippet("Shop Helper", ins, "ts");
+    expect(ts).toContain("import { Agent, run } from '@openai/agents';");
+    expect(ts).toContain('name: "Shop Helper",');
+    expect(ts).toContain(`instructions: ${JSON.stringify(ins)},`);
+    expect(ts).toContain("result.finalOutput");
+    const py = buildAgentsSdkSnippet("", ins, "py");
+    expect(py).toContain("from agents import Agent, Runner");
+    expect(py).toContain('Agent(name="Assistant"');
+    expect(py).toContain("Runner.run_sync");
+    expect(buildAgentsSdkSnippet("x", " ", "ts")).toBe("");
+    expect(ts).not.toMatch(/sk-/);
+  });
+});

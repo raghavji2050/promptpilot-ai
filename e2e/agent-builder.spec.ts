@@ -13,4 +13,9 @@ test("agent builder: empty state, example fills, output + export tabs", async ({
   await expect(out).toContainText("# Bakery Bot");
   await expect(page.getByRole("button", { name: "Copy instructions" })).toBeEnabled();
   await expect(page.getByRole("tab").first()).toBeVisible();
+  const sdk = page.getByTestId("agent-sdk");
+  await expect(sdk).toContainText("from '@openai/agents'");
+  await expect(sdk).toContainText('name: "Bakery Bot"');
+  await page.getByRole("button", { name: "Python" }).click();
+  await expect(sdk).toContainText("from agents import Agent, Runner");
 });

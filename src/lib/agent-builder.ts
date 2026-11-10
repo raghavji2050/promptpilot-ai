@@ -70,3 +70,35 @@ export function buildAgentPrompt(input: AgentInput): string {
   out.push("## When to hand off", "If the user is upset, asks for something risky (legal, medical, money), or you cannot help after two tries, say so clearly and suggest contacting a human.");
   return out.join("\n");
 }
+
+export type AgentsSdkLang = "ts" | "py";
+
+/** Starter code for the OpenAI Agents SDK (agent instructions only; no keys, no network calls here). */
+export function buildAgentsSdkSnippet(name: string, instructions: string, lang: AgentsSdkLang): string {
+  if (!instructions.trim()) return "";
+  const n = JSON.stringify(name.trim() || "Assistant");
+  const ins = JSON.stringify(instructions);
+  if (lang === "py") {
+    return [
+      "# pip install openai-agents   (set OPENAI_API_KEY in your environment)",
+      "from agents import Agent, Runner",
+      "",
+      `agent = Agent(name=${n}, instructions=${ins})`,
+      "",
+      'result = Runner.run_sync(agent, "Hello!")',
+      "print(result.final_output)",
+    ].join("\n");
+  }
+  return [
+    "// npm install @openai/agents zod   (set OPENAI_API_KEY in your environment)",
+    "import { Agent, run } from '@openai/agents';",
+    "",
+    "const agent = new Agent({",
+    `  name: ${n},`,
+    `  instructions: ${ins},`,
+    "});",
+    "",
+    "const result = await run(agent, 'Hello!');",
+    "console.log(result.finalOutput);",
+  ].join("\n");
+}

@@ -2,12 +2,13 @@
 import { useMemo, useState } from "react";
 import { CopyButton } from "./CopyButton";
 import { ExportTabs } from "./ExportTabs";
-import { AGENT_EXAMPLE, AGENT_TONES, AGENT_TOOLS, buildAgentPrompt, type AgentInput, type AgentToolId, type AgentTone } from "@/lib/agent-builder";
+import { AGENT_EXAMPLE, AGENT_TONES, AGENT_TOOLS, buildAgentPrompt, buildAgentsSdkSnippet, type AgentsSdkLang, type AgentInput, type AgentToolId, type AgentTone } from "@/lib/agent-builder";
 
 const EMPTY: AgentInput = { name: "", role: "", audience: "", tasks: "", tools: [], rules: "", tone: "Friendly and simple", output: "" };
 
 export function AgentBuilder() {
   const [v, setV] = useState<AgentInput>(EMPTY);
+  const [lang, setLang] = useState<AgentsSdkLang>("ts");
   const out = useMemo(() => buildAgentPrompt(v), [v]);
   const set = <K extends keyof AgentInput>(k: K, val: AgentInput[K]) => setV((p) => ({ ...p, [k]: val }));
   const toggleTool = (id: AgentToolId) =>
@@ -55,6 +56,16 @@ export function AgentBuilder() {
             <pre aria-label="Agent instructions output" data-testid="agent-output" className="mt-2 whitespace-pre-wrap rounded-xl border border-line bg-surface-2 p-4 text-sm">{out}</pre>
             <CopyButton text={out} label="Copy instructions" className="mt-3" toastMessage="Agent instructions copied" />
             <ExportTabs text={out} title={v.name || "AI agent"} goal={v.role} />
+            <section className="mt-6" aria-labelledby="sdk-h">
+              <h2 id="sdk-h" className="text-lg font-semibold text-fg">Use in code (OpenAI Agents SDK)</h2>
+              <p className="mt-1 text-sm text-muted">Starter code with these instructions. You need your own OpenAI API key to run it; PromptPilot does not run it for you.</p>
+              <div className="mt-2 flex gap-2" role="group" aria-label="SDK language">
+                <button type="button" className={lang === "ts" ? "btn-primary" : "btn-secondary"} aria-pressed={lang === "ts"} onClick={() => setLang("ts")}>TypeScript</button>
+                <button type="button" className={lang === "py" ? "btn-primary" : "btn-secondary"} aria-pressed={lang === "py"} onClick={() => setLang("py")}>Python</button>
+              </div>
+              <pre tabIndex={0} aria-label="Agents SDK starter code" data-testid="agent-sdk" className="mt-2 overflow-x-auto rounded-xl border border-line bg-surface-2 p-4 text-xs">{buildAgentsSdkSnippet(v.name, out, lang)}</pre>
+              <CopyButton text={buildAgentsSdkSnippet(v.name, out, lang)} label="Copy SDK code" variant="secondary" className="mt-2" toastMessage="SDK code copied" />
+            </section>
           </>
         ) : (
           <p data-testid="agent-empty" className="mt-2 rounded-xl border border-dashed border-line p-4 text-sm text-muted">Fill in the agent name, its job and at least one task, or press &ldquo;Fill an example&rdquo;. The instructions appear here.</p>
