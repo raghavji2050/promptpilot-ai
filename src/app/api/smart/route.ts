@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
+import "@/lib/zod-config";
 import { z } from "zod";
 import { checkLimit, clientIp, limitHeaders, tooManyMessage } from "@/lib/ratelimit";
 import { improveText } from "@/lib/engine";

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildSkillMd, buildSnippet, chatgptSnippet, claudeSnippet, chatgptCustomInstructions, claudeProjectInstructions, cursorRulePath, cursorSnippet, skillDescription, toSkillName, yamlString, SKILL_NAME_MAX } from "@/lib/export-formats";
+import { buildSkillMd, buildSnippet, chatgptSnippet, claudeSnippet, chatgptCustomInstructions, claudeProjectInstructions, geminiSkillInstructions, cursorRulePath, cursorSnippet, skillDescription, toSkillName, yamlString, SKILL_NAME_MAX } from "@/lib/export-formats";
 
 /** Minimal frontmatter parser for one-line `key: value` pairs; double-quoted values parsed as JSON (valid YAML subset). */
 function frontmatter(md: string): { fm: Record<string, string>; body: string } {
@@ -89,5 +89,12 @@ describe("snippets", () => {
     expect(s).toContain("Standing instructions for this project:");
     expect(s).toContain("Act as a Laravel expert.\nFix the bug.");
     expect(buildSnippet("claude-project", body, "Fix Laravel bug", "Fix Laravel bug")).toBe(s);
+  });
+  it("Gemini skill gives name, description and instructions fields", () => {
+    const s = geminiSkillInstructions(body, "Fix Laravel bug", "Fix Laravel bug");
+    expect(s.startsWith("Name: Fix Laravel bug\nDescription: Use when the user wants to: Fix Laravel bug.")).toBe(true);
+    expect(s).toContain("Instructions:\nAct as a Laravel expert.\nFix the bug.");
+    expect(buildSnippet("gemini", body, "Fix Laravel bug", "Fix Laravel bug")).toBe(s);
+    expect(geminiSkillInstructions(body, "  ")).toContain("Name: My prompt");
   });
 });

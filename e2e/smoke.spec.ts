@@ -39,7 +39,7 @@ test.describe("home → build prompt → copy", () => {
     expect(md).toContain(prompt.slice(0, 60));
 
     const tablist = page.getByRole("tablist", { name: "Export formats" });
-    await expect(tablist.getByRole("tab")).toHaveText(["ChatGPT", "Claude", "Cursor", "ChatGPT Custom Instructions", "Claude Project Instructions"]);
+    await expect(tablist.getByRole("tab")).toHaveText(["ChatGPT", "Claude", "Cursor", "ChatGPT Custom Instructions", "Claude Project Instructions", "Gemini skill"]);
     await page.getByRole("button", { name: "Copy for ChatGPT", exact: true }).click();
     expect((await page.evaluate(() => navigator.clipboard.readText())).trim()).toBe(prompt);
 
@@ -66,6 +66,13 @@ test.describe("home → build prompt → copy", () => {
     const pi = await page.evaluate(() => navigator.clipboard.readText());
     expect(pi.startsWith("Project focus:")).toBe(true);
     expect(pi).toContain(prompt.slice(0, 60));
+
+    await tablist.getByRole("tab", { name: "Gemini skill" }).click();
+    await page.getByRole("button", { name: "Copy for Gemini skill" }).click();
+    const gem = await page.evaluate(() => navigator.clipboard.readText());
+    expect(gem.startsWith("Name:")).toBe(true);
+    expect(gem).toContain("Instructions:");
+    expect(gem).toContain(prompt.slice(0, 60));
   });
 
   test("empty goal does not produce a prompt", async ({ page }) => {

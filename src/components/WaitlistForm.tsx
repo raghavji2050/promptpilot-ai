@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import "@/lib/zod-config";
 import { z } from "zod";
 import { getSupabase } from "@/lib/supabase";
 

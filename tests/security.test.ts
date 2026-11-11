@@ -6,16 +6,16 @@ import { NextRequest } from "next/server";
 const req = (body: string) => new NextRequest("http://localhost/api/csp-report", { method: "POST", body, headers: { "content-type": "application/csp-report" } });
 
 describe("security headers", () => {
-  it("ships CSP report-only with key directives", () => {
+  it("enforces CSP with key directives", () => {
     const csp = buildCsp();
     expect(csp).toContain("default-src 'self'");
     expect(csp).toContain("frame-ancestors 'none'");
     expect(csp).toContain("object-src 'none'");
     expect(csp).toContain("report-uri /api/csp-report");
     const keys = securityHeaders().map((h) => h.key);
-    expect(keys).toContain("Content-Security-Policy-Report-Only");
+    expect(keys).toContain("Content-Security-Policy");
+    expect(keys).not.toContain("Content-Security-Policy-Report-Only");
     expect(keys).toContain("Strict-Transport-Security");
-    expect(keys).not.toContain("Content-Security-Policy");
   });
 });
 

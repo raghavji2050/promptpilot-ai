@@ -3,6 +3,7 @@
  * An admin edits rows in the Supabase table editor; the app merges them over the static data.
  * If the table or env vars are missing, or the request fails, the static data is used unchanged.
  */
+import "@/lib/zod-config";
 import { z } from "zod";
 import { isISODate } from "./dates";
 import type { Festival, Occurrence } from "./types";

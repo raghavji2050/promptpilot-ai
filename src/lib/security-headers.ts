@@ -1,7 +1,7 @@
 /**
  * Security headers applied to every route (see next.config.ts).
- * CSP ships as Content-Security-Policy-Report-Only first (Day 5); violations are
- * POSTed to /api/csp-report and logged, so we can enforce it later without breaking pages.
+ * CSP shipped Report-Only on Day 5 and is enforced since Day 15 (11 Nov 2026); violations are
+ * POSTed to /api/csp-report and logged as JSON.
  */
 export const CSP_DIRECTIVES: Record<string, string[]> = {
   "default-src": ["'self'"],
@@ -27,7 +27,7 @@ export function buildCsp(directives: Record<string, string[]> = CSP_DIRECTIVES):
 
 export function securityHeaders(): { key: string; value: string }[] {
   return [
-    { key: "Content-Security-Policy-Report-Only", value: buildCsp() },
+    { key: "Content-Security-Policy", value: buildCsp() },
     { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" },
     { key: "X-Content-Type-Options", value: "nosniff" },
     { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },

@@ -1,3 +1,4 @@
+import "@/lib/zod-config";
 import { z } from "zod";
 import { siteCaps, supabaseService, tierLimits, turnstileSiteKey } from "./config";
 import { imageChain, runChain, RunProviderError, textChain, type Fetch } from "./providers";

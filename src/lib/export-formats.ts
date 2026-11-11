@@ -52,7 +52,7 @@ export function buildSkillMd({ title, goal, body }: SkillInput): string {
   ].join("\n");
 }
 
-export type SnippetTarget = "chatgpt" | "claude" | "cursor" | "chatgpt-custom" | "claude-project";
+export type SnippetTarget = "chatgpt" | "claude" | "cursor" | "chatgpt-custom" | "claude-project" | "gemini";
 
 export const SNIPPET_TARGETS: { id: SnippetTarget; name: string; help: string }[] = [
   { id: "chatgpt", name: "ChatGPT", help: "Paste into a new ChatGPT chat, or into a custom GPT's instructions." },
@@ -60,6 +60,7 @@ export const SNIPPET_TARGETS: { id: SnippetTarget; name: string; help: string }[
   { id: "cursor", name: "Cursor", help: "Save as a project rule file (path below), or paste the part after the second --- into Cursor chat." },
   { id: "chatgpt-custom", name: "ChatGPT Custom Instructions", help: "Standing instructions for ChatGPT Settings → Custom instructions (\"How would you like ChatGPT to respond?\"). Applies to all chats; Free/Go ≤1,500 chars, Plus+ ≤5,000." },
   { id: "claude-project", name: "Claude Project Instructions", help: "Standing project instructions for Claude Projects (apply only inside that project). Free users can have up to 5 projects." },
+  { id: "gemini", name: "Gemini skill", help: "Paste into a Gemini skill's (or Gem's) name, description and instructions fields, or upload the SKILL.md above: Gemini can import SKILL.md files on the web app and Mac app. Google says Gems become read-only on 17 Nov 2026 and are recreated as skills." },
 ];
 
 export function chatgptSnippet(body: string): string {
@@ -119,10 +120,25 @@ export function claudeProjectInstructions(body: string, title: string, goal?: st
   ].join("\n");
 }
 
+/** Gemini skill / Gem fields: name, one-line description, instructions (same fields Gemini asks for). */
+export function geminiSkillInstructions(body: string, title: string, goal?: string): string {
+  const name = title.replace(/\s+/g, " ").trim() || "My prompt";
+  return [
+    `Name: ${name}`,
+    `Description: ${skillDescription(goal ?? title)}`,
+    "",
+    "Instructions:",
+    body.trim(),
+    "",
+    "If key details are missing, ask me before answering. Never invent facts, numbers, or citations. Leave [placeholders] for anything I must fill in.",
+  ].join("\n");
+}
+
 export function buildSnippet(target: SnippetTarget, body: string, title: string, goal?: string): string {
   if (target === "claude") return claudeSnippet(body);
   if (target === "cursor") return cursorSnippet(body, title, goal);
   if (target === "chatgpt-custom") return chatgptCustomInstructions(body, title, goal);
   if (target === "claude-project") return claudeProjectInstructions(body, title, goal);
+  if (target === "gemini") return geminiSkillInstructions(body, title, goal);
   return chatgptSnippet(body);
 }

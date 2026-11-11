@@ -11,7 +11,7 @@ describe("<ExportTabs>", () => {
   it("renders an accessible tablist and switches with click and arrow keys", () => {
     ui();
     const tabs = screen.getAllByRole("tab");
-    expect(tabs.map((t) => t.textContent)).toEqual(["ChatGPT", "Claude", "Cursor", "ChatGPT Custom Instructions", "Claude Project Instructions"]);
+    expect(tabs.map((t) => t.textContent)).toEqual(["ChatGPT", "Claude", "Cursor", "ChatGPT Custom Instructions", "Claude Project Instructions", "Gemini skill"]);
     expect(tabs[0]!.getAttribute("aria-selected")).toBe("true");
     expect(screen.getByRole("tabpanel").getAttribute("aria-labelledby")).toBe(tabs[0]!.id);
     fireEvent.click(tabs[1]!);

@@ -75,7 +75,7 @@ Set in Vercel → Project → Settings → Environment Variables (Production), t
 | Many 429s | `X-RateLimit-Store` header (`supabase` or `memory`) | Limits in `src/lib/ratelimit`; daily caps need service role + `0004_run_quota.sql` |
 | Library empty / keep-alive `count: 0` | `/api/keep-alive` | Apply `supabase/migrations/0007_seed_library.sql` in the SQL editor |
 | Supabase paused (free tier idles after inactivity) | Supabase dashboard | Restore project; keep-alive cron (`vercel.json`, daily 03:00 UTC) prevents this |
-| CSP violations | Logs for `api/csp-report` | CSP is report-only; add the origin in `src/lib/security-headers.ts` |
+| CSP violations | Logs for `api/csp-report` | CSP is enforced (since 11 Nov 2026); a blocked origin breaks that feature, so add it in `src/lib/security-headers.ts` |
 
 ## 6. Logs
 

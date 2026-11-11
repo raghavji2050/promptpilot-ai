@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
+import "@/lib/zod-config";
 import { z } from "zod";
 import { withLogging } from "@/lib/log";
 
@@ -19,7 +20,7 @@ const Report = z.object({
     .passthrough(),
 });
 
-/** Receives CSP violation reports (report-only mode) and logs them as structured JSON. */
+/** Receives CSP violation reports (enforced CSP) and logs them as structured JSON. */
 export const POST = withLogging<NextRequest>("api/csp-report", async (req, log) => {
   let raw: unknown;
   try {
