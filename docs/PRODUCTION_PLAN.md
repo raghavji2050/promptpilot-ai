@@ -24,7 +24,7 @@ Free-tier only (GitHub Actions free, Vercel Hobby, Supabase free). 🔑 = needs 
 | ✅ 12 | 7 Nov (planned 8 Nov) | Accessibility: axe in Playwright, labels, focus, contrast | 0 serious axe issues |
 | ✅ 13 | 8 Nov (planned 9 Nov) | SEO: per-page metadata, OG images via /api/card, sitemap completeness, canonical; 🔑 enable Vercel Web Analytics toggle | All pages have title/desc/OG; sitemap lists all routes |
 | ✅ 14 | 9 Nov (planned 10 Nov) | Legal pages review (privacy/terms updated for Run + analytics), README + docs/RUNBOOK (deploy, rollback, keys) | Pages live; README setup works from scratch |
-| 15 | 11 Nov | Final production checklist + full live smoke test (10+ requests), backup export of Supabase schema/data (free) | Checklist all ticked; smoke test 100% |
+| 🟡 15 | 11 Nov (backup 🔑 pending) | Final production checklist + full live smoke test (10+ requests), backup export of Supabase schema/data (free) | Checklist all ticked; smoke test 100% |
 
 ## Progress log
 - Day 1 (28 Oct): done. CI run 40557779959 green on main; live /api/health 200 (booleans only, commit f9d6db0); /, /pricing, /festivals 200; 8-request intent smoke test routed correctly.
@@ -51,11 +51,13 @@ Free-tier only (GitHub Actions free, Vercel Hobby, Supabase free). 🔑 = needs 
 
 - Day 14 (9 Nov, one day early): `/privacy` now covers the Run button (Groq → Cloudflare Workers AI, Gemini off by default, Turnstile), daily salted-hash fair-use counters, server access logs (no prompt text) and Vercel Web Analytics (replaces the stale "no third-party analytics" line; wording checked against https://vercel.com/docs/analytics/privacy-policy). `/terms` adds Run fair use (limits, model output can be wrong, no personal data/keys in prompts), analytics and contact. New `docs/RUNBOOK.md` (health fields, deploy, Instant Rollback + `vercel rollback`, env keys table, key rotation, incident table, logs, manual backup) linked from README with a fresh-clone setup note. `tests/legal-pages.test.tsx`; `SITE.lastReviewed` 2026-11-09. Perf fix for the 8 Nov lighthouse red (0.89): `content-visibility: auto` on below-the-fold home sections; box Lighthouse mobile vs prod 0.79 → 0.96 (Style & Layout 1046 → 450 ms, TBT 640 → 190 ms); CI 42546609998 lighthouse job passed. Suggestion built: PromptPilot AI 2.0 first slice — `/agent-builder` (deterministic agent instructions: role, tasks, tools, never-do rules, tone, format, handoff; ExportTabs) + 2.0 tagline in the footer; unit + e2e + axe tests. Day 6 still 🟡, Turnstile still pending (Cloudflare login).
 - 10 Nov (Day 14 date; Day 14 already done 9 Nov): Suggestion built: `/agent-builder` gets an "Use in code (OpenAI Agents SDK)" section with TypeScript/Python starter code (`buildAgentsSdkSnippet` in `src/lib/agent-builder.ts`; name and instructions JSON-escaped; no key in output; syntax checked against https://openai.github.io/openai-agents-js/). Unit + e2e tests; axe still 0 serious/critical. Live at ca90c75. Day 15 pre-check: health ok, runEnabled true, keep-alive count 91, routes 200; CSP still **Report-Only** (not enforced), Turnstile still off (Cloudflare login), Day 6 daily-cap 429 still unproven.
+- 11 Nov (Day 15): CSP switched from Report-Only to enforced `Content-Security-Policy` after a live scan showed the only violation was zod v4's caught `new Function` JIT probe; `src/lib/zod-config.ts` sets `z.config({ jitless: true })` (imported before every zod use), and the live re-scan of 10 pages showed 0 violations. Live smoke 18 requests all as expected (15 routes 200 incl. /api/keep-alive, bad /api/enhance, /api/smart and /api/csp-report payloads 400, real /api/smart run 200 via Groq). Suggestion built: "Gemini skill" export tab (name/description/instructions, SKILL.md upload hint; unit + e2e). Backup still needs Raghav's DB connection string.
 
 ## Final production checklist (Day 15)
-- [ ] CI green, e2e green, Lighthouse ≥ 90, axe clean
+- [x] CI green, e2e green, Lighthouse ≥ 90, axe clean — CI 42939519950 on 16a4174 (check incl. e2e + axe, lighthouse, rls, secrets-scan all success), 11 Nov
 - [x] /api/health ok, runEnabled true (needs keys) — verified 10 Nov
-- [ ] CSP enforced, rate limits active, RLS tested
+- [x] CSP enforced (11 Nov, 16a4174; 0 violations on 10 live pages after zod jitless), RLS tested (CI rls job) — rate limits: burst 429 live, Day 6 daily-cap 429 still unproven 🟡
 - [x] All SQL migrations applied; keep-alive cron returning ok — keep-alive count 91, 10 Nov
-- [ ] Privacy/terms current; README/RUNBOOK current
-- [ ] No secrets in repo (gitleaks)
+- [x] Privacy/terms current; README/RUNBOOK current — Day 14 + RUNBOOK CSP row updated 11 Nov
+- [x] No secrets in repo (gitleaks) — CI secrets-scan success, 11 Nov
+- [ ] 🔑 Supabase backup export (pg_dump schema + public data) — needs the DB connection string from Supabase → Connect; store outside the repo
