@@ -52,7 +52,7 @@ export function buildSkillMd({ title, goal, body }: SkillInput): string {
   ].join("\n");
 }
 
-export type SnippetTarget = "chatgpt" | "claude" | "cursor" | "chatgpt-custom" | "claude-project" | "gemini";
+export type SnippetTarget = "chatgpt" | "claude" | "cursor" | "chatgpt-custom" | "claude-project" | "gemini" | "perplexity";
 
 export const SNIPPET_TARGETS: { id: SnippetTarget; name: string; help: string }[] = [
   { id: "chatgpt", name: "ChatGPT", help: "Paste into a new ChatGPT chat, or into a custom GPT's instructions." },
@@ -61,6 +61,7 @@ export const SNIPPET_TARGETS: { id: SnippetTarget; name: string; help: string }[
   { id: "chatgpt-custom", name: "ChatGPT Custom Instructions", help: "Standing instructions for ChatGPT Settings → Custom instructions (\"How would you like ChatGPT to respond?\"). Applies to all chats; Free/Go ≤1,500 chars, Plus+ ≤5,000." },
   { id: "claude-project", name: "Claude Project Instructions", help: "Standing project instructions for Claude Projects (apply only inside that project). Free users can have up to 5 projects." },
   { id: "gemini", name: "Gemini skill", help: "Paste into a Gemini skill's (or Gem's) name, description and instructions fields, or upload the SKILL.md above: Gemini can import SKILL.md files on the web app and Mac app. Google says Gems become read-only on 17 Nov 2026 and are recreated as skills." },
+  { id: "perplexity", name: "Perplexity Project", help: "Paste each field into a Perplexity Project (title ≤50 chars, description ≤1,000, instructions ≤8,000 in Settings → Context). Longer text is trimmed to fit; counts are shown above the instructions." },
 ];
 
 export function chatgptSnippet(body: string): string {
@@ -134,11 +135,42 @@ export function geminiSkillInstructions(body: string, title: string, goal?: stri
   ].join("\n");
 }
 
+export const PERPLEXITY_TITLE_MAX = 50;
+export const PERPLEXITY_DESCRIPTION_MAX = 1000;
+export const PERPLEXITY_INSTRUCTIONS_MAX = 8000;
+
+function fit(value: string, max: number): string {
+  return value.length > max ? `${value.slice(0, max - 1).trimEnd()}…` : value;
+}
+
+/** Perplexity Project fields, trimmed to Perplexity's documented limits (title 50, description 1,000, instructions 8,000). */
+export function perplexityProjectFields(body: string, title: string, goal?: string): { title: string; description: string; instructions: string } {
+  const t = fit(title.replace(/\s+/g, " ").trim() || "My prompt", PERPLEXITY_TITLE_MAX);
+  const description = fit(skillDescription(goal ?? title), PERPLEXITY_DESCRIPTION_MAX);
+  const instructions = fit(
+    `${body.trim()}\n\nIf key details are missing, ask me before answering. Cite sources for factual claims. Never invent facts, numbers, or citations. Leave [placeholders] for anything I must fill in.`,
+    PERPLEXITY_INSTRUCTIONS_MAX,
+  );
+  return { title: t, description, instructions };
+}
+
+export function perplexityProjectInstructions(body: string, title: string, goal?: string): string {
+  const f = perplexityProjectFields(body, title, goal);
+  return [
+    `Title: ${f.title}`,
+    `Description: ${f.description}`,
+    "",
+    `Instructions (${f.instructions.length}/${PERPLEXITY_INSTRUCTIONS_MAX} chars):`,
+    f.instructions,
+  ].join("\n");
+}
+
 export function buildSnippet(target: SnippetTarget, body: string, title: string, goal?: string): string {
   if (target === "claude") return claudeSnippet(body);
   if (target === "cursor") return cursorSnippet(body, title, goal);
   if (target === "chatgpt-custom") return chatgptCustomInstructions(body, title, goal);
   if (target === "claude-project") return claudeProjectInstructions(body, title, goal);
   if (target === "gemini") return geminiSkillInstructions(body, title, goal);
+  if (target === "perplexity") return perplexityProjectInstructions(body, title, goal);
   return chatgptSnippet(body);
 }

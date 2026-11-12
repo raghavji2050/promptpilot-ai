@@ -39,7 +39,7 @@ test.describe("home → build prompt → copy", () => {
     expect(md).toContain(prompt.slice(0, 60));
 
     const tablist = page.getByRole("tablist", { name: "Export formats" });
-    await expect(tablist.getByRole("tab")).toHaveText(["ChatGPT", "Claude", "Cursor", "ChatGPT Custom Instructions", "Claude Project Instructions", "Gemini skill"]);
+    await expect(tablist.getByRole("tab")).toHaveText(["ChatGPT", "Claude", "Cursor", "ChatGPT Custom Instructions", "Claude Project Instructions", "Gemini skill", "Perplexity Project"]);
     await page.getByRole("button", { name: "Copy for ChatGPT", exact: true }).click();
     expect((await page.evaluate(() => navigator.clipboard.readText())).trim()).toBe(prompt);
 
@@ -73,6 +73,13 @@ test.describe("home → build prompt → copy", () => {
     expect(gem.startsWith("Name:")).toBe(true);
     expect(gem).toContain("Instructions:");
     expect(gem).toContain(prompt.slice(0, 60));
+
+    await tablist.getByRole("tab", { name: "Perplexity Project" }).click();
+    await page.getByRole("button", { name: "Copy for Perplexity Project" }).click();
+    const ppx = await page.evaluate(() => navigator.clipboard.readText());
+    expect(ppx.startsWith("Title:")).toBe(true);
+    expect(ppx).toContain("/8000 chars):");
+    expect(ppx).toContain(prompt.slice(0, 60));
   });
 
   test("empty goal does not produce a prompt", async ({ page }) => {

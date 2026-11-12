@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildSkillMd, buildSnippet, chatgptSnippet, claudeSnippet, chatgptCustomInstructions, claudeProjectInstructions, geminiSkillInstructions, cursorRulePath, cursorSnippet, skillDescription, toSkillName, yamlString, SKILL_NAME_MAX } from "@/lib/export-formats";
+import { buildSkillMd, buildSnippet, chatgptSnippet, claudeSnippet, chatgptCustomInstructions, claudeProjectInstructions, geminiSkillInstructions, perplexityProjectFields, perplexityProjectInstructions, cursorRulePath, cursorSnippet, skillDescription, toSkillName, yamlString, SKILL_NAME_MAX } from "@/lib/export-formats";
 
 /** Minimal frontmatter parser for one-line `key: value` pairs; double-quoted values parsed as JSON (valid YAML subset). */
 function frontmatter(md: string): { fm: Record<string, string>; body: string } {
@@ -96,5 +96,15 @@ describe("snippets", () => {
     expect(s).toContain("Instructions:\nAct as a Laravel expert.\nFix the bug.");
     expect(buildSnippet("gemini", body, "Fix Laravel bug", "Fix Laravel bug")).toBe(s);
     expect(geminiSkillInstructions(body, "  ")).toContain("Name: My prompt");
+  });
+  it("Perplexity Project fields respect title/description/instructions limits", () => {
+    const s = perplexityProjectInstructions(body, "Fix Laravel bug", "Fix Laravel bug");
+    expect(s.startsWith("Title: Fix Laravel bug\nDescription: Use when the user wants to: Fix Laravel bug.")).toBe(true);
+    expect(s).toMatch(/Instructions \(\d+\/8000 chars\):\nAct as a Laravel expert\.\nFix the bug\./);
+    expect(buildSnippet("perplexity", body, "Fix Laravel bug", "Fix Laravel bug")).toBe(s);
+    const long = perplexityProjectFields("x".repeat(9000), "T".repeat(80), "g".repeat(2000));
+    expect(long.title.length).toBe(50);
+    expect(long.description.length).toBe(1000);
+    expect(long.instructions.length).toBe(8000);
   });
 });
