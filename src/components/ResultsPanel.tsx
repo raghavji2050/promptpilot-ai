@@ -11,6 +11,8 @@ import { RunButton } from "./RunButton";
 import { ExportTabs } from "./ExportTabs";
 import { LiveBeforeAfter } from "./LiveBeforeAfter";
 import { ShareCard } from "./ShareCard";
+import { MyContextPanel, useMyContext } from "./MyContextPanel";
+import { applyContext } from "@/lib/my-context";
 
 const shortName = (n: string) => n.split(" (")[0];
 /** Languages offered by "Change language" (Indian languages first). */
@@ -26,7 +28,8 @@ export const ResultsPanel = forwardRef<HTMLHeadingElement, { input: UniversalInp
     const result = useMemo(() => buildUniversal(input), [input]);
     const vars = useMemo(() => (alt > 0 ? variations(input) : []), [alt, input]);
     const altVar = alt > 0 ? vars[(alt - 1) % Math.max(vars.length, 1)] : undefined;
-    const text = altVar?.text ?? result.text;
+    const myCtx = useMyContext();
+    const text = applyContext(altVar?.text ?? result.text, myCtx);
     const change = (p: Partial<UniversalInput>) => { setAlt(0); onChange(p); };
     const title = input.goal.trim().length > 80 ? `${input.goal.trim().slice(0, 78)}…` : input.goal.trim();
     const where = result.festival ? `${result.festival.name} › ${result.festival.goalLabel}` : result.category ? `${result.category.short}${result.sub ? ` › ${result.sub.name}` : ""}` : "General";
@@ -52,6 +55,8 @@ export const ResultsPanel = forwardRef<HTMLHeadingElement, { input: UniversalInp
           {result.warnings.length > 0 && <ul className="mb-3 space-y-1 rounded-lg bg-amber-50 p-3 text-sm text-amber-900">{result.warnings.map((w) => <li key={w}>{w}</li>)}</ul>}
           <pre className="output !max-h-[26rem]" tabIndex={0} aria-label="Generated prompt text" aria-live="polite">{text}</pre>
           <p className="mt-2 text-xs text-subtle">{text.length} characters · built instantly from templates, no AI was called.</p>
+
+          <MyContextPanel />
 
           <div className="mt-4 flex flex-wrap items-center gap-2">
             <CopyButton text={text} label="Copy prompt" toastMessage="Prompt copied" />

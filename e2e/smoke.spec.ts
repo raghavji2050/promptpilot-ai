@@ -82,6 +82,27 @@ test.describe("home → build prompt → copy", () => {
     expect(ppx).toContain(prompt.slice(0, 60));
   });
 
+  test("My context is saved on the device and added to the prompt", async ({ page }) => {
+    await page.goto("/");
+    await page.getByLabel("What do you want AI to help you with?").fill("Write 5 Instagram captions for my Diwali sale");
+    await page.getByRole("button", { name: /Generate prompt/ }).click();
+    const out = page.getByLabel("Generated prompt text");
+    await expect(out).toBeVisible();
+    await page.getByText("My context", { exact: false }).first().click();
+    await page.getByLabel("About me / my business").fill("Home bakery in Mohali");
+    await page.getByLabel("My voice and tone").fill("Warm, simple Hinglish");
+    await page.getByRole("button", { name: "Save my context" }).click();
+    await expect(out).toContainText("My context (use it for every answer):");
+    await expect(out).toContainText("Home bakery in Mohali");
+    await page.reload();
+    await page.getByLabel("What do you want AI to help you with?").fill("Write 5 Instagram captions for my Diwali sale");
+    await page.getByRole("button", { name: /Generate prompt/ }).click();
+    await expect(page.getByLabel("Generated prompt text")).toContainText("Warm, simple Hinglish");
+    await page.getByText("My context", { exact: false }).first().click();
+    await page.getByRole("button", { name: "Clear" }).click();
+    await expect(page.getByLabel("Generated prompt text")).not.toContainText("My context (use it");
+  });
+
   test("empty goal does not produce a prompt", async ({ page }) => {
     await page.goto("/");
     await page.getByRole("button", { name: /Generate prompt/ }).click();
