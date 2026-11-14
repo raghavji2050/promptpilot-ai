@@ -42,6 +42,7 @@ Copy `.env.example` to `.env.local`. Every variable is optional. The template bu
 | `GROQ_API_KEY`, `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_API_TOKEN`, `GEMINI_API_KEY` | Server only. Optional free Run providers. Gemini stays off unless `RUN_ENABLE_GEMINI=1` |
 | `TURNSTILE_SECRET_KEY`, `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | Optional bot check on Run. Leave unset to skip it |
 | `CRON_SECRET` | Protects `/api/keep-alive` when set |
+| `GOOGLE_SITE_VERIFICATION`, `BING_SITE_VERIFICATION` | Optional Search Console / Bing Webmaster content tokens. Leave unset to omit the meta tags |
 
 ### Supabase
 

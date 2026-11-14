@@ -1,9 +1,9 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 import sitemap, { SITEMAP_STATIC_PATHS } from "@/app/sitemap";
 import { metadata as dashboardMeta } from "@/app/dashboard/page";
 import { metadata as loginMeta } from "@/app/login/page";
 import { generateMetadata as sharedMeta } from "@/app/s/[slug]/page";
-import { pageMeta, renderedTitle, TITLE_TEMPLATE } from "@/lib/seo";
+import { pageMeta, renderedTitle, siteVerification, TITLE_TEMPLATE } from "@/lib/seo";
 import { absoluteUrl, SITE } from "@/lib/site";
 
 const REQUIRED = [
@@ -107,5 +107,44 @@ describe("noindex private pages do not inherit homepage meta", () => {
     expect(meta.description).toBeTruthy();
     expect(meta.description).not.toBe(SITE.description);
     expect(meta.openGraph?.url).toBe(absoluteUrl("/s/example"));
+  });
+});
+
+describe("siteVerification", () => {
+  const originalGoogle = process.env.GOOGLE_SITE_VERIFICATION;
+  const originalBing = process.env.BING_SITE_VERIFICATION;
+
+  afterEach(() => {
+    if (originalGoogle === undefined) delete process.env.GOOGLE_SITE_VERIFICATION;
+    else process.env.GOOGLE_SITE_VERIFICATION = originalGoogle;
+    if (originalBing === undefined) delete process.env.BING_SITE_VERIFICATION;
+    else process.env.BING_SITE_VERIFICATION = originalBing;
+  });
+
+  it("returns undefined when both vars are unset or blank, so no empty tag is rendered", () => {
+    delete process.env.GOOGLE_SITE_VERIFICATION;
+    delete process.env.BING_SITE_VERIFICATION;
+    expect(siteVerification()).toBeUndefined();
+    process.env.GOOGLE_SITE_VERIFICATION = "   ";
+    process.env.BING_SITE_VERIFICATION = "";
+    expect(siteVerification()).toBeUndefined();
+  });
+
+  it("includes only the Google tag when GOOGLE_SITE_VERIFICATION is set", () => {
+    process.env.GOOGLE_SITE_VERIFICATION = " google-token ";
+    delete process.env.BING_SITE_VERIFICATION;
+    expect(siteVerification()).toEqual({ google: "google-token" });
+  });
+
+  it("includes only msvalidate.01 when BING_SITE_VERIFICATION is set", () => {
+    delete process.env.GOOGLE_SITE_VERIFICATION;
+    process.env.BING_SITE_VERIFICATION = "bing-token";
+    expect(siteVerification()).toEqual({ other: { "msvalidate.01": "bing-token" } });
+  });
+
+  it("includes both tags when both vars are set", () => {
+    process.env.GOOGLE_SITE_VERIFICATION = "g-token";
+    process.env.BING_SITE_VERIFICATION = "b-token";
+    expect(siteVerification()).toEqual({ google: "g-token", other: { "msvalidate.01": "b-token" } });
   });
 });

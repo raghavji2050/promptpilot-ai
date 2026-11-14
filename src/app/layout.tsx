@@ -5,13 +5,15 @@ import { Analytics } from "@vercel/analytics/next";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { JsonLd } from "@/components/JsonLd";
-import { TITLE_TEMPLATE } from "@/lib/seo";
+import { TITLE_TEMPLATE, siteVerification } from "@/lib/seo";
 import { SITE, DEFAULT_OG_IMAGE } from "@/lib/site";
 import { ToastProvider } from "@/components/ui/Toast";
 import { THEME_INIT_SCRIPT } from "@/components/ui/ThemeToggle";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"], display: "swap" });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"], display: "swap" });
+
+const verification = siteVerification();
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),
@@ -22,6 +24,7 @@ export const metadata: Metadata = {
   twitter: { card: "summary_large_image", title: SITE.name, description: SITE.description, images: [DEFAULT_OG_IMAGE.url] },
   alternates: { canonical: "/" },
   robots: { index: true, follow: true },
+  ...(verification ? { verification } : {}),
 };
 
 export const viewport: Viewport = { themeColor: [{ media: "(prefers-color-scheme: light)", color: "#f7f7f8" }, { media: "(prefers-color-scheme: dark)", color: "#0d0f14" }], width: "device-width", initialScale: 1 };

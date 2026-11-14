@@ -44,3 +44,15 @@ export function pageMeta({ title, description, path, images = "default" }: PageM
   }
   return { title: documentTitle(title), description, alternates: { canonical: path }, openGraph, twitter };
 }
+
+
+/** Search Console / Bing Webmaster meta tags. Omit when env vars are unset so no empty tag is rendered. */
+export function siteVerification(): Metadata["verification"] | undefined {
+  const google = process.env.GOOGLE_SITE_VERIFICATION?.trim();
+  const bing = process.env.BING_SITE_VERIFICATION?.trim();
+  if (!google && !bing) return undefined;
+  return {
+    ...(google ? { google } : {}),
+    ...(bing ? { other: { "msvalidate.01": bing } } : {}),
+  };
+}
