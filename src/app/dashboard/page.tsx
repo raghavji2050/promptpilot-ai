@@ -1,7 +1,15 @@
 import type { Metadata } from "next";
 import { Dashboard } from "@/components/Dashboard";
+import { pageMeta } from "@/lib/seo";
 
-export const metadata: Metadata = { title: "Dashboard", robots: { index: false, follow: false }, alternates: { canonical: "/dashboard" } };
+export const metadata: Metadata = {
+  ...pageMeta({
+    title: "Dashboard",
+    description: "Your saved prompts on this device, or across devices after you sign in. This page is private and is not listed in search.",
+    path: "/dashboard",
+  }),
+  robots: { index: false, follow: false },
+};
 
 export default function DashboardPage() {
   return (

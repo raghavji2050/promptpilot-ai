@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
 import sitemap, { SITEMAP_STATIC_PATHS } from "@/app/sitemap";
+import { metadata as dashboardMeta } from "@/app/dashboard/page";
+import { metadata as loginMeta } from "@/app/login/page";
+import { generateMetadata as sharedMeta } from "@/app/s/[slug]/page";
 import { pageMeta, renderedTitle, TITLE_TEMPLATE } from "@/lib/seo";
 import { absoluteUrl, SITE } from "@/lib/site";
 
@@ -83,5 +86,26 @@ describe("pageMeta", () => {
     expect(meta.openGraph?.url).toBe(absoluteUrl("/packs"));
     expect(meta.openGraph?.images).toBeUndefined();
     expect(meta.twitter?.images).toBeUndefined();
+  });
+});
+
+describe("noindex private pages do not inherit homepage meta", () => {
+  it("gives /login and /dashboard their own description and canonical", () => {
+    for (const [path, meta] of [["/login", loginMeta], ["/dashboard", dashboardMeta]] as const) {
+      expect(meta.robots, path).toEqual({ index: false, follow: false });
+      expect(meta.alternates?.canonical, path).toBe(path);
+      expect(meta.description, path).toBeTruthy();
+      expect(meta.description, path).not.toBe(SITE.description);
+      expect(meta.openGraph?.url, path).toBe(absoluteUrl(path));
+    }
+  });
+
+  it("gives /s/[slug] a self canonical instead of the homepage", async () => {
+    const meta = await sharedMeta({ params: Promise.resolve({ slug: "example" }) });
+    expect(meta.robots).toEqual({ index: false, follow: false });
+    expect(meta.alternates?.canonical).toBe("/s/example");
+    expect(meta.description).toBeTruthy();
+    expect(meta.description).not.toBe(SITE.description);
+    expect(meta.openGraph?.url).toBe(absoluteUrl("/s/example"));
   });
 });

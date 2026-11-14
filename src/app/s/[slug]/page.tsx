@@ -2,8 +2,19 @@ import type { Metadata } from "next";
 import { SharedPrompt } from "@/components/SharedPrompt";
 import { BuilderShareRedirect } from "@/components/BuilderShareRedirect";
 import { SHORT_ID_RE } from "@/lib/share";
+import { pageMeta } from "@/lib/seo";
 
-export const metadata: Metadata = { title: "Shared prompt", robots: { index: false, follow: false } };
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  return {
+    ...pageMeta({
+      title: "Shared prompt",
+      description: "A prompt shared with you on PromptPilot AI. Open it in the free builder; no sign-up needed.",
+      path: `/s/${slug}`,
+    }),
+    robots: { index: false, follow: false },
+  };
+}
 
 export default async function SharedPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;

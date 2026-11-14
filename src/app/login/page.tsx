@@ -1,7 +1,15 @@
 import type { Metadata } from "next";
 import { LoginForm } from "@/components/LoginForm";
+import { pageMeta } from "@/lib/seo";
 
-export const metadata: Metadata = { title: "Sign in", robots: { index: false, follow: false }, alternates: { canonical: "/login" } };
+export const metadata: Metadata = {
+  ...pageMeta({
+    title: "Sign in",
+    description: "Optional sign-in to sync saved prompts across devices. Every PromptPilot tool works without an account.",
+    path: "/login",
+  }),
+  robots: { index: false, follow: false },
+};
 
 export default function LoginPage() {
   return (
