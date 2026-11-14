@@ -121,12 +121,10 @@ test("festivals page renders", async ({ page }) => {
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Festival prompts for India");
 });
 
-test("health endpoint returns booleans only", async ({ request }) => {
+test("public health endpoint returns status only", async ({ request }) => {
   const res = await request.get("/api/health");
   expect(res.status()).toBe(200);
-  const body = await res.json();
-  expect(body.ok).toBe(true);
-  expect(JSON.stringify(body)).not.toMatch(/sk-|eyJ|gsk_/);
+  expect(await res.json()).toEqual({ status: "ok" });
 });
 
 test("job hunting pack renders six templates with export tabs", async ({ page }) => {
