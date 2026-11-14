@@ -1,3 +1,7 @@
 # False positives: localStorage key names, not secrets (reviewed 3 Nov 2026)
 a5d4c7054c72f1c1e4a2127cf9df85fbce9193a0:src/lib/favorites.ts:generic-api-key:6
 e4cd68aa0f90f4fa8e681971bbf4a8d7b0329843:src/lib/saved.ts:generic-api-key:15
+# False positives: dummy HEALTH_TOKEN test fixture in closed PR #5 branch, not a secret (reviewed 14 Nov 2026)
+1d60b3df82cea4e5b5beacd759add3b6f12fce05:tests/health.test.ts:generic-api-key:11
+1d60b3df82cea4e5b5beacd759add3b6f12fce05:tests/health.test.ts:generic-api-key:20
+1d60b3df82cea4e5b5beacd759add3b6f12fce05:tests/health.test.ts:generic-api-key:33
