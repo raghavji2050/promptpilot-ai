@@ -50,7 +50,7 @@ Copy `.env.example` to `.env.local`. Every variable is optional. The template bu
 2. Put the project URL and publishable (anon) key in `.env.local`.
 3. `node scripts/verify-supabase.mjs` checks anon RLS. Authenticated checks need `VERIFY_EMAIL_A`, `VERIFY_PASSWORD_A`, `VERIFY_EMAIL_B` and `VERIFY_PASSWORD_B`. `supabase/schema_rls_test.sql` is for local Postgres, not the hosted project.
 
-The publishable key is meant for the browser. The service-role key stays on the server. `/api/health` reports whether Supabase and the service role are configured, and does not return secret values.
+The publishable key is meant for the browser. The service-role key stays on the server. Public `/api/health` returns only `{"status":"ok"}`; config booleans (Supabase, service role, Turnstile, commit) need `Authorization: Bearer <HEALTH_TOKEN>`, and secret values are never returned.
 
 ## Operations
 

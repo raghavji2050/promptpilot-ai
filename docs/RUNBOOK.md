@@ -6,9 +6,11 @@ Production: https://promptpilot-ai-psi.vercel.app (Vercel Hobby project `promptp
 
 ```bash
 curl -s https://promptpilot-ai-psi.vercel.app/api/health
+# -> {"status":"ok"}  (public: no config, no commit)
+curl -s -H "Authorization: Bearer $HEALTH_TOKEN" https://promptpilot-ai-psi.vercel.app/api/health
 ```
 
-Returns booleans only, never secret values:
+The public call returns only `{"status":"ok"}`. With `Authorization: Bearer <HEALTH_TOKEN>` (Vercel env `HEALTH_TOKEN`, compared in constant time) it returns booleans only, never secret values:
 
 | Field | Meaning |
 |---|---|
@@ -29,7 +31,7 @@ Manual production deploy from a clean checkout of `main`:
 ```bash
 npm ci && npm run check && npm run build   # same gates as CI
 npx vercel@latest --prod --yes             # needs `vercel login` / linked .vercel/project.json
-curl -s https://promptpilot-ai-psi.vercel.app/api/health   # confirm commit
+curl -s -H "Authorization: Bearer $HEALTH_TOKEN" https://promptpilot-ai-psi.vercel.app/api/health   # confirm commit
 ```
 
 Before pushing UI changes: update hard-counted e2e asserts (pack cards, template counts) in the same commit.
@@ -58,6 +60,7 @@ Set in Vercel → Project → Settings → Environment Variables (Production), t
 | Run (text) | `GROQ_API_KEY`; optional `CLOUDFLARE_ACCOUNT_ID` + `CLOUDFLARE_API_TOKEN` (Workers AI) | console.groq.com; Cloudflare dashboard → AI |
 | Gemini (off by default) | `GEMINI_API_KEY` + `RUN_ENABLE_GEMINI=1` | Google AI Studio |
 | Bot check on Run | `NEXT_PUBLIC_TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY` | Cloudflare → Turnstile → Add widget (domain `promptpilot-ai-psi.vercel.app`) |
+| Health details | `HEALTH_TOKEN` | `openssl rand -hex 32`; unlocks detailed `/api/health` |
 | Cron auth | `CRON_SECRET` | Any random string; Vercel cron sends it automatically |
 | Call metadata log | `RUN_LOG_CALLS=1` (optional) | Logs provider/model/latency only to `llm_calls`, never prompt text |
 
