@@ -27,7 +27,7 @@ export const NAV = [
 ];
 
 /** Header split: 5 primary links, the rest under "More" (mobile menu shows all). */
-export const NAV_PRIMARY_HREFS = ["/", "/builder", "/image-reel-builder", "/library", "/showcase"];
+export const NAV_PRIMARY_HREFS = ["/", "/builder", "/library", "/showcase", "/pricing"];
 export const NAV_PRIMARY = NAV_PRIMARY_HREFS.map((h) => NAV.find((n) => n.href === h)!);
 export const NAV_MORE = NAV.filter((n) => !NAV_PRIMARY_HREFS.includes(n.href));
 

@@ -54,20 +54,23 @@ export default async function Home() {
 
       {/* ---------------------------------------------------------------- hero */}
       <section className="border-b border-line" aria-labelledby="hero-title">
-        <div className="mx-auto max-w-5xl px-4 pb-14 pt-12 text-center sm:pb-20 sm:pt-20">
+        <div className="mx-auto max-w-5xl px-4 pb-14 pt-8 text-center sm:pb-20 sm:pt-20">
           <p className="flex flex-wrap justify-center gap-2"><span className="badge badge-accent">Free · No sign-up · No API key needed</span><span className="badge" data-testid="work-safe-badge">✔ Work-safe, tested templates</span></p>
           <h1 id="hero-title" className="mx-auto mt-5 max-w-3xl text-4xl font-semibold tracking-tight text-fg sm:text-5xl lg:text-6xl">Type your idea in plain words. Get a prompt that actually works.</h1>
           <p className="mx-auto mt-5 max-w-2xl text-lg text-muted sm:text-xl">Free prompt builder for ChatGPT, Claude, Gemini, Grok, Midjourney and more. Write in English, Hindi or Hinglish. No sign-up, no API key.</p>
-          <p className="mx-auto mt-3 max-w-2xl text-sm text-muted">Work-safe, tested templates: every prompt comes from fixed, work-focused templates checked by automated unit tests, so the same input always gives the same prompt.</p>
           <p className="mx-auto mt-3 max-w-2xl text-base text-fg" lang="hi-Latn">Apna idea Hinglish mein likho, perfect prompt hum bana denge. Bilkul free.</p>
-          <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
-            <ButtonLink href="/builder" size="lg">Build my prompt, free</ButtonLink>
-            <ButtonLink href="/showcase" variant="secondary" size="lg">See what a prompt can do</ButtonLink>
-            <ButtonLink href="/packs/job-hunting" variant="secondary" size="lg">Job Hunting pack</ButtonLink>
-            <ButtonLink href="/festivals" variant="secondary" size="lg">Festival prompts</ButtonLink>
-            <ButtonLink href="/library" variant="secondary" size="lg">Browse ready prompts</ButtonLink>
-          </div>
           <HeroBuilder platforms={platforms} />
+          <p className="mt-4 text-sm text-muted">
+            <Link href="/builder" className="link">Build my prompt, free</Link>
+            {" · "}
+            <Link href="/showcase" className="link">See what a prompt can do</Link>
+            {" · "}
+            <Link href="/packs/job-hunting" className="link">Job Hunting pack</Link>
+            {" · "}
+            <Link href="/festivals" className="link">Festival prompts</Link>
+            {" · "}
+            <Link href="/library" className="link">Browse ready prompts</Link>
+          </p>
           <p className="mt-6 text-xs text-subtle">Works with ChatGPT · Claude · Gemini · Grok · Perplexity · Copilot · Midjourney · video tools · Cursor. Not affiliated with any of them.</p>
         </div>
       </section>

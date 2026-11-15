@@ -112,6 +112,9 @@ export function UniversalBuilder({ initial = {}, autoGenerate = false }: { initi
           <div className="mt-2 flex flex-wrap gap-2" aria-label="Example goals">
             {EXAMPLES.map((ex) => <button key={ex} type="button" className="chip !text-xs" onClick={() => { set({ goal: ex, categoryId: undefined, subcategoryId: undefined }); setGenerated(true); }}>{ex}</button>)}
           </div>
+          <div className="mt-4">
+            <button type="submit" className="btn-primary !px-6 !py-3 text-base">Generate prompt</button>
+          </div>
 
           <fieldset className="mt-5">
             <legend className="label !text-base">2. Which AI will you use?</legend>
