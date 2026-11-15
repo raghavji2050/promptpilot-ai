@@ -15,7 +15,7 @@ const FREE = [
   "Full prompt library, use-case guides and festival studios",
   "Output in English or other languages, including Hindi and Hinglish",
   "Try-in buttons for ChatGPT, Claude, Gemini and Grok",
-  "Run free on this page with a small daily limit (rolling out)",
+  "Run free on the builder with a small daily limit (rolling out)",
 ];
 const PLANNED = [
   "More daily Runs for text and images",
@@ -29,6 +29,7 @@ export default function PricingPage() {
     <div className="mx-auto max-w-5xl px-4 py-10">
       <h1 className="h1">Free now. Pro coming soon.</h1>
       <p className="lead">Everything on PromptPilot is free today, with no sign-up. We&apos;re making the free tools genuinely useful before adding a paid plan.</p>
+      <p className="mt-3 text-base text-slate-600">Free to use today. Want Pro later? <Link href="#waitlist" className="font-medium text-indigo-700 underline">Join the waitlist</Link>.</p>
       <div className="mt-10 grid gap-6 md:grid-cols-2">
         <div className="card p-6 ring-2 ring-indigo-600">
           <h2 className="text-xl font-semibold text-slate-900">Free</h2>
@@ -42,7 +43,9 @@ export default function PricingPage() {
           <p className="mt-2 text-sm text-slate-600">What we plan to include. Not available yet, no price set, and the list may change based on what users need.</p>
           <ul className="mt-5 space-y-2 text-sm text-slate-700">{PLANNED.map((f) => <li key={f}>○ {f}</li>)}</ul>
           <p className="mt-6 rounded-lg bg-slate-50 p-3 text-sm text-slate-600">There is no way to pay today, and nothing on the site charges you.</p>
-          <WaitlistForm />
+          <div id="waitlist">
+            <WaitlistForm />
+          </div>
         </div>
       </div>
       <section className="prose-simple mt-12 max-w-3xl">
