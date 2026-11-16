@@ -238,16 +238,39 @@ const PLATFORM_ASPECT: [RegExp, string][] = [
   [/poster|print|in-store/i, "2:3"], [/card/i, "5:7"], [/google business/i, "4:3"],
 ];
 
+/** A concrete setting for a business ("cafe" -> "a cosy cafe counter and storefront with coffee cups"). */
+const SETTINGS: [RegExp, string][] = [
+  [/\b(cafe|café|coffee)\b/i, "a cosy cafe counter and storefront with coffee cups"],
+  [/\b(bakery|cake)\b/i, "a bakery counter with fresh bread and cakes"],
+  [/\b(sweet|mithai|halwai)\b/i, "a sweet shop counter with trays of mithai"],
+  [/\b(restaurant|dhaba|food|kitchen|tiffin)\b/i, "a restaurant dining area and counter"],
+  [/\b(boutique|saree|sari|clothing|fashion|kurti)\b/i, "a boutique storefront with festive outfits on display"],
+  [/\b(salon|parlour|parlor|spa)\b/i, "a salon interior"],
+  [/\b(jewel|jewell?ery)\b/i, "a jewellery shop counter"],
+];
+const HOMEISH = /^(home|house|ghar|family|room|living room|balcony|terrace|office|desk|wall|door|friends?)$/i;
+function businessSetting(business: string): string {
+  return SETTINGS.find(([re]) => re.test(business))?.[1] ?? `the storefront of a ${business}`;
+}
+function posterText(festival: string, offer: string): string {
+  return new RegExp(`\\b${festival.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "i").test(offer) ? offer : `${festival} ${offer}`;
+}
+
 /** Visual extras for a festival image prompt (fed to buildVisual). */
 export function festivalVisualExtra(c: FestivalContext, extra: Record<string, string>, goal: string): Record<string, string> {
   const f = c.festival;
   const product = extra.product?.trim();
   const business = extra.business?.trim();
+  const shop = business && !product && !HOMEISH.test(business) ? business : "";
+  const offer = extra.offer?.trim();
+  // With a business, keep the scene in that setting: drop motifs tied to a home setting ("fairy lights on a balcony" -> "fairy lights").
+  const motifs = (shop ? f.theme.motifs.map((m) => m.replace(/\s+(?:on|in|at) (?:a|the) (?:balcony|home|house|courtyard|terrace|doorstep)\b.*$/i, "")) : f.theme.motifs).slice(0, 4);
   const scene = extra.subject?.trim() || [
-    product ? `${product} styled for ${f.name}` : `a ${f.name} scene`,
-    f.theme.motifs.length ? `with ${f.theme.motifs.slice(0, 4).join(", ")}` : "",
-    business && !product ? `for a ${business}` : "",
-  ].filter(Boolean).join(" ");
+    product ? `${product} styled for ${f.name}` : shop ? `${businessSetting(shop)} decorated for ${f.name}` : `a ${f.name} scene`,
+    motifs.length ? `with ${motifs.join(", ")}` : "",
+    business && !product && !shop ? `for a ${business}` : "",
+    offer ? `, a bold poster headline that reads "${posterText(f.name, offer)}"` : "",
+  ].filter(Boolean).join(" ").replace(/ ,/g, ",");
   const platform = extra.platform?.trim() || goal;
   const aspect = extra.aspect?.trim() || PLATFORM_ASPECT.find(([re]) => re.test(platform))?.[1] || "4:5";
   const careAvoid = [
@@ -259,13 +282,14 @@ export function festivalVisualExtra(c: FestivalContext, extra: Record<string, st
     subject: scene,
     style: extra.style?.trim() || (product ? "festive commercial product photography, true-to-life colours" : "warm festive editorial photography, authentic Indian setting, natural colours"),
     lighting: extra.lighting?.trim() || (/diya|lamp|lights|bonfire|lantern|moon/i.test(f.theme.motifs.join(" ")) ? "warm golden glow from lamps, soft bokeh in the background" : "soft natural daylight"),
-    composition: extra.composition?.trim() || "clear focal point, clean empty space in the upper third for adding text later",
+    composition: extra.composition?.trim() || (offer ? "clear focal point, headline in the upper third with clean space around it" : "clear focal point, clean empty space in the upper third for adding text later"),
     aspect,
     // Care items first: Midjourney keeps only the first 6 negatives.
-    avoid: extra.avoid?.trim() || [...careAvoid, "text", "letters", "logos", "watermark", "distorted hands", "misspelled greetings", "extra fingers"].join(", "),
+    avoid: extra.avoid?.trim() || [...careAvoid, ...(offer ? ["extra text", "misspelled words"] : ["text", "letters"]), "logos", "watermark", "distorted hands", ...(offer ? [] : ["misspelled greetings"]), "extra fingers"].join(", "),
   };
 }
 
+export const OFFER_TEXT_NOTE = "Your offer is written into the prompt as the poster headline. AI image tools often misspell text, so check it, or remove the headline and add it afterwards in Canva, Figma or any photo editor.";
 export const IMAGE_TEXT_NOTE = "AI image tools often render text imperfectly, so this prompt asks for no text and leaves space for it. Add your greeting or offer afterwards in Canva, Figma or any photo editor.";
 
 /** A readable goal sentence from the festival builder fields. */
@@ -337,6 +361,8 @@ const PLATFORM_WORDS: [RegExp, string][] = [
   [/\binstagram|\binsta\b|\big\b/i, "Instagram"], [/\bwhats ?app\b/i, "WhatsApp"], [/\bfacebook|\bfb\b/i, "Facebook"], [/\blinked ?in\b/i, "LinkedIn"],
   [/\byoutube|\bshorts\b/i, "YouTube Shorts"], [/\btwitter\b|\btweet\b|\bon x\b/i, "X (Twitter)"], [/\bgoogle business\b/i, "Google Business Profile"], [/\bemail\b/i, "Email"],
 ];
+/** An offer stated in the request ("Diwali offer 20% off", "flat ₹200 off", "buy 1 get 1 free"). Kept verbatim; never invented. */
+const OFFER_RE = /(?:\b[A-Za-z]+\s+)?(?:offer|sale|discount|deal)?\s*(?:flat\s+|upto\s+|up to\s+)?(?:\d{1,3}\s?%|(?:₹|rs\.?\s?)\s?\d[\d,]*)\s*(?:off|discount|chhoot|chhut|cashback)?|\bbuy \d+ get \d+(?: free)?\b/i;
 const RECIPIENT = /\b(mom|mother|maa|mummy|dad|father|papa|parents|sister|brother|bhai|didi|wife|husband|son|daughter|friend|friends|family|grandparents|nani|dadi|in-laws|boss|team|colleagues|clients|customers|teacher)\b/i;
 
 /** Parse a one-line request like "Diwali sale post for my boutique in Mohali, Hinglish, Instagram" into festival builder fields. */
@@ -351,12 +377,16 @@ export function detectFestivalIntent(goal: string): { festival: Festival; goal: 
   const platform = PLATFORM_WORDS.find(([re]) => re.test(t))?.[1];
   if (platform) extra.platform = platform;
   if (g === "social-post" && SALE.test(t)) extra.promo = "1";
-  const forWho = t.match(/\bfor (?:my|our|the) ([a-z][a-z &'-]{1,40}?)(?=\s+(?:in|at|on|from|with)\b|[,.;!?]|$)/i)?.[1]?.trim();
+  // English "for my cafe" or Hinglish "mere cafe ke liye".
+  const forWho = (t.match(/\bfor (?:my|our|the) ([a-z][a-z &'-]{1,40}?)(?=\s+(?:in|at|on|from|with)\b|[,.;!?]|$)/i)?.[1]
+    ?? t.match(/\b(?:mere|meri|mera|hamare|hamari|humare|humari|apne|apni|hamara|apna) ([a-z][a-z &'-]{1,40}?) (?:ke|ki|ka) liye\b/i)?.[1])?.trim();
   if (forWho) {
     if ((g === "greeting" || g === "personal-message") && RECIPIENT.test(forWho)) extra.recipient = forWho;
     else if (g !== "greeting" && g !== "personal-message" && g !== "educational") extra.business = forWho;
     else extra.recipient = forWho;
   }
+  const offer = t.match(OFFER_RE)?.[0]?.trim();
+  if (offer && g !== "greeting" && g !== "personal-message" && g !== "educational") extra.offer = offer;
   const loc = t.match(/\b(?:in|at|from) ([A-Z][a-zA-Z]+(?: [A-Z][a-zA-Z]+)?)\b/)?.[1];
   if (loc && !(FESTIVAL_LANGUAGES as readonly string[]).includes(loc) && !PLATFORM_WORDS.some(([re]) => re.test(loc))) extra.location = loc;
   const lang = FESTIVAL_LANGUAGES.find((l) => l !== "English" && new RegExp(l === "Hinglish" ? "\\bhinglish\\b" : `(?:\\bin ${l}\\b|(?:^|,)\\s*${l}\\s*(?:,|$)|\\b${l} (?:language|mein|me)\\b)`, "i").test(t));

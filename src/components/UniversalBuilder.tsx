@@ -59,7 +59,11 @@ export function UniversalBuilder({ initial = {}, autoGenerate = false }: { initi
   const result = useMemo(() => buildUniversal(input), [input]);
   const vars = useMemo(() => ((panel === "variations" || alt > 0) && generated ? variations(input) : []), [panel, alt, generated, input]);
   const reasons = useMemo(() => (panel === "explain" ? explainPrompt(result) : []), [panel, result]);
-  const selectedCat = getCategory(input.categoryId);
+  // After auto-detect, show the detected category and task type in the selects so they can be seen and changed.
+  const auto = !input.categoryId && !input.subcategoryId && result.source === "detected" && !result.festival;
+  const shownCatId = input.categoryId ?? (input.subcategoryId || auto ? result.category?.id : undefined);
+  const shownSubId = input.subcategoryId ?? (auto || input.categoryId ? (result.sub?.id ?? "") : "");
+  const selectedCat = getCategory(shownCatId);
   const subOptions = selectedCat?.subcategories ?? [];
   const visualFields: FieldDef[] = result.kind === "image" ? COMMON_IMAGE_FIELDS.filter((f) => f.key !== "subject") : result.kind === "video" ? COMMON_VIDEO_FIELDS.filter((f) => f.key !== "subject") : [];
   const subFields = result.kind === "text" ? result.sub?.fields ?? [] : [];
@@ -134,14 +138,14 @@ export function UniversalBuilder({ initial = {}, autoGenerate = false }: { initi
           <div className="mt-5 grid gap-3 sm:grid-cols-2">
             <div>
               <label className="label" htmlFor="cat">3. Category</label>
-              <select id="cat" className="input" value={input.categoryId ?? ""} onChange={(e) => set({ categoryId: e.target.value || undefined, subcategoryId: undefined })}>
+              <select id="cat" className="input" value={shownCatId ?? ""} onChange={(e) => set({ categoryId: e.target.value || undefined, subcategoryId: undefined })}>
                 <option value="">Auto-detect from my goal</option>
                 {CATEGORIES.map((c) => <option key={c.id} value={c.id}>{c.icon} {c.name}</option>)}
               </select>
             </div>
             <div>
               <label className="label" htmlFor="sub">Task type</label>
-              <select id="sub" className="input" value={input.subcategoryId ?? ""} onChange={(e) => set({ subcategoryId: e.target.value || undefined })} disabled={!selectedCat}>
+              <select id="sub" className="input" value={shownSubId} onChange={(e) => set({ categoryId: shownCatId, subcategoryId: e.target.value || undefined })} disabled={!selectedCat}>
                 <option value="">{selectedCat ? "Auto-detect" : "Pick a category first"}</option>
                 {subOptions.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
               </select>

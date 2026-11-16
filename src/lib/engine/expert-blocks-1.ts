@@ -105,6 +105,27 @@ export const BLOCKS_1: Record<string, ExpertBlock> = {
     checks: ["The first paragraph answers the question", "No section is generic filler", "Length is within ±10% of the target"],
   },
 
+  newsletter: {
+    role: "small-business email marketer who writes short newsletters and customer updates that people open, read on a phone and act on",
+    success: "I get a ready-to-send email with a subject line, preview text and one clear call to action, using only the details I gave and [placeholders] for the rest.",
+    slots: [
+      { key: "recipient", label: "Readers", question: "Who gets this email (existing customers, past clients, members)?", assume: "my existing customers, who already know the business" },
+      { key: "context", label: "Key news / facts", question: "What's the news, and which facts (dates, prices, details) must be included?", assume: "use [placeholders] for any date, price or product detail I haven't given; never invent them" },
+      { key: "cta", label: "Call to action", question: "What's the one thing readers should do next?", assume: "one simple next step, such as replying, visiting or ordering", detect: /\b(call to action|cta|book|order|pre-?order|reply|visit|sign up|register|reserve|call us|drop by)\b/i },
+      { key: "length", label: "Length", question: "How long should it be?", assume: "150–250 words, readable in under a minute" },
+    ],
+    steps: [
+      "Pick the one piece of news the readers care about most and lead with it",
+      "Write 3 subject lines (under 50 characters) and one preview text (under 90 characters) that adds to the subject instead of repeating it",
+      "Write the body: a friendly first line, the news using only the details I gave, and why it matters to the reader",
+      "Wherever a specific is needed that I didn't give (date, price, ingredient, process detail, quote), write a [placeholder] instead of making it up",
+      "End with exactly one call to action as a single line or button text",
+    ],
+    constraints: ["Exactly one call to action", "Never invent product details, prices, dates, numbers, process facts (e.g. fermentation time, ingredients), quotes or testimonials; use [placeholders]", "Warm, plain language for existing customers; no SEO keywords, meta descriptions or blog headings"],
+    output: ["**Subject line** (+2 alternatives)", "**Preview text** (under 90 characters)", "**Email body** (plain text, short paragraphs)", "**Call to action** (one line or button text)"],
+    checks: ["Only one call to action", "Every fact comes from my input or is a [placeholder]", "Readable in under a minute on a phone"],
+  },
+
   "startup-validation": {
     role: "lean startup coach who has run hundreds of customer-discovery interviews and cheap validation experiments, and who cares about evidence (pre-orders, deposits, repeat use) over opinions",
     success: "Within two weeks and a small budget, I'll know whether real customers want this, based on pass/fail criteria I set before running each test.",
