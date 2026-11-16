@@ -7,7 +7,7 @@ import { CATEGORIES, GUARDRAILS, getCategory, findSubcategory, type Category, ty
 import { buildVisual } from "./visual";
 import { expertFor, GENERIC_BLOCK, type ExpertBlock, type Slot } from "./expert";
 import { getTarget, TARGETS } from "./targets";
-import { detectFestivalIntent, festivalBlock, festivalContextFor, festivalContextLines, festivalGoalCategory, festivalGoalLabel, festivalVisualExtra, languageRules, FESTIVAL_FIELDS, IMAGE_TEXT_NOTE, type FestivalContext } from "./festival";
+import { detectFestivalIntent, festivalBlock, festivalContextFor, festivalContextLines, festivalGoalCategory, festivalGoalLabel, festivalVisualExtra, languageRules, FESTIVAL_FIELDS, IMAGE_TEXT_NOTE, OFFER_TEXT_NOTE, type FestivalContext } from "./festival";
 import type { CheckResult, FieldDef, Mode, Section, Target } from "./types";
 
 export const TONES = ["", "friendly", "professional", "casual", "persuasive", "encouraging", "formal", "playful", "direct", "empathetic", "academic"] as const;
@@ -136,6 +136,8 @@ export const PHRASE_ROUTES: [RegExp, string][] = [
   [/\bwhatsapp\b.*\b(message|broadcast|offer)|\b(offer|sale)\b.*\bwhatsapp\b/, "sales-scripts"],
   [/\bproposal\b.*\b(client|project|freelanc\w*)\b|\b(client|freelanc\w*)\b.*\bproposal\b/, "freelancing"],
   [/\bcold (email|pitch)\b/, "email"],
+  // Newsletters and updates sent to a group of customers/clients (not an SEO article, not a one-to-one email).
+  [/^(?![\s\S]*\b(blog|seo|article)\b)[\s\S]*\bnewsletters?\b|\b(update|e-?mail|mailer|mail)s?\b.*\b(customers|clients|subscribers|members|patrons|regulars)\b|\b(customers|clients|subscribers|members)\b.*\b(update|mailer)s?\b/, "newsletter"],
   [/\b(rate|rates)\b.*\b(kam|lower|negotiat\w*)\b/, "freelancing"],
   [/\bpayment reminder\b|\bpayment nahi\b/, "workplace-comms"],
   [/\b(upwork|fiverr)\b.*\bbio\b|\bportfolio bio\b/, "personal-brand"],
@@ -224,21 +226,60 @@ function slotValue(input: UniversalInput, key: string | undefined): string {
 
 export interface SlotState { slot: Slot; value: string; detected: boolean }
 
+/** Details the user already stated in the goal itself ("for our 40 past clients", "under 250 words", "warm but professional"). */
+export interface StatedDetails { audience?: string; length?: string; format?: string; tone?: string }
+
+const AUDIENCE_NOUN = "customers|clients|subscribers|members|patrons|regulars|students|parents|followers|readers|users|patients|employees|colleagues|team|manager|boss|teacher|professor|recruiters?|landlord|investors|donors|volunteers|neighbours|neighbors|guests|audience|kids|children|beginners";
+const AUDIENCE_RE = new RegExp(`\\b(?:for|to)\\s+((?:(?:all|our|my|the|a|an|existing|past|current|new|regular|loyal|local|\\d[\\d,]*)\\s+){0,4}(?:[a-z-]+\\s+){0,2}(?:${AUDIENCE_NOUN}))\\b`, "i");
+const LENGTH_RE = /\b((?:under|within|max(?:imum)?|about|around|roughly|approx(?:imately)?|less than|fewer than|up to|no more than|at most)?\s*\d[\d,]*(?:\s*[-–]\s*\d[\d,]*)?\s*(?:words?|characters?|chars|lines?|sentences?|paragraphs?|pages?|slides?|bullets?|bullet points|points|minutes?|mins?|seconds?|secs?))\b/i;
+const FORMAT_RE = /\b(plain text|bullet points?|bulleted list|numbered list|a table|in a table|checklist|json|markdown|one paragraph|short paragraphs?|step[- ]by[- ]step)\b/i;
+const TONE_RE = /\b((?:(?:warm|friendly|professional|formal|casual|playful|polite|persuasive|funny|serious|confident|empathetic|respectful|upbeat|light-hearted)(?:\s+(?:but|and|yet)\s+|,\s*)?){1,3})\b/i;
+
+export function statedDetails(goal: string): StatedDetails {
+  const g = cleanText(goal, 1500);
+  const out: StatedDetails = {};
+  const aud = g.match(AUDIENCE_RE)?.[1]?.trim();
+  if (aud) out.audience = aud;
+  const len = g.match(LENGTH_RE)?.[1]?.trim();
+  if (len) out.length = len;
+  const fmt = g.match(FORMAT_RE)?.[1]?.trim();
+  if (fmt) out.format = fmt;
+  const tone = g.match(TONE_RE)?.[1]?.trim().replace(/[\s,]+(but|and|yet)?$/i, "");
+  if (tone) out.tone = tone;
+  return out;
+}
+
+const AUDIENCE_KEYS = new Set(["audience", "recipient"]);
+/** The stated detail that covers a slot, if any (audience/recipient, length, format, tone). */
+function statedFor(slot: Slot, st: StatedDetails): string {
+  const k = slot.key ?? "";
+  if (AUDIENCE_KEYS.has(k)) return st.audience ?? "";
+  if (k === "length") return st.length ?? "";
+  if (k === "format") return [st.format, st.length].filter(Boolean).join(", ");
+  if (k === "tone") return st.tone ?? "";
+  return "";
+}
+
 /** Which of the task's key details the user gave (in fields or in the goal itself) and which are missing. */
 export function slotStates(input: UniversalInput, block: ExpertBlock): SlotState[] {
   const goal = cleanText(input.goal, 1500);
+  const st = statedDetails(goal);
   return block.slots.map((slot) => {
     const value = slotValue(input, slot.key);
-    return { slot, value, detected: !value && !!slot.detect?.test(goal) };
+    return { slot, value, detected: !value && (!!slot.detect?.test(goal) || !!statedFor(slot, st)) };
   });
 }
 
 export function missingContext(input: UniversalInput, sub: Subcategory | null, cat: Category | null = sub ? findSubcategory(sub.id)?.category ?? null : null, blockOverride?: ExpertBlock): MissingItem[] {
   const block = blockOverride ?? expertFor(cat, sub) ?? GENERIC_BLOCK;
   const out: MissingItem[] = slotStates(input, block).filter((x) => !x.value && !x.detected).map((x) => ({ key: x.slot.key ?? x.slot.label, label: x.slot.label, question: x.slot.question }));
-  if (!cleanText(input.format) && !out.some((m) => m.key === "format")) out.push({ key: "format", label: "Output format", question: "What format and length do you want?" });
+  const st = statedDetails(input.goal);
+  if (!cleanText(input.format) && !st.format && !st.length && !out.some((m) => m.key === "format")) out.push({ key: "format", label: "Output format", question: "What format and length do you want?" });
   return out;
 }
+
+/** Template lines that set their own word count ("Under 150 words", "about 1,200 words"). */
+const WORD_LIMIT_RE = /\b(under|about|around|within|max(imum)?)\s*\d[\d,–-]*\s*words\b/i;
 
 const shortRole = (role: string) => role.split(/,? who |\. |, known for /)[0] ?? role;
 
@@ -257,11 +298,14 @@ function textSections(input: UniversalInput, target: Target, cat: Category | nul
 
   // Context: the user's actual details.
   const states = slotStates(input, block);
+  const stated = statedDetails(goal);
   const ctx: string[] = fest ? festivalContextLines(fest) : [];
   const used = new Set<string>();
   for (const st of states) {
     if (st.slot.key) used.add(st.slot.key);
+    const said = st.value ? "" : statedFor(st.slot, stated);
     if (st.value) ctx.push(st.value.includes("\n") ? `${st.slot.label}:\n${st.value}` : `${st.slot.label}: ${st.value}`);
+    else if (said) ctx.push(`${st.slot.label} (as I said): ${said}`);
     else if (fill && !st.detected) ctx.push(`${st.slot.label}: [${st.slot.label.toLowerCase()}]`);
   }
   for (const f of fieldsForSub(sub)) {
@@ -321,11 +365,16 @@ function textSections(input: UniversalInput, target: Target, cat: Category | nul
   if (lang && lang !== "English") user.push(`Respond in ${lang}`, ...languageRules(lang));
   user.push(...lines(cleanText(input.constraints, 2000)));
   const guard = fest ? fest.festival.care : sub?.sensitive ? GUARDRAILS[sub.sensitive] : [];
+  // A length I stated wins over the template's default word limit (e.g. "under 250 words" vs "Under 150 words").
+  const statedLength = cleanText(input.format, 300) ? "" : stated.length ?? "";
+  const lengthClash = (l: string) => !!statedLength && WORD_LIMIT_RE.test(l);
+  if (statedLength) user.push(`Length: ${statedLength}, as I asked`);
+  const blockConstraints = block.constraints.filter((l) => !lengthClash(l));
   let constraints = concise
-    ? [...user, ...block.constraints.slice(0, 1), ...guard, ...platformRules(target, cat)]
-    : [...user, ...block.constraints, ...guard, ...platformRules(target, cat),
-      "No filler: skip intros, restating my request and closing summaries",
-      "Don't invent facts, statistics, quotes, sources or details about me; flag anything I should verify"];
+    ? [...user, ...blockConstraints.slice(0, 1), ...guard, ...platformRules(target, cat)]
+    : ["Don't invent facts, statistics, quotes, sources or details about me; use [placeholders] for anything I didn't give and flag anything I should verify",
+      ...user, ...blockConstraints, ...guard, ...platformRules(target, cat),
+      "No filler: skip intros, restating my request and closing summaries"];
   constraints = uniq(constraints);
   if (constraints.length) s.push({ id: "constraints", title: "Constraints", lines: constraints, list: true });
 
@@ -339,7 +388,7 @@ function textSections(input: UniversalInput, target: Target, cat: Category | nul
   if (example && !concise) s.push({ id: "example", title: "Example / reference", lines: [example] });
 
   // Task-specific self-check.
-  if (!concise) s.push({ id: "quality_checks", title: "Before you answer, check", list: true, lines: uniq([...block.checks, ...(user.length ? ["Every constraint I gave is followed"] : [])]) });
+  if (!concise) s.push({ id: "quality_checks", title: "Before you answer, check", list: true, lines: uniq([...block.checks.filter((l) => !lengthClash(l)), ...(user.length ? ["Every constraint I gave is followed"] : [])]) });
   return s;
 }
 
@@ -449,7 +498,7 @@ export function buildUniversal(rawInput: UniversalInput): UniversalResult {
     text = r.text;
     sections = r.sections;
     if (target.family !== kind) warnings.push(`This looks like a${kind === "image" ? "n image" : " video"} task, so the prompt is a visual description you can paste into ${target.name} or any ${kind} tool. Whether ${target.name} can create ${kind}s depends on your plan and the tool.`);
-    if (fest) warnings.push(IMAGE_TEXT_NOTE);
+    if (fest) warnings.push(cleanText(input.extra?.offer) && !cleanText(input.extra?.subject) ? OFFER_TEXT_NOTE : IMAGE_TEXT_NOTE);
     if (target.family === "image" && sub && !sub.visual) warnings.push(`${target.name} is an image tool, so your goal was turned into an image description.`);
   } else {
     sections = textSections(input, target, category, sub, fest);

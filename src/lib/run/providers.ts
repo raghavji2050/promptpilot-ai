@@ -11,7 +11,15 @@ export class RunProviderError extends Error {
   constructor(public status: number, public retryable: boolean, message: string) { super(message); }
 }
 
-const SYSTEM = "You are a helpful assistant. Carry out the user's prompt directly and completely. Do not mention that you are an AI unless asked.";
+/**
+ * System instructions for free text runs. The no-invention rule comes first: small free models otherwise fill gaps with
+ * made-up specifics ("nurtured for 14 days", "75% hydration") that a user might publish as true.
+ */
+export const SYSTEM = [
+  "Rule 1, above everything else: never invent facts. Do not make up numbers, measurements, percentages, dates, prices, ingredients, processes, names, quotes, testimonials, statistics or sources, or any detail about the user or their business that is not in their prompt.",
+  "When a specific detail is needed and the prompt doesn't give it, write a clearly marked placeholder such as [detail], [price] or [date] instead. If the request is too vague to do well, ask up to 3 short questions first instead of guessing.",
+  "Within that rule, you are a helpful assistant: carry out the user's prompt directly and completely. Do not mention that you are an AI unless asked.",
+].join("\n");
 const TEXT_TIMEOUT = 25_000;
 const IMAGE_TIMEOUT = 30_000;
 
@@ -46,7 +54,7 @@ export function groq(env: Env = process.env): TextProvider | null {
       const res = await call(f, "https://api.groq.com/openai/v1/chat/completions", {
         method: "POST",
         headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ model, max_tokens: maxTokens(env), temperature: 0.7, messages: [{ role: "system", content: SYSTEM }, { role: "user", content: prompt }] }),
+        body: JSON.stringify({ model, max_tokens: maxTokens(env), temperature: 0.4, messages: [{ role: "system", content: SYSTEM }, { role: "user", content: prompt }] }),
       }, Math.min(TEXT_TIMEOUT, timeoutMs ?? TEXT_TIMEOUT));
       const j = await res.json().catch(() => null);
       return nonEmpty(j?.choices?.[0]?.message?.content);
