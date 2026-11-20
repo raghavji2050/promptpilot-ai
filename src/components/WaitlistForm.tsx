@@ -4,12 +4,18 @@ import "@/lib/zod-config";
 import { z } from "zod";
 import { getSupabase } from "@/lib/supabase";
 
+export const PAY_INTENTS = ["yes", "maybe", "no"] as const;
+export type PayIntent = (typeof PAY_INTENTS)[number];
+/** Stored in the existing `source` column (<=40 chars) so no DB migration is needed. */
+export function waitlistSource(pay: PayIntent | ""): string { return pay ? `pricing|pay:${pay}` : "pricing"; }
+
 const schema = z.object({ email: z.email().max(254), consent: z.literal(true) });
 
 /** Pro waitlist: email + explicit consent. Insert-only table (supabase/pro-waitlist.sql). No payment. */
 export function WaitlistForm() {
   const [email, setEmail] = useState("");
   const [consent, setConsent] = useState(false);
+  const [pay, setPay] = useState<PayIntent | "">("");
   const [hp, setHp] = useState("");
   const [state, setState] = useState<"idle" | "busy" | "done" | "error">("idle");
   const [msg, setMsg] = useState("");
@@ -22,7 +28,7 @@ export function WaitlistForm() {
     const sb = getSupabase();
     if (!sb) { setState("error"); setMsg("The waitlist isn't available on this deployment yet."); return; }
     setState("busy");
-    const { error } = await sb.from("pro_waitlist").insert({ email: parsed.data.email.toLowerCase(), consent: true, source: "pricing" });
+    const { error } = await sb.from("pro_waitlist").insert({ email: parsed.data.email.toLowerCase(), consent: true, source: waitlistSource(pay) });
     if (error && error.code !== "23505") { setState("error"); setMsg("Couldn't join right now. Please try again later."); return; }
     setState("done");
   }
@@ -36,6 +42,14 @@ export function WaitlistForm() {
         <button type="submit" className="btn-primary" disabled={state === "busy"}>{state === "busy" ? "Joining…" : "Join waitlist"}</button>
       </div>
       <div className="hidden" aria-hidden="true"><label htmlFor="wl-company">Company</label><input id="wl-company" tabIndex={-1} autoComplete="off" value={hp} onChange={(e) => setHp(e.target.value)} /></div>
+      <fieldset className="text-sm">
+        <legend className="label">Would you pay ₹99/month for Pro? (optional; ₹99 is just our guess, nothing is charged)</legend>
+        <div className="mt-1 flex gap-4">
+          {PAY_INTENTS.map((o) => (
+            <label key={o} className="flex items-center gap-1.5"><input type="radio" name="wl-pay" value={o} checked={pay === o} onChange={() => setPay(o)} />{o.charAt(0).toUpperCase() + o.slice(1)}</label>
+          ))}
+        </div>
+      </fieldset>
       <label className="flex items-start gap-2 text-xs text-muted">
         <input type="checkbox" className="mt-0.5" checked={consent} onChange={(e) => setConsent(e.target.checked)} />
         <span>I agree that PromptPilot AI may store my email to tell me about the Pro launch. No spam, no sharing; ask us to delete it any time (see <a className="link" href="/privacy#dpdp">Privacy</a>).</span>

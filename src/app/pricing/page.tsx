@@ -18,18 +18,17 @@ const FREE = [
   "Run free on the builder with a small daily limit (rolling out)",
 ];
 const PLANNED = [
-  "More daily Runs for text and images",
-  "Saved prompt history and collections",
-  "Premium prompt packs",
-  "Bulk prompt generation",
+  "Higher daily \"Run free\" limit",
+  "Saved prompt folders",
+  "Priority on new templates",
 ];
 
 export default function PricingPage() {
   return (
     <div className="mx-auto max-w-5xl px-4 py-10">
       <h1 className="h1">Free now. Pro coming soon.</h1>
-      <p className="lead">Everything on PromptPilot is free today, with no sign-up. We&apos;re making the free tools genuinely useful before adding a paid plan.</p>
-      <p className="mt-3 text-base text-slate-600">Free to use today. Want Pro later? <Link href="#waitlist" className="font-medium text-indigo-700 underline">Join the waitlist</Link>.</p>
+      <p className="lead">Free today, no sign-up. Turn a rough idea into a clear prompt for ChatGPT, Claude, Gemini, Grok, image and video tools. Write in English, Hindi or Hinglish.</p>
+      <p className="mt-3 text-base text-slate-600">Pro is coming. Tell us what you&apos;d pay for and you&apos;ll get first access. <Link href="#waitlist" className="font-medium text-indigo-700 underline">Join the waitlist</Link>.</p>
       <div className="mt-10 grid gap-6 md:grid-cols-2">
         <div className="card p-6 ring-2 ring-indigo-600">
           <h2 className="text-xl font-semibold text-slate-900">Free</h2>
@@ -38,9 +37,9 @@ export default function PricingPage() {
           <Link href="/builder" className="btn-primary mt-6 w-full">Start building</Link>
         </div>
         <div className="card p-6">
-          <span className="rounded-full bg-slate-100 px-3 py-0.5 text-xs font-medium text-slate-700">Coming soon</span>
+          <span className="rounded-full bg-slate-100 px-3 py-0.5 text-xs font-medium text-slate-700">Planned, not built yet</span>
           <h2 className="mt-3 text-xl font-semibold text-slate-900">Pro</h2>
-          <p className="mt-2 text-sm text-slate-600">What we plan to include. Not available yet, no price set, and the list may change based on what users need.</p>
+          <p className="mt-2 text-sm text-slate-600">Planned for Pro: higher daily &quot;Run free&quot; limit, saved prompt folders, priority on new templates. <strong>Planned, not built yet.</strong> Join the waitlist to vote.</p>
           <ul className="mt-5 space-y-2 text-sm text-slate-700">{PLANNED.map((f) => <li key={f}>○ {f}</li>)}</ul>
           <p className="mt-6 rounded-lg bg-slate-50 p-3 text-sm text-slate-600">There is no way to pay today, and nothing on the site charges you.</p>
           <div id="waitlist">
