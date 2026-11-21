@@ -8,7 +8,7 @@ export const SITE = {
       : "https://promptpilot-ai-psi.vercel.app")
   ).replace(/\/+$/, ""),
   description:
-    "Free AI prompt builder for everyone. Describe what you want in plain words and get a clear, structured prompt for ChatGPT, Claude, Gemini, Grok, Perplexity, image and video tools. No sign-up or API key needed.",
+    "Free AI prompt builder. Describe your idea in plain words and get a clear, structured prompt for ChatGPT, Claude, Gemini, Grok and more. No sign-up needed.",
   /** Content last reviewed date (static so pages stay prerenderable). */
   lastReviewed: "2026-11-09",
 };
