@@ -6,8 +6,8 @@ import { getCategory } from "@/lib/categories";
 import { cardUrl } from "@/lib/share";
 import { pageMeta } from "@/lib/seo";
 
-const TITLE = "Free AI Prompt Builder for ChatGPT, Claude, Gemini, Grok & More";
-const DESCRIPTION = "Describe your goal in plain language and get a clear, structured prompt for ChatGPT, Claude, Gemini, Grok, Perplexity, image and video tools. Free, no sign-up, no API key.";
+const TITLE = "Free AI Prompt Builder for ChatGPT & Claude";
+const DESCRIPTION = "Describe your goal in plain words and get a structured prompt for ChatGPT, Claude, Gemini, Grok, image and video tools. Free, no sign-up, no API key.";
 
 type SP = Record<string, string | string[] | undefined>;
 
